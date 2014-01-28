@@ -330,8 +330,8 @@ var _app = {
 
 		__init: function(){
 			console.log("Loading resources...");
-			this.mainMenuBackground = new Image(); this.mainMenuBackground.src = "http://localhost:8888/tapthatshade/App/img/BG.png";
-			this.gameScreenBackground = new Image(); this.gameScreenBackground.src = "http://localhost:8888/tapthatshade/App/img/gameBG.png";
+			this.mainMenuBackground = new Image(); this.mainMenuBackground.src = "img/BG.png";
+			this.gameScreenBackground = new Image(); this.gameScreenBackground.src = "img/gameBG.png";
 
 		},
 
