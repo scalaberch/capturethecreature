@@ -446,12 +446,16 @@ var _app = {
 				count++;
 
 
-				gridElement.on('touchstart', function(){
+				gridElement.on('touchstart', function(evt){
 					console.log("mousedown a grid elem");
+
+					var object = evt.targetNode;
+					object.setFill('red'); object.draw();
 				}).on('touchend', function(evt){
 					console.log("mouseup a grid elem");
 
 					var object = evt.targetNode;
+					object.setFill('blue'); object.draw();
 					console.log(object.id());
 				});
 
@@ -604,7 +608,7 @@ window.onload = function(){
 	console.log("Starting application...!");
 	// Start! :)
 	_app.__init__();
-	_animation.slideMainMenuUp();
+	//_animation.slideMainMenuUp();
 }
 
 
