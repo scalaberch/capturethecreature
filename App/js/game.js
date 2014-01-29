@@ -17,17 +17,12 @@ var _gamePlay = {
 	playerStats: {
 		allowableClicks:3,
 		initPlayerStats: function(){
-
+			// This will get to the cordova data...
 		}
 	},
 
 	startPlaying: function(){ this.isPlaying = true;  },
 	stopPlaying : function(){ this.isPlaying = false; },
-
-	addToMyGuess: function(){
-		
-	},
-
 
 	//TODO: This is the temporary action... Final action is on button click...
 	// Starting on this
@@ -56,6 +51,9 @@ var _gamePlay = {
 		} while(i==except);
 		return i;
 	},
+
+	// Guess controllers. These puts in on the current guess of the player...
+	//	Handlers are didto sa pag touch
 
 	// Appending and removing to my guess
 	addToGuess: function(guess){
@@ -436,7 +434,7 @@ var _app = {
 
 		// Grid Dimensions...
 		var dimension = { w:4, h:5 }; var count = 0;
-		var params = { width:clickableGrid.width() / dimension.w, height:clickableGrid.height() / dimension.h, x:0, y:0, fill:"blue", stroke:"red" };
+		var params = { width:clickableGrid.width() / dimension.w, height:clickableGrid.height() / dimension.h, x:0, y:0};
 		for(var h=0; h<dimension.h; h++){
 			params.x = 0;
 
@@ -444,6 +442,11 @@ var _app = {
 				gridElement = new Kinetic.Rect(params);
 				gridElement.id(count); //Map the index...
 				count++;
+
+				// Some UI tweak
+				gridElement.stroke('rgba(0,255,0,0.2');
+				gridElement.fill('rgba(0,255,0,0.3');
+
 
 
 				gridElement.on('touchstart', function(evt){
@@ -457,6 +460,24 @@ var _app = {
 					var object = evt.targetNode;
 					object.setFill('blue'); object.draw();
 					console.log(object.id());
+
+
+					if (_gamePlay.myGuess.indexOf(object.id()) == -1){ //Wala pa sa array
+						// Add them...
+						_gamePlay.addToGuess(object.id());
+
+						// If 3 na kabuok ang elements
+						if (_gamePlay.myGuess.length == _gamePlay.playerStats.allowableClicks){
+							// Execute sa function ni noodles...
+
+							console.log(_gamePlay.myGuess);
+							_gamePlay.myGuess = [];
+						}		
+
+					} else {
+						// Animate out it...
+					}
+
 				});
 
 
