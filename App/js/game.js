@@ -29,7 +29,7 @@ var _gamePlay = {
 	
 	startGame: function(){
 	// this.gameTimer.start(); <-- 
-	_board.shuffleBoard(_gamePlay.getRandomCharacter(0), this.level); // level depends on the players level // -1 is used since 
+		_board.shuffleBoard(_gamePlay.getRandomCharacter(0), this.level); // level depends on the players level // -1 is used since 
 	},
 
 
@@ -425,15 +425,25 @@ var _app = {
 	        image: this.resources.gameScreenBackground, width: page.width(), height:page.height()
 		}); page.add(bg);
 
-		// Then put the layers...
+		// Then put the character placement grid...
+		var characterGrid = this.initCharacterGrid(w, h, { w:4, h:5 });
 
+		// Then put the clickable grid...
+		var clickableGrid = this.initClickableGrid(w, h, { w:4, h:5 });
+		//page.add(clickableGrid);
+		page.add(characterGrid);
 
+		return page;
+	},
+
+	// Method: initialize game screen: clickable grid...
+	initClickableGrid: function(w, h, dimension){
 		// Put the clickable grid...
 		var clickableGrid = new Kinetic.Group({ width:w*0.8, height:h*0.8, x:w*0.1, y:h*0.1 });
 		var gridElement = null;
 
 		// Grid Dimensions...
-		var dimension = { w:4, h:5 }; var count = 0;
+		var count = 0;
 		var params = { width:clickableGrid.width() / dimension.w, height:clickableGrid.height() / dimension.h, x:0, y:0};
 		for(var h=0; h<dimension.h; h++){
 			params.x = 0;
@@ -447,13 +457,13 @@ var _app = {
 				gridElement.stroke('rgba(0,255,0,0.2');
 				gridElement.fill('rgba(0,255,0,0.3');
 
-
-
 				gridElement.on('touchstart', function(evt){
 					console.log("mousedown a grid elem");
 
 					var object = evt.targetNode;
-					object.setFill('red'); object.draw();
+					//object.setFill('red'); object.draw();
+
+					// INSERT ANIMATION ON CLICK GRID HERE...
 				}).on('touchend', function(evt){
 					console.log("mouseup a grid elem");
 
@@ -488,13 +498,60 @@ var _app = {
 			params.y += params.height;
 		}
 
+		return clickableGrid;
+	},
+
+	// Method: initialize the grid for character placement...
+	initCharacterGrid: function(w, h, dimension){
+		var characterGrid = new Kinetic.Group({ width:w*0.8, height:h*0.8, x:w*0.1, y:h*0.1 });
+		var gridElement = null;
+
+		var params = { width:characterGrid.width() / dimension.w, height:characterGrid.height() / dimension.h, x:0, y:0};
+
+		//TEMPORARY LAYOUT
+		var text, box;
 
 
-		page.add(clickableGrid);
+		for(var h=0; h<dimension.h; h++){
+			params.x = 0;
 
-		return page;
+			for(var w=0; w<dimension.w; w++){
+				//gridElement = new Kinetic.Rect(params);
+				
+				// TEMPORARY LAYOUT:
+				gridElement = new Kinetic.Group(params);
+				box = new Kinetic.Rect({ width:characterGrid.width() / dimension.w, height:characterGrid.height() / dimension.h });
+				text = new Kinetic.Text({ text:'0', fontSize: 30, fontFamily: 'Calibri', fill: 'black', name:'CHARACTER_GRID_TXT' });
+				
+				box.stroke("black");
+				gridElement.add(box);
+				gridElement.add(text);
+
+				characterGrid.add(gridElement);
+				params.x += params.width;
+			}
+
+			params.y += params.height;
+		}
+
+		return characterGrid;
+	},
+
+	// Method: updates the character grid by the board generated...
+	// 	@board: is an array of integers. 
+	//
+	// 	Temporary Fix: The contents were just text only...
+	updateCharacterGrid: function(board){
+		var items = this.screens[0].find('.CHARACTER_GRID_TXT'); //this.screens[0]
+		for(var i=0; i<items.length; i++){
+			items[i].text(board[i]);
+			items[i].fill("red");
+
+			items[i].getParent().draw();
+
+			console.log(items[i].text());
+		}
 	}
-
 
 }
 
