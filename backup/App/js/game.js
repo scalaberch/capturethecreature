@@ -24,23 +24,10 @@ var _gamePlay = {
 	startPlaying: function(){ this.isPlaying = true;  },
 	stopPlaying : function(){ this.isPlaying = false; },
 
-	// OnClick on the Start Game will execute this one!
-	startGame: function(e){
-		var gameLayer 		= e.targetNode.getParent().getParent(),
-			gameTimerObj 	= gameLayer.find("#GAME_TIMER_TXT")[0];
-
-
-		// Do the delay of 3 seconds...
-		setTimeout(function(){
-
-			// Start the timer and its animation/s...
-			_gamePlay.gameTimer.start(gameTimerObj, gameLayer);
-
-
-		}, 3000);
-
-
-
+	//TODO: This is the temporary action... Final action is on button click...
+	// Starting on this
+	
+	startGame: function(){
 	// this.gameTimer.start(); <-- 
 		_board.shuffleBoard(_gamePlay.getRandomCharacter(0), this.level); // level depends on the players level // -1 is used since 
 	},
@@ -103,10 +90,10 @@ var _gamePlay = {
 	gameTimer: {
 
 		time: 121, timer: null,
-		start: function(t, l){
+		start: function(){
 			// Manually starting the timer...
 			this.timer = setInterval(function(){
-				_gamePlay.gameTimer.tiktok(t, l);
+				_gamePlay.gameTimer.tiktok()
 			}, 1000);
 		},
 		stop: function(){
@@ -116,25 +103,19 @@ var _gamePlay = {
 				this.timer = null;
 			}	
 		},
-		tiktok: function(txt, lyer){
+		tiktok: function(){
 			this.time--;
 
-			this.updateToGUI(this.showInFormat(this.time), txt, lyer);
+			console.log("Time remaining: "+this.showInFormat(this.time)+" seconds");
 			if (this.time == 0){
 				this.stop();
 			}
 		},
 		showInFormat: function(seconds){
 			var result = Math.floor(seconds/60) + ":";
-			if (seconds % 60 < 10){ result += "0"; }
+			if (seconds % 60 == 0){ result += "0"; }
 
 			return result + (seconds%60) + "";
-		},
-		updateToGUI: function(time, text, layer){
-			console.log("Time remaining: "+this.showInFormat(this.time)+" seconds");
-
-			text.text(time); layer.draw();
-			_animation.updateTimerBar(layer);
 		}
 
 	}
@@ -376,6 +357,7 @@ var _app = {
 		console.log(_width + " x " + _height);
 
 
+
 		// Load the main layer
 		var mainLayer = this.initMainGameLayer(_width, _height);
 
@@ -413,44 +395,18 @@ var _app = {
 		}); page.add(bg);
 
 			// Add the button...
-		var startGameButton = new Kinetic.Rect({ 	
-								width:page.width()*0.6, 
-								height:page.width()*0.1, 
-								x:page.width()*0.2, 
-								y:page.height()*0.7,
-								fill:"#68b646", 
-								cornerRadius: page.width()*0.03,
-								stroke:"#c3da42",
-
-								fillLinearGradientStartPoint: {x:-50, y:-50},
-								fillLinearGradientEndPoint: {x:50,y:50},
-								fillLinearGradientColorStops: [0, 'red', 300, 'yellow']  
-							});
+		var startGameButton = new Kinetic.Rect({ 	width:page.width()*0.6, 
+													height:20, 
+													x:page.width()*0.2, 
+													y:page.height()*0.1,
+													fill:"green"  });
 
 			// Add the animation...
-		startGameButton.on('touchstart', function(evt){
-			var obj = evt.targetNode;
-			obj.fill('#c3da42'); 
-
-			// Enlarge it!
-			//var btn = _animation.enlargeButton(obj);
-
-			obj.draw();
-
-		}).on('touchend', function(evt){
-
-			var obj = evt.targetNode;
-			obj.fill('#68b646'); 
-
-			//Return to normal size...
-			//var btn = _animation.shrinkButton(obj);
-			//Redraw the background image/s
-			//obj.parent.children[0].draw();
-			//console.log(obj.parent.children[0]);
-
-			obj.draw();
+		startGameButton.on('touchstart', function(){
+			
+		}).on('touchend', function(){
+			//_animation.slideMainMenuUp.start();
 			_animation.slideMainMenuUp();
-			_gamePlay.startGame(evt);
 		});
 
 		// Add to mainMenuPage
@@ -468,23 +424,6 @@ var _app = {
 		var bg = new Kinetic.Image({
 	        image: this.resources.gameScreenBackground, width: page.width(), height:page.height()
 		}); page.add(bg);
-
-		// Add up the score and the timer text...
-		//var timerText = new Kinetic.Text({
-		//	text:"2:00", fontSize: 30, fontFamily: 'Calibri', fill: 'black', id:"GAME_TIMER_TXT"
-		//}); _animation.timerTextObject = timerText;
-
-		//timerText.on('mouseup', function(evt){
-		//	var obj = evt.targetNode;
-
-		//	obj.text("foo"); obj.getLayer().draw();
-		//});
-
-
-		//page.add(timerText);
-
-		var gameStats = this.initGameStatsScreen(w, h);
-		page.add(gameStats);
 
 		// Then put the character placement grid...
 		var characterGrid = this.initCharacterGrid(w, h, { w:4, h:5 });
@@ -564,13 +503,14 @@ var _app = {
 
 	// Method: initialize the grid for character placement...
 	initCharacterGrid: function(w, h, dimension){
-		var characterGrid = new Kinetic.Group({ width:w*0.8, height:h*0.8, x:w*0.15, y:h*0.1 });
-		var gridElement = null; var offset = w*0.025;
+		var characterGrid = new Kinetic.Group({ width:w*0.8, height:h*0.8, x:w*0.1, y:h*0.1 });
+		var gridElement = null;
 
-		var params = { width:characterGrid.width() / dimension.w - offset, height:characterGrid.height() / dimension.h - offset, x:0, y:offset*3};
+		var params = { width:characterGrid.width() / dimension.w, height:characterGrid.height() / dimension.h, x:0, y:0};
 
 		//TEMPORARY LAYOUT
 		var text, box;
+
 
 		for(var h=0; h<dimension.h; h++){
 			params.x = 0;
@@ -580,7 +520,7 @@ var _app = {
 				
 				// TEMPORARY LAYOUT:
 				gridElement = new Kinetic.Group(params);
-				box = new Kinetic.Rect({ width:characterGrid.width() / dimension.w - offset, height:characterGrid.height() / dimension.h - offset });
+				box = new Kinetic.Rect({ width:characterGrid.width() / dimension.w, height:characterGrid.height() / dimension.h });
 				text = new Kinetic.Text({ text:'0', fontSize: 30, fontFamily: 'Calibri', fill: 'black', name:'CHARACTER_GRID_TXT' });
 				
 				box.stroke("black");
@@ -611,49 +551,7 @@ var _app = {
 
 			console.log(items[i].text());
 		}
-	},
-
-	// Method: draws the game stats screen...
-	initGameStatsScreen: function(w, h){
-		var gameStatsContainer = new Kinetic.Group({ width:w+4, height:h*0.8, x:0, y:h*0.05 });
-
-		// Put the background...
-		var background = new Kinetic.Rect({ 	
-								width: gameStatsContainer.width(), 
-								height:gameStatsContainer.height()*0.125, 
-								x:-2, y:0,
-								fill:"#ac7441", 
-								stroke:"#29230b", strokeWidth:3
-						});
-		gameStatsContainer.add(background);
-
-		// Put the timer text...
-		var timerText = new Kinetic.Text({
-			text:"0:00", fontSize: 24, fontFamily: 'Calibri', fill: '#29230b', id:"GAME_TIMER_TXT", x:5, y:2
-		}); gameStatsContainer.add(timerText);
-
-		// Put the score text...
-		var scoreText = new Kinetic.Text({
-			text:"00000", fontSize: 24, fontFamily: 'Calibri', fill: '#29230b', id:"GAME_SCORE_TXT", align:'right',
-			x: gameStatsContainer.width() - 70, y:2
-		}); gameStatsContainer.add(scoreText);
-
-		var timerBarBG = new Kinetic.Rect({
-			x:6, y:timerText.height() + 7, height:5, width:gameStatsContainer.width() * 0.95, fill:"#ac7441", stroke:"#29230b"
-		}); gameStatsContainer.add(timerBarBG);
-
-		var timerBar = new Kinetic.Rect({
-			x:6, y:timerText.height() + 7, height:5, width:timerBarBG.width(), fill:"#29230b", stroke:"#29230b", id:"TIMER_BAR"
-		}); gameStatsContainer.add(timerBar);
-
-		// Update _animation attribute on timerBarOffset (needed for the animation...);
-		_animation.timerBarOffset = timerBar.width() / 121; // 121 kay 2 minutes + 1 offset... :)
-
-
-		return gameStatsContainer;
 	}
-
-
 
 }
 
@@ -661,8 +559,6 @@ var _app = {
 
 var _animation = {
 
-	timerTextObject:null,
-	timerBarOffset:null,
 
 	counter: 0,
 	slideMainMenuUp: function(){
@@ -675,7 +571,7 @@ var _animation = {
 	        gameScreen.y( gameScreen.y() - 18);
 	        mainMenu.draw(); gameScreen.draw();
 
-	        //console.log(gameScreen.y());
+	        console.log(gameScreen.y());
 
 	        if (gameScreen.y() < 0){
 	        	this.stop();
@@ -699,39 +595,8 @@ var _animation = {
 
 		// Start the animation!
 		exciteMotion.start();
-	},
-
-
-	// Button Animation/s...
-	enlargeButton: function(btn){
-		var obj = btn;
-
-		// Enlarge it!
-		obj.width( obj.width() + obj.width()*0.2 );
-		obj.height( obj.height() + obj.height()*0.2 );
-		obj.x( obj.x() - obj.width()*0.1);
-		//obj.y( obj.y() - obj.height()*0.1);
-
-		return obj;
-	},
-	shrinkButton: function(btn){
-		var obj = btn;
-
-		// Enlarge it!
-		obj.width( obj.width() - obj.width()*0.166666666666666 );
-		obj.height( obj.height() - obj.height()*0.166666666666666 );
-		obj.x( obj.x() + obj.width()*0.01);
-		//obj.y( obj.y() + obj.height()*0.01);
-
-		return obj;
-	},
-
-	// Updating timerBar
-	updateTimerBar: function(layer){
-		var timerBar = layer.find("#TIMER_BAR")[0];
-		timerBar.width( timerBar.width() - this.timerBarOffset);
-		layer.draw();
 	}
+
 
 }
 
