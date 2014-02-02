@@ -26,8 +26,14 @@ var _gamePlay = {
 
 	// OnClick on the Start Game will execute this one!
 	startGame: function(e){
+		// Initialize the board daan...
 		var gameLayer 		= e.targetNode.getParent().getParent(),
 			gameTimerObj 	= gameLayer.find("#GAME_TIMER_TXT")[0];
+
+		// Implement the animation of the 3-2-1 countdown here...
+		//	Assigned: @hillary
+
+
 
 
 		// Do the delay of 3 seconds...
@@ -145,6 +151,7 @@ var _gamePlay = {
 // 	This includes the level of the player, the experience level and the
 //	other notions such as how many clicks to be allowed
 //	Note: The data is usually stored in phone storage on in the database. LOL
+//  Assigned: @dams
 
 var __player = {
 
@@ -178,6 +185,7 @@ var _fb = {
 // This is the board object. This holds all the
 // 	data for the game board and the events for
 //	switching the contents
+//	Assigned: @jantaps2k, @ellenp
 
 var _board = {
 
@@ -288,6 +296,15 @@ var _board = {
 		}
 
 		return result;
+	},
+
+	// Add up to score
+	//	Adds up to the score on the _gameplay
+	//	This is just a basic score = character.score * number
+	//		The trick is just to increment by this value to the _gamePlay.score
+	//	Assigned: @ellenp 
+	addUpToScore: function(character, number){
+
 	}
 
 }
@@ -469,33 +486,67 @@ var _app = {
 	        image: this.resources.gameScreenBackground, width: page.width(), height:page.height()
 		}); page.add(bg);
 
-		// Add up the score and the timer text...
-		//var timerText = new Kinetic.Text({
-		//	text:"2:00", fontSize: 30, fontFamily: 'Calibri', fill: 'black', id:"GAME_TIMER_TXT"
-		//}); _animation.timerTextObject = timerText;
-
-		//timerText.on('mouseup', function(evt){
-		//	var obj = evt.targetNode;
-
-		//	obj.text("foo"); obj.getLayer().draw();
-		//});
-
-
-		//page.add(timerText);
-
+		// Add up the score and the timer text..
 		var gameStats = this.initGameStatsScreen(w, h);
 		page.add(gameStats);
 
 		// Then put the character placement grid...
-		var characterGrid = this.initCharacterGrid(w, h, { w:4, h:5 });
+		//var characterGrid = this.initCharacterGrid(w, h, { w:4, h:5 });
 
 		// Then put the clickable grid...
-		var clickableGrid = this.initClickableGrid(w, h, { w:4, h:5 });
+		//var clickableGrid = this.initClickableGrid(w, h, { w:4, h:5 });
 		//page.add(clickableGrid);
-		page.add(characterGrid);
+		//page.add(characterGrid);
+		var gameGrid = this.initGameGrid(w, h, gameStats.y() + gameStats.height() + 5);
 
 		return page;
 	},
+
+	// Method: initialize gameGrid
+	initGameGrid: function(gameWidth, gameHeight, offsetY){
+		var gameGrid = new Kinetic.Group({ width:gameWidth, height:gameHeight, x:0, y:offsetY });
+
+		// Add up the elements....
+		var params = { w:4, h:5 }, elemParams = {};
+		var gameGridElement;
+
+		// Heihercy of the grid:
+		// gameGrid > gameGridElement > character
+		//							  > cover
+
+		// Some Temporary Vars for TEMP*
+		var contentText; var contentBG
+		// End Temporary Vars
+
+		var index = 0;
+		for(var ver = 0; ver < params.h; ver++){
+
+			for (var hor = 0; hor < params.w; hor++){
+
+				gameGridElement = new Kinetic.Group({ name:"GAME_GRID_ELEM", id:index });
+
+				// Add up the elements inside...
+				// TEMP*: Just a grid with some text inside....
+				contentBG = new Kinetic.Rect({
+					stroke:"black", x:0, y:0
+				}); gameGridElement.add(contentBG);
+
+				content = new Kinetic.Text({
+					text:"0:00", fontSize: 24, fontFamily: 'Calibri', fill: '#29230b', x:0, y:0
+				}); gameGridElement.add(content);
+
+				
+
+				index++;
+			}
+
+
+		}
+
+
+		return gameGrid;
+	},
+
 
 	// Method: initialize game screen: clickable grid...
 	initClickableGrid: function(w, h, dimension){
