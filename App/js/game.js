@@ -13,6 +13,10 @@ var _gamePlay = {
 	score:     0,
 	myGuess:   [],
 	level: 	   3,
+	target:    null,
+
+	//temp var...
+	gameLayer:null,
 
 	playerStats: {
 		allowableClicks:3,
@@ -30,25 +34,31 @@ var _gamePlay = {
 		var gameLayer 		= e.targetNode.getParent().getParent(),
 			gameTimerObj 	= gameLayer.find("#GAME_TIMER_TXT")[0];
 
+		console.log(gameLayer);
+		console.log("noop");
+
 		// Implement the animation of the 3-2-1 countdown here...
 		//	Assigned: @hillary
-
-
 
 
 		// Do the delay of 3 seconds...
 		setTimeout(function(){
 
 			// Start the timer and its animation/s...
+			_gamePlay.startPlaying();
 			_gamePlay.gameTimer.start(gameTimerObj, gameLayer);
+			// Update the board...
+
+			_animation.updateGameGridCharacters(_board.board, gameLayer);
 
 
-		}, 3000);
+		}, 1000);
 
 
 
 	// this.gameTimer.start(); <-- 
-		_board.shuffleBoard(_gamePlay.getRandomCharacter(0), this.level); // level depends on the players level // -1 is used since 
+		this.target = _gamePlay.getRandomCharacter(0);
+		_board.shuffleBoard(this.target, this.level); // level depends on the players level // -1 is used since 
 	},
 
 
@@ -120,7 +130,7 @@ var _gamePlay = {
 			if (this.timer != null){
 				clearInterval(this.timer);
 				this.timer = null;
-			}	
+			} _gamePlay.stopPlaying();
 		},
 		tiktok: function(txt, lyer){
 			this.time--;
@@ -137,7 +147,7 @@ var _gamePlay = {
 			return result + (seconds%60) + "";
 		},
 		updateToGUI: function(time, text, layer){
-			console.log("Time remaining: "+this.showInFormat(this.time)+" seconds");
+			//console.log("Time remaining: "+this.showInFormat(this.time)+" seconds");
 
 			text.text(time); layer.draw();
 			_animation.updateTimerBar(layer);
@@ -261,7 +271,7 @@ var _board = {
 		for (var n=0; n<this.boardSize(); n++){
 			// Implement a funciton that gets an index randomly from
 			// 	the _characters indeces except the current element.
-			var random = 2; // Insert implementaiton here
+			var random = 9; // Insert implementaiton here
 
 
 			if (places.indexOf(n) == -1){
@@ -285,6 +295,7 @@ var _board = {
 	//				It is the character to check if correct
 
 	checkIfGuessCorrect: function(guess, obj){
+		console.log("Checking "+guess+" for obj:"+obj);
 		var result = true, board = this.board;
 
 		var sortedGuesses = guess.sort(), currentIndex;
@@ -495,9 +506,10 @@ var _app = {
 
 		// Then put the clickable grid...
 		//var clickableGrid = this.initClickableGrid(w, h, { w:4, h:5 });
-		//page.add(clickableGrid);
-		//page.add(characterGrid);
+		//page.add(clickableGrid); page.add(characterGrid);
+
 		var gameGrid = this.initGameGrid(w, h, gameStats.y() + gameStats.height() + 5);
+		page.add(gameGrid);
 
 		return page;
 	},
@@ -507,7 +519,7 @@ var _app = {
 		var gameGrid = new Kinetic.Group({ width:gameWidth, height:gameHeight, x:0, y:offsetY });
 
 		// Add up the elements....
-		var params = { w:4, h:5 }, elemParams = {};
+		var params = { w:4, h:5, x:gameWidth*0.1, y:0, width:(gameWidth * 0.80)/4, height: (gameHeight * 0.7)/5 }, elemParams = {};
 		var gameGridElement;
 
 		// Heihercy of the grid:
@@ -523,23 +535,69 @@ var _app = {
 
 			for (var hor = 0; hor < params.w; hor++){
 
-				gameGridElement = new Kinetic.Group({ name:"GAME_GRID_ELEM", id:index });
+				gameGridElement = new Kinetic.Group({ name:"GAME_GRID_ELEM", id:index, x:params.x, y:params.y, width:params.width, height:params.height });
 
 				// Add up the elements inside...
 				// TEMP*: Just a grid with some text inside....
 				contentBG = new Kinetic.Rect({
-					stroke:"black", x:0, y:0
+					stroke:"black", x:0, y:0, width:params.width, height:params.height
 				}); gameGridElement.add(contentBG);
 
 				content = new Kinetic.Text({
-					text:"0:00", fontSize: 24, fontFamily: 'Calibri', fill: '#29230b', x:0, y:0
+					text:" --- ", fontSize: 24, fontFamily: 'Calibri', fill: '#29230b', x:0, y:0
 				}); gameGridElement.add(content);
 
+
+
+				// Add up the onclick + ontouch event..
+				gameGridElement.on('touchstart', function(evt){
+
+				}).on('touchend', function(evt){
+					var target = evt.targetNode.getParent(), value, myGuessCorrect, isNumberOfClickables;
+
+					if (_gamePlay.isPlaying){
+						value = target.id();
+
+						isNumberOfClickables = _gamePlay.updateMyGuess(value);
+						if (isNumberOfClickables){ // This means, its now the number of clickables...
+
+							// Clear all clicked interactions...
+							_animation.clearClickedInteractions(target, _gamePlay.myGuess);
+
+
+							myGuessCorrect = _board.checkIfGuessCorrect(_gamePlay.myGuess, _gamePlay.target);
+							if (myGuessCorrect){
+								console.log("Correct guess!");
+
+								// Re shuffle event...
+								_gamePlay.target = _gamePlay.getRandomCharacter(0);
+								_board.shuffleBoard(_gamePlay.target, _gamePlay.level); 
+								_animation.updateGameGridCharacters(_board.board, target.getLayer());
+
+							} else { console.log("Wrong guess!"); }
+
+							//Clear the guess data...
+							_gamePlay.myGuess = [];
+						} else { 
+							//Drawing the isClicked interaction
+							target.children[0].fill('rgba(0,255,0,0.4');
+							target.getLayer().draw();
+						}
+
+						
+
+
+					} else { console.log("You're not playing, mate..."); }
+				});
+
+
 				
+				gameGrid.add(gameGridElement);
+				index++; params.x += params.width;
+			} 
 
-				index++;
-			}
-
+			params.x = gameWidth*0.1;
+			params.y += params.height;
 
 		}
 
@@ -666,12 +724,12 @@ var _app = {
 
 	// Method: draws the game stats screen...
 	initGameStatsScreen: function(w, h){
-		var gameStatsContainer = new Kinetic.Group({ width:w+4, height:h*0.8, x:0, y:h*0.05 });
+		var gameStatsContainer = new Kinetic.Group({ width:w+4, height:h*0.12, x:0, y:h*0.05 });
 
 		// Put the background...
 		var background = new Kinetic.Rect({ 	
 								width: gameStatsContainer.width(), 
-								height:gameStatsContainer.height()*0.125, 
+								height:gameStatsContainer.height()*1.000, 
 								x:-2, y:0,
 								fill:"#ac7441", 
 								stroke:"#29230b", strokeWidth:3
@@ -782,6 +840,37 @@ var _animation = {
 		var timerBar = layer.find("#TIMER_BAR")[0];
 		timerBar.width( timerBar.width() - this.timerBarOffset);
 		layer.draw();
+	},
+
+	// Updating Grid Characters...
+	//	TEMP: This is for the current test...
+	//		just for numbers only...
+	updateGameGridCharacters: function(board, layer){
+		var gridElems = layer.find(".GAME_GRID_ELEM"), txtInside; //txtInside is a temp var	
+		for (var i=0; i<board.length; i++){
+
+			txtInside = gridElems[i].children[1];
+			txtInside.text( board[i] );
+
+		} layer.draw();
+	},
+
+	// Clearing isClicked Interactions.
+	//	Kini siya kay mu clear ang sa pag click bitaw nimo sa grid, mu clear out siya...
+	//	
+	clearClickedInteractions: function(target, guessdata){
+		var gameLayer = target.getLayer(),
+			elems     = gameLayer.find(".GAME_GRID_ELEM"), id;
+
+		console.log("Clearing clicked interactions..."+guessdata);
+		for (var i=0; i<elems.length; i++){
+			if (guessdata.indexOf( elems[i].id() ) != -1){
+				//console.log("Naa siya... clear it");
+				//console.log(elems[i].id());
+
+				elems[i].children[0].fill('rgba(0,255,0,0.0');
+			}
+		} gameLayer.draw();
 	}
 
 }
