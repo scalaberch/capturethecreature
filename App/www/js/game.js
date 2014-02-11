@@ -811,22 +811,28 @@ var _app = {
 		//sundi lng ang pattern sa taas sa pag dugang
 		
 		// Get the background...
-
+		var bg = new Kinetic.Rect({ width:grp.width(), height:grp.height(), x:0, y:0, fill:"#ac7441", stroke:"#29230b", strokeWidth:3, cornerRadius: grp.width()*0.03, });
+		grp.add(bg);
 
 		// Title Message
-
+		var titleText = new Kinetic.Text({ x:0, y:3, width:grp.width(),  height:grp.height(), text:"Game Over!",
+												fill:"white", align:"center" });
+		grp.add(titleText);
 		// Score counter...
 
 		// Experience counter...
 
 		// Get the button groups... Button group constants..
-
+		var buttonWidth = grp.width()*0.33; 
+		var buttonHeight = grp.height()*0.10;
 
 		//	Play again button...
+		var playAgainBtn  = new Kinetic.Group({ x:0, y:grp.height()*0.7, width:buttonWidth, height:buttonHeight });
+		var	playAgainBG   = new Kinetic.Rect({ x:0, y:0, fill:"blue", width:playAgainBtn.width(), height:playAgainBtn.height()});
+		var	playAgainText = new Kinetic.Text({ x:0, y:0, text:"Play Again?", width:playAgainBG.width(), height:playAgainBG.height(), fill:"white", align:"center" });
 
 
-
-
+		playAgainBtn.add(playAgainBG); playAgainBtn.add(playAgainText);
 		playAgainBtn.on('touchstart', function(evt){
 
 		}).on('touchend', function(evt){
@@ -844,11 +850,25 @@ var _app = {
 
 			_animation.slidePostGameUp();
 
-		}); 
-		
+		}); grp.add(playAgainBtn);
+
+		// Share to Facebook Button...
+		playAgainBtn  = new Kinetic.Group({ x:buttonWidth, y:grp.height()*0.7, width:buttonWidth, height:buttonHeight }),
+		playAgainBG   = new Kinetic.Rect({ x:0, y:0, fill:"blue", width:playAgainBtn.width(), height:playAgainBtn.height()}),
+		playAgainText = new Kinetic.Text({ x:0, y:0, text:"Share Score!", width:playAgainBG.width(),
+											 height:playAgainBG.height(), fill:"white", align:"center" });
+
+		playAgainBtn.add(playAgainBG); playAgainBtn.add(playAgainText);
 		grp.add(playAgainBtn);
 
+		// Back to Main Menu Button...
+		playAgainBtn  = new Kinetic.Group({ x:buttonWidth*2, y:grp.height()*0.7, width:buttonWidth, height:buttonHeight }),
+		playAgainBG   = new Kinetic.Rect({ x:0, y:0, fill:"blue", width:playAgainBtn.width(), height:playAgainBtn.height()}),
+		playAgainText = new Kinetic.Text({ x:0, y:0, text:"Back to Menu", width:playAgainBG.width(), 
+											height:playAgainBG.height(), fill:"white", align:"center" });
 
+		playAgainBtn.add(playAgainBG); playAgainBtn.add(playAgainText);
+		grp.add(playAgainBtn);
 
 
 
