@@ -935,11 +935,12 @@ var _animation = {
 		var postGame = _app.screens[1].find('#POST_GAME_CONT')[0];
 
 		//Slide up action
-		var slideUp = new Kinetic.Animation(function(frame)
-		{		
-		
-		}); 
-		slideUp.start(); 
+		var slideUp = new Kinetic.Animation(function(frame){
+			postGame.y( postGame.y() - 5 ); postGame.getLayer().draw();
+			if (postGame.y() < (0 - postGame.height())) {
+				this.stop(); _animation.slidePostGameDown();
+			}
+		}); slideUp.start(); 
 	
 	},
 	
@@ -950,13 +951,18 @@ var _animation = {
 
 		var slideDown = new Kinetic.Animation(function(frame)
 		{
-		
-		}); 
-		slideDown.start();
+			postGame.y( postGame.y() + 5 ); postGame.getLayer().draw();
+			if (postGame.y() > ((postGame.getLayer().height() * 0.6) - (postGame.height() / 2))  ) {
+				this.stop();
+				extra.start();
+			}
+		}); slideDown.start();
 
-		var extra = new Kinetic.Animation(function(frame)
-		{
-		
+		var extra = new Kinetic.Animation(function(frame){
+			postGame.y( postGame.y() - 5 ); postGame.getLayer().draw();
+			if (postGame.y() <  ((postGame.getLayer().height() / 2) - (postGame.height() / 2)) ){
+				this.stop();
+			}
 		});
 	},
 	
@@ -1028,7 +1034,10 @@ var _animation = {
 	//@damz
 	updateScore: function(previousScore, currentScore, layer)
 	{
+		var scoreObj = layer.find("#GAME_SCORE_TXT")[0];
+		scoreObj.text(this.fiveDigit(currentScore));
 
+		layer.draw();
 	},
 
 	// Helper: gets a number to a five-digit one...
