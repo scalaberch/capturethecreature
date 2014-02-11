@@ -126,7 +126,11 @@ var _gamePlay = {
 	//	@ellen 																						
 	addUpToScore: function(character, layer)
 	{ 																		
+		var prevScore = this.score,																				<-- nadugangan
+			nextScore = prevScore + (_characters[character].value * this.playerStats.allowableClicks);			<-- nadugangan
 
+		this.score = nextScore;																					<-- nadugangan
+		_animation.updateScore(prevScore, nextScore, layer);
 	},									
 	
 	// Update my gameStats...    	 	
@@ -426,11 +430,13 @@ var _app = {
 		
 		// Load the postGameLayer										
 		//@ellen
-
+		var postGameLayer = this.initPostGameLayer(_width, _height);
+		this.app.add(postGameLayer);								
 		
 		
 		// Put to screens array for reference in below objects
 		//@ellen
+		this.screens = [mainLayer, postGameLayer];
 	},
 
 	// Methods...
