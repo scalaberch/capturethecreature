@@ -126,10 +126,10 @@ var _gamePlay = {
 	//	@ellen 																						
 	addUpToScore: function(character, layer)
 	{ 																		
-		var prevScore = this.score,																				<-- nadugangan
-			nextScore = prevScore + (_characters[character].value * this.playerStats.allowableClicks);			<-- nadugangan
+		var prevScore = this.score,
+			nextScore = prevScore + (_characters[character].value * this.playerStats.allowableClicks);
 
-		this.score = nextScore;																					<-- nadugangan
+		this.score = nextScore;
 		_animation.updateScore(prevScore, nextScore, layer);
 	},									
 	
