@@ -38,9 +38,12 @@ var _gamePlay = {
 		console.log("noop");
 
 		// Implement the animation of the 3-2-1 countdown here...
-		//	Assigned: @hillary
+		//	@hillary
 
-
+		// Resetting the score...        
+		this.score = 0;					 
+		
+		
 		// Do the delay of 3 seconds...
 		setTimeout(function(){
 
@@ -110,11 +113,30 @@ var _gamePlay = {
 		} else { this.removeFromGuess(guess); return false; }
 	},
 
-	// Do the submission of guess
-	// 	This also handles the recurring action of the game...
+	// Invoke the end-game actions...      
+	callEndGame: function()
+	{			   
+		_animation.slidePostGameDown();    
+	},									   
+	
+	// Add up to score																							
+	//	Adds up to the score on the _gameplay																	
+	//	This is just a basic score = character.score * number													
+	//	The trick is just to increment by this value to the _gamePlay.score									
+	//	@ellen 																						
+	addUpToScore: function(character, layer)
+	{ 																		
 
+	},									
+	
+	// Update my gameStats...    	 	
+	//	This is invoked after a correct guess. Diri ang action para mu paspas ug magkadaghan ba ang guesses...
+	updateGameStats: function()
+	{		
 
-
+	},									
+	
+	
 	// Game Timer Structure
 	gameTimer: {
 
@@ -130,7 +152,9 @@ var _gamePlay = {
 			if (this.timer != null){
 				clearInterval(this.timer);
 				this.timer = null;
-			} _gamePlay.stopPlaying();
+			} 
+			_gamePlay.stopPlaying();   
+			_gamePlay.callEndGame();   
 		},
 		tiktok: function(txt, lyer){
 			this.time--;
@@ -307,21 +331,12 @@ var _board = {
 		}
 
 		return result;
-	},
+	}						
 
-	// Add up to score
-	//	Adds up to the score on the _gameplay
-	//	This is just a basic score = character.score * number
-	//		The trick is just to increment by this value to the _gamePlay.score
-	//	Assigned: @ellenp 
-	addUpToScore: function(character, number){
+}							
 
-	}
-
-}
-
-
-// Character data is in here. You may call them using the 
+				
+// Character data is in here. You may call them using the 							
 //	index of the objects... The character data is as follows:
 // 		{ name:<name_of_character>, value:<value_of_score>, img:<img_location> }
 
@@ -406,11 +421,16 @@ var _app = {
 
 		// Load the main layer
 		var mainLayer = this.initMainGameLayer(_width, _height);
-
 		// Add to container
 		this.app.add(mainLayer);
+		
+		// Load the postGameLayer										
+		//@ellen
+
+		
+		
 		// Put to screens array for reference in below objects
-		this.screens = [mainLayer];		
+		//@ellen
 	},
 
 	// Methods...
@@ -550,6 +570,7 @@ var _app = {
 
 
 				// Add up the onclick + ontouch event..
+				// Methods that can be mapped on.     				
 				gameGridElement.on('touchstart', function(evt){
 
 				}).on('touchend', function(evt){
@@ -568,6 +589,10 @@ var _app = {
 							myGuessCorrect = _board.checkIfGuessCorrect(_gamePlay.myGuess, _gamePlay.target);
 							if (myGuessCorrect){
 								console.log("Correct guess!");
+																
+								// Add up the score...													
+								_gamePlay.addUpToScore(_gamePlay.target, target.getLayer());			
+								
 
 								// Re shuffle event...
 								_gamePlay.target = _gamePlay.getRandomCharacter(0);
@@ -606,7 +631,7 @@ var _app = {
 	},
 
 
-	// Method: initialize game screen: clickable grid...
+	// Method: initialize game screen: clickable grid... 
 	initClickableGrid: function(w, h, dimension){
 		// Put the clickable grid...
 		var clickableGrid = new Kinetic.Group({ width:w*0.8, height:h*0.8, x:w*0.1, y:h*0.1 });
@@ -760,11 +785,79 @@ var _app = {
 
 
 		return gameStatsContainer;
+	},									
+
+
+
+
+
+
+// Post Game Layer Methods and stuff						
+// @rei ikaw ani pls
+	initPostGameLayer: function(w, h)
+	{
+		var postGameLayer = new Kinetic.Layer({ width:w, height:h, x:0, y:0, id:"POST_GAME_LAYER" });
+
+		// Get the grouping...
+		var grp = new Kinetic.Group({ width:w*0.8, height:h*0.4, x:(w - w*0.8)/2, y:(h - h*0.4)/2, id:"POST_GAME_CONT" });
+		grp.y( 0 - grp.height()); // Set it to the hidden position;
+
+		//sundi lng ang pattern sa taas sa pag dugang
+		
+		// Get the background...
+
+
+		// Title Message
+
+		// Score counter...
+
+		// Experience counter...
+
+		// Get the button groups... Button group constants..
+
+
+		//	Play again button...
+
+
+
+
+		playAgainBtn.on('touchstart', function(evt){
+
+		}).on('touchend', function(evt){
+			//postGameLayer.
+			//var target = evt.targetNode.getLayer().find("#POST_GAME_CONT")[0];
+			//console.log(target);
+
+			//var i = 0;
+			//var animatet = new Kinetic.Animation(function(frame){
+				//console.log(frame);
+
+				//console.log( target.y() );
+			//	target.x( target.x() + 1);
+			//}); animatet.start();
+
+			_animation.slidePostGameUp();
+
+		}); 
+		
+		grp.add(playAgainBtn);
+
+
+
+
+
+		
+		postGameLayer.add(grp);
+		return postGameLayer;
 	}
 
 
 
-}
+}                                        
+
+
+
+
 
 // This is the collective object for the animations... hihihihi :)
 
@@ -780,8 +873,8 @@ var _animation = {
 
 		// The second motion animation...
 		var scrollingDown = new Kinetic.Animation(function(frame) {
-	        mainMenu.y( mainMenu.y() - 18 );
-	        gameScreen.y( gameScreen.y() - 18);
+	        mainMenu.y( mainMenu.y() - 68 );      //18
+	        gameScreen.y( gameScreen.y() - 68);	  //18
 	        mainMenu.draw(); gameScreen.draw();
 
 	        //console.log(gameScreen.y());
@@ -810,6 +903,37 @@ var _animation = {
 		exciteMotion.start();
 	},
 
+	//damz paki homan ani na functions
+	slidePostGameUp: function()
+	{												
+		var postGame = _app.screens[1].find('#POST_GAME_CONT')[0];
+
+		//Slide up action
+		var slideUp = new Kinetic.Animation(function(frame)
+		{		
+		
+		}); 
+		slideUp.start(); 
+	
+	},
+	
+	//apili pod ni
+	slidePostGameDown: function()
+	{																				
+		var postGame = _app.screens[1].find('#POST_GAME_CONT')[0];
+
+		var slideDown = new Kinetic.Animation(function(frame)
+		{
+		
+		}); 
+		slideDown.start();
+
+		var extra = new Kinetic.Animation(function(frame)
+		{
+		
+		});
+	},
+	
 
 	// Button Animation/s...
 	enlargeButton: function(btn){
@@ -871,6 +995,20 @@ var _animation = {
 				elems[i].children[0].fill('rgba(0,255,0,0.0');
 			}
 		} gameLayer.draw();
+	},									
+
+
+	// Added Update Scoring
+	//@damz
+	updateScore: function(previousScore, currentScore, layer)
+	{
+
+	},
+
+	// Helper: gets a number to a five-digit one...
+	fiveDigit: function(number){
+		var s = "000000000" + number;
+		return s.substr(s.length-5);
 	}
 
 }
