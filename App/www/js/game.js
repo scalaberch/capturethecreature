@@ -388,6 +388,11 @@ var _player = {
 
 var _app = {
 
+	// Some enum fixed chuchu...
+	BACKGROUND_MAIN_MENU:0,
+	PAUSE_MENU:4,
+
+
 	// Application Attributes
 
 
@@ -450,7 +455,13 @@ var _app = {
 		var gameBoardLayer = this.initGameBoardLayer(_width, _height);
 		this.app.add(gameBoardLayer);
 
-		
+		// In-gameplay game board
+		var bottomBoardLayer = this.initGameBottomLayer(_width, _height);
+		this.app.add(bottomBoardLayer);
+
+		// In-gameplay: pause menu
+		var pauseLayer = this.initPauseMenu(_width, _height);
+		this.app.add(pauseLayer);
 
 
 		// Leaderboard pane...
@@ -467,7 +478,7 @@ var _app = {
 
 		// Put to screens array for reference in below objects
 		//this.screens = [mainLayer, postGameLayer];
-		this.screens = [backgroundMainMenu, gameStatsLayer, gameBoardLayer, leaderBoardLayer];		
+		this.screens = [backgroundMainMenu, gameStatsLayer, gameBoardLayer, leaderBoardLayer, pauseLayer];		
 	},
 
 	// Methods...
@@ -596,7 +607,7 @@ var _app = {
 	// Method: (NEW) Game Board Layer
 	initGameBoardLayer: function(w, h){
 		var gameBoardLayer = new Kinetic.Layer({
-			width:w, height:h*0.4, x:0, y:h*0.13, id:"GAME_BOARD_LAYER" //h*0.02
+			width:w, height:h*0.75, x:0, y:h*0.13, id:"GAME_BOARD_LAYER" //h*0.02
 		});
 
 		// Put the background...
@@ -608,7 +619,7 @@ var _app = {
 								stroke:"#29230b", strokeWidth:3
 						});
 
-		gameBoardLayer.add(background);
+		//gameBoardLayer.add(background);
 
 
 		return gameBoardLayer;
@@ -656,6 +667,92 @@ var _app = {
 		leaderBoardLayer.y( 0 - leaderBoardLayer.height());
 
 		return leaderBoardLayer;
+	},
+	// Method: (NEW) BottomLayer
+	initGameBottomLayer: function(w, h){
+		var bottomLayer = new Kinetic.Layer({
+			width:w, height:h*0.12, x:0, y:h*0.88, //id:"GAME_BOARD_LAYER" //h*0.02
+		});
+
+		// Put the background...
+		var background = new Kinetic.Rect({ 	
+								width: bottomLayer.width(), 
+								height: bottomLayer.height(), 
+								x:0, y:0,
+								fill:"#ac7441", 
+								stroke:"#29230b", strokeWidth:3
+		});
+
+		//bottomLayer.add(background);
+
+		// Put the pause button...
+		var pauseButton = new Kinetic.Rect({
+			x:bottomLayer.width() * 0.82, y:0, 
+			width:bottomLayer.width() * 0.15, height:bottomLayer.height() * 0.8, fill:"blue"
+		}).on('touchend', function(evt){
+			var pauselayer = _app.screens[_app.PAUSE_MENU];
+
+			pauselayer.y( h*0.25 ); pauselayer.draw();
+		});
+
+
+		bottomLayer.add(pauseButton);
+		return bottomLayer;
+	},
+	// Method: (NEW) Pause Menu...
+	initPauseMenu: function(w, h){
+		var pauseLayer = new Kinetic.Layer({
+			width:w*0.8, height:h*0.5, x:w*0.1, y:h*0.25, id:"GAME_BOARD_LAYER" //h*0.02
+		});
+
+		// Put the background...
+		var background = new Kinetic.Rect({ 	
+								width: pauseLayer.width(), 
+								height: pauseLayer.height(), 
+								x:0, y:0,
+								fill:"#ac7441", 
+								stroke:"#29230b", strokeWidth:3
+		}); pauseLayer.add(background);
+
+		// Buttons...
+		var btn = new Kinetic.Rect({ 	
+				width: pauseLayer.width() * 0.9, height: pauseLayer.height() * 0.15, //pauseLayer.height() , 
+				x:pauseLayer.width() * 0.05, y:pauseLayer.height() * 0.2,
+				fill:"green", stroke:"#29230b", strokeWidth:3
+		}).on('touchend', function(e){
+			// Act on continue gameplay....
+
+
+		}); pauseLayer.add(btn);
+
+		// Restart
+		btn = new Kinetic.Rect({ 	
+				width: pauseLayer.width() * 0.9, height: pauseLayer.height() * 0.15, //pauseLayer.height() , 
+				x:pauseLayer.width() * 0.05, y:pauseLayer.height() * 0.4,
+				fill:"green", stroke:"#29230b", strokeWidth:3
+		}).on('touchend', function(e){
+			// Act on continue gameplay....
+
+
+		}); pauseLayer.add(btn);
+
+		// Quit to main Menu...
+		btn = new Kinetic.Rect({ 	
+				width: pauseLayer.width() * 0.9, height: pauseLayer.height() * 0.15, //pauseLayer.height() , 
+				x:pauseLayer.width() * 0.05, y:pauseLayer.height() * 0.6,
+				fill:"green", stroke:"#29230b", strokeWidth:3
+		}).on('touchend', function(evt){
+			// Act on continue gameplay....
+
+			_animation.hidePauseMenu(evt.targetNode.getLayer());
+		}); pauseLayer.add(btn);
+
+
+
+		// Put it on the top board...
+		pauseLayer.y( 0 - pauseLayer.height());
+
+		return pauseLayer;
 	},
 
 
@@ -1223,11 +1320,27 @@ var _animation = {
 		}); tween.play();
 	},
 
+	// Pause Menu...
+	showPauseMenu: function(pauseMenuLayer){
+		pauseMenuLayer.y( 0 - pauseMenuLayer.height());
+		pauseMenuLayer.draw();
+
+		// Execute Pause Game (before ani)....
+
+	},
+	hidePauseMenu: function(pauseMenuLayer){
+		pauseMenuLayer.y( 0 - pauseMenuLayer.height());
+		pauseMenuLayer.draw();
+	},
+
 
 
 
 
 	// Back to uranus...
+
+
+
 
 
 
