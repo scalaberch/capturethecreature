@@ -299,7 +299,15 @@ var _board = {
 		for (var n=0; n<this.boardSize(); n++){
 			// Implement a funciton that gets an index randomly from
 			// 	the _characters indeces except the current element.
-			var random = 9; // Insert implementaiton here
+
+			do{
+				// find a random index, from the array of characters,
+				// which is not equal to the index you want to find
+				// AND not equal to zero -> NONE
+				var randIndex = Math.floor( Math.random() * _characters.length);
+			} while (randIndex==find || randIndex==0)
+			
+			var random = randIndex;
 
 
 			if (places.indexOf(n) == -1){
