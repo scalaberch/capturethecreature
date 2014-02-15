@@ -455,6 +455,52 @@ var _app = {
 		var gameBoardLayer = this.initGameBoardLayer(_width, _height);
 		this.app.add(gameBoardLayer);
 
+
+		// Newer version for the game board.
+		// 	This puts on a board item is a layer.
+		//	Rationale: For it to be independent for every layer draw.
+
+		var params = { cols:4, rows:5, x:_width*0.01, y: _height*0.07, width: (_width - _width*0.04)/4, height: (_height - _height*0.28)/5 };
+		var boardItemLayer, rect, itemLayers = [];
+
+		for (var vertical = 0; vertical < params.rows; vertical++) {
+
+			for (var horizontal = 0; horizontal < params.cols; horizontal++) {
+
+				boardItemLayer = new Kinetic.Layer({
+					x:params.x, y:params.y, width:params.width, height:params.height
+				});
+
+				// Add up everything...
+				var rect = new Kinetic.Rect({
+					x: boardItemLayer.x(), y: boardItemLayer.y(),
+					width: boardItemLayer.width(), height: boardItemLayer.height(),
+
+					fill:"green", stroke:"red", strokeWidth:3
+				}); boardItemLayer.add(rect);
+
+
+				// Reset on the sizing + opacity...
+				boardItemLayer.opacity(0).visible(false);
+				// Add up the animation dude...
+				boardItemLayer.on('touchend', function(e){
+					console.log("I can has touch!");
+				});
+
+
+				itemLayers.push(boardItemLayer);
+				this.app.add(boardItemLayer);
+
+				params.x += params.width / 2;
+			}
+
+			params.x = _width*0.01;
+			params.y += params.height / 2;
+
+		} // End board layers...
+
+
+
 		// In-gameplay game board
 		var bottomBoardLayer = this.initGameBottomLayer(_width, _height);
 		this.app.add(bottomBoardLayer);
@@ -478,7 +524,7 @@ var _app = {
 
 		// Put to screens array for reference in below objects
 		//this.screens = [mainLayer, postGameLayer];
-		this.screens = [backgroundMainMenu, gameStatsLayer, gameBoardLayer, leaderBoardLayer, pauseLayer];		
+		this.screens = [backgroundMainMenu, gameStatsLayer, gameBoardLayer, leaderBoardLayer, pauseLayer, itemLayers];		
 	},
 
 	// Methods...
@@ -537,12 +583,14 @@ var _app = {
 			obj.fill('#c3da42'); 
 			obj.draw();
 
-		}).on('touchend', function(evt){
+		}).on('touchend mouseup', function(evt){
+			console.log('fofoasdfasf');
+
 
 			var obj = evt.targetNode;
 			obj.fill('#68b646'); 
 
-			obj.draw();
+			obj.draw(); 
 			_animation.animateNewGame();
 			//_gamePlay.startGame(evt);
 		});
@@ -715,14 +763,15 @@ var _app = {
 		}); pauseLayer.add(background);
 
 		// Buttons...
+		// Continue...
 		var btn = new Kinetic.Rect({ 	
 				width: pauseLayer.width() * 0.9, height: pauseLayer.height() * 0.15, //pauseLayer.height() , 
 				x:pauseLayer.width() * 0.05, y:pauseLayer.height() * 0.2,
 				fill:"green", stroke:"#29230b", strokeWidth:3
-		}).on('touchend', function(e){
+		}).on('touchend', function(evt){
 			// Act on continue gameplay....
 
-
+			_animation.hidePauseMenu(evt.targetNode.getLayer());
 		}); pauseLayer.add(btn);
 
 		// Restart
@@ -730,10 +779,10 @@ var _app = {
 				width: pauseLayer.width() * 0.9, height: pauseLayer.height() * 0.15, //pauseLayer.height() , 
 				x:pauseLayer.width() * 0.05, y:pauseLayer.height() * 0.4,
 				fill:"green", stroke:"#29230b", strokeWidth:3
-		}).on('touchend', function(e){
+		}).on('touchend', function(evt){
 			// Act on continue gameplay....
 
-
+			_animation.hidePauseMenu(evt.targetNode.getLayer());
 		}); pauseLayer.add(btn);
 
 		// Quit to main Menu...
@@ -745,6 +794,7 @@ var _app = {
 			// Act on continue gameplay....
 
 			_animation.hidePauseMenu(evt.targetNode.getLayer());
+			_animation.backToMainMenu();
 		}); pauseLayer.add(btn);
 
 
@@ -1256,7 +1306,10 @@ var _animation = {
 			node:statsPane,
 			duration:1,
 			y:statsPane.getParent().height()*0.025,
-			easing:Kinetic.Easings.BounceEaseOut
+			easing:Kinetic.Easings.BounceEaseOut,
+			onFinish: function(){
+				_animation.animateClickables();
+			}
 		}); tween.play();
 	},
 
@@ -1322,8 +1375,10 @@ var _animation = {
 
 	// Pause Menu...
 	showPauseMenu: function(pauseMenuLayer){
+
 		pauseMenuLayer.y( 0 - pauseMenuLayer.height());
 		pauseMenuLayer.draw();
+
 
 		// Execute Pause Game (before ani)....
 
@@ -1334,10 +1389,45 @@ var _animation = {
 	},
 
 
-
-
-
 	// Back to uranus...
+	backToMainMenu: function(){
+		// Main menu p[ane]
+		_app.screens[0].y(0);
+		_app.screens[0].draw();
+
+		// Hide the stats pane...
+		_app.screens[1].y(0 - _app.screens[1].height());
+		_app.screens[1].draw();
+	},
+	// Animate the clickables in...
+	animateClickables: function(){
+		var clickables = _app.screens[5], tweens = [], tween;
+
+		_animation.a(clickables, 0);
+	},
+	a: function(ts, i){ //Helper function for the animation...
+		if (ts.length > i){
+			var t = new Kinetic.Tween({
+				node:ts[i],
+				opacity:1,
+				visible:true,
+				duration:0.001,
+				easing: Kinetic.Easings.EaseOut,
+				onFinish: function(){
+					console.log("yeah");
+					_animation.a(ts, i+1);
+				}
+			}); t.play();
+		} else { console.log("Stahpp..."); }
+
+	},
+
+
+
+
+
+
+
 
 
 
