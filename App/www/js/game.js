@@ -1456,6 +1456,31 @@ var _animation = {
 
 
 
+  
+	updateTimerBar: function(layer)
+	{
+		var timerBar = layer.find("#TIMER_BAR")[0];
+		timerBar.width( timerBar.width() - this.timerBarOffset);
+		layer.draw();
+	},
+
+	clearClickedInteractions: function(guessdata)
+	{
+
+		var elems = _app.screens[5];
+		for(var i=0; i<elems.length; i++)
+		{
+			if (guessdata.indexOf(elems[i].id()) != -1)
+			{
+
+
+				elems[i].children[0].opacity(1);
+				elems[i].draw();
+			}
+		}
+
+	},
+
 
 
 
