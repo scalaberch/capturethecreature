@@ -31,8 +31,8 @@ var _gamePlay = {
 	// OnClick on the Start Game will execute this one!
 	startGame: function(e){
 		// Initialize the board daan...
-		var gameLayer 		= null, //e.targetNode.getParent().getParent(), 
-			gameTimerObj 	= _app.screens[1].find("#GAME_TIMER_TXT")[0];   
+		var gameLayer 		= null, //e.targetNode.getParent().getParent(),
+			gameTimerObj 	= _app.screens[1].find("#GAME_TIMER_TXT")[0];
 
 		// Resetting the score...
 		this.score = 0;
@@ -41,11 +41,11 @@ var _gamePlay = {
 		//_gamePlay.startPlaying();
 		_gamePlay.gameTimer.start(gameTimerObj, _app.screens[1]);
 			
-			
+
 		// Update the board...
 		//_animation.updateGameGridCharacters(_board.board, gameLayer);
 
-		// this.gameTimer.start();  
+		// this.gameTimer.start();
 		//this.target = _gamePlay.getRandomCharacter(0);
 		//_board.shuffleBoard(this.target, this.level); // level depends on the players level // -1 is used since 
 	},
@@ -133,14 +133,14 @@ var _gamePlay = {
 		time: 121, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
-			if (!_gamePlay.isPlaying){  								
+			if (!_gamePlay.isPlaying){
 				this.timer = setInterval(function(){
 					_gamePlay.gameTimer.tiktok(t, l);
-					
+
 				}, 1000);
-				
+
 				_gamePlay.isPlaying = true;
-			}
+			}	
 		},
 		stop: function(){
 			// Manually stopping the timer...
@@ -149,7 +149,7 @@ var _gamePlay = {
 				this.timer = null;
 			} 
 			_gamePlay.stopPlaying();
-			
+
 			_gamePlay.callEndGame();
 		},
 		tiktok: function(txt, lyer){
@@ -468,7 +468,7 @@ var _app = {
 					x: boardItemLayer.x(), y: boardItemLayer.y(),
 					width: boardItemLayer.width(), height: boardItemLayer.height(),
 
-					fill:"white", //stroke:"red",  
+					fill:"white", //stroke:"red", 
 					strokeWidth:3
 				}); boardItemLayer.add(rect);
 
@@ -476,7 +476,7 @@ var _app = {
 				// Reset on the sizing + opacity...
 				boardItemLayer.opacity(0).visible(false);
 				// Add up the animation dude...
-				boardItemLayer.on('touchend', function(e){     
+				boardItemLayer.on('touchend', function(e){
 					if (_gamePlay.isPlaying){
 						//console.log(e.targetNode.getLayer());
 						//rect.opacity(0); e.targetNode.getLayer().draw();
@@ -484,7 +484,7 @@ var _app = {
 						var rect = e.targetNode.getLayer().children[0];
 
 
-						if (_gamePlay.myGuess.indexOf(e.targetNode.getLayer().id()) == -1){ // Wala siya diri.
+						if (_gamePlay.myGuess.indexOf(e.targetNode.getLayer().id()) == -1){ // Wala siya dri. 
 							rect.opacity(0);
 
 							_gamePlay.addToGuess(e.targetNode.getLayer().id());
@@ -501,7 +501,7 @@ var _app = {
 							//rect.opacity(1); 
 							//_gamePlay.removeFromGuess(e.targetNode.getLayer().id());
 
-							
+
 						}
 
 						e.targetNode.getLayer().draw();
@@ -515,14 +515,14 @@ var _app = {
 						
 
 					}
-				});														
+				});
 
 
 				itemLayers.push(boardItemLayer);
 				this.app.add(boardItemLayer);
 
 				params.x += params.width / 2;
-				
+
 				i++;
 			}
 
@@ -542,20 +542,20 @@ var _app = {
 		this.app.add(pauseLayer);
 
 		/*
-		** Outside Layers
+		** Outside Layers.
 		*/
-		
+
 		// Leaderboard pane...
 		var leaderBoardLayer = this.initLeaderBoardLayer(_width, _height);
 		this.app.add(leaderBoardLayer);
-	
+
 		// Countdown layer...
 		var countdownLayer = this.initCountDownLayer(_width, _height);
-		this.app.add(countdownLayer);										
+		this.app.add(countdownLayer);
 
 
-		
-		
+
+
 		// Load the postGameLayer
 		//var postGameLayer = this.initPostGameLayer(_width, _height);
 		//this.app.add(postGameLayer);
@@ -564,7 +564,7 @@ var _app = {
 		// Put to screens array for reference in below objects
 		//this.screens = [mainLayer, postGameLayer];
 		this.screens = [backgroundMainMenu, gameStatsLayer, gameBoardLayer, leaderBoardLayer, 
-							pauseLayer, itemLayers, bottomBoardLayer, countdownLayer];	 <-- nadugang	
+							pauseLayer, itemLayers, bottomBoardLayer, countdownLayer];		
 	},
 
 	// Methods...
@@ -663,9 +663,9 @@ var _app = {
 								x: w*0.02, y:0,
 								fill:"#ac7441", 
 								stroke:"#29230b", strokeWidth:2,
-								
+
 								cornerRadius:  w*0.01
-		});	gameStatsLayer.add(background);
+		}); gameStatsLayer.add(background);
 
 		// Put the timer text...
 		var timerText = new Kinetic.Text({
@@ -845,8 +845,8 @@ var _app = {
 		pauseLayer.y( 0 - pauseLayer.height());
 
 		return pauseLayer;
-	},                                                  
-	// Count Down Layer stuff...                             
+	},
+	// Count Down Layer stuff...
 	initCountDownLayer: function(w, h){
 		var layer = new Kinetic.Layer({
 			width:w, height:h*0.25, x:0, y:h*0.17 //h*0.02
@@ -879,7 +879,7 @@ var _app = {
 
 		layer.visible(false);
 		return layer;
-	},												
+	},
 
 
 
@@ -891,7 +891,7 @@ var _app = {
 
 
 
-	
+
 
 
 
@@ -1474,8 +1474,8 @@ var _animation = {
 		// Hide the stats pane...
 		_app.screens[1].y(0 - _app.screens[1].height());
 		_app.screens[1].draw();
-	
-		// Hides the Bottom Pane. 
+
+		// Hide the Bottom Pane.
 		_app.screens[6].visible(false).draw();
 
 		// Hides the Board Layers.
@@ -1574,20 +1574,19 @@ var _animation = {
 			ready_showTween.play();
 		//}, 500);
 	},
-	
+	// Updating timerBar
 	updateTimerBar: function(layer)
 	{
 		var timerBar = layer.find("#TIMER_BAR")[0];
 		timerBar.width( timerBar.width() - this.timerBarOffset);
 		layer.draw();
 	},
-
+	// Clearing the Cliked Grid.
 	clearClickedInteractions: function(guessdata)
 	{
 
 		var elems = _app.screens[5];
-		for(var i=0; i<elems.length; i++)
-		{
+		for(var i=0; i<elems.length; i++){
 			if (guessdata.indexOf(elems[i].id()) != -1)
 			{
 
@@ -1599,12 +1598,36 @@ var _animation = {
 
 	},
 
-	
+	// 
+	// Updating the Board Layers.
 
 
 
 
-	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	// Button Animation/s...
 	enlargeButton: function(btn){
@@ -1646,7 +1669,7 @@ var _animation = {
 	// Clearing isClicked Interactions.
 	//	Kini siya kay mu clear ang sa pag click bitaw nimo sa grid, mu clear out siya...
 	//	
-
+	
 
 	// Animating the scoresheets...
 	updateScore: function(previousScore, currentScore, layer){
@@ -1754,3 +1777,11 @@ window.onload = function(){
 	_app.__init__();
 	//_animation.slideMainMenuUp();
 }
+
+
+
+
+
+
+
+
