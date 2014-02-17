@@ -804,8 +804,40 @@ var _app = {
 
 		return pauseLayer;
 	},
+	// Count Down Layer
+	initCountDownLayer: function(w, h){
+		var layer = new Kinetic.Layer({
+			width:w, height:h*0.25, x:0, y:h*0.17 //h*0.02
+		});
+
+		// Ready Layer.
+		var ready = new Kinetic.Text({
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT",
+
+			text:"ready?", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
+			stroke:"black", strokeWidth:5, opacity:0
+		}); layer.add(ready);
+
+		// Set Layer.
+		var ready = new Kinetic.Text({
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"SET_TXT",
+
+			text:"set?", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
+			stroke:"black", strokeWidth:5, opacity:0
+		}); layer.add(ready);
+
+		// Get 'em! Layer.
+		var ready = new Kinetic.Text({
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GO_TXT",
+
+			text:"get 'em!", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
+			stroke:"black", strokeWidth:5, opacity:0
+		}); layer.add(ready);
 
 
+		layer.visible(false);
+		return layer;
+	},
 
 
 
