@@ -11,6 +11,7 @@ var _gamePlay = {
 
 	isPlaying: false,
 	isShowing: false,
+	isPaused:  false,
 	score:     0,
 	myGuess:   [],
 	level: 	   3,
@@ -29,6 +30,10 @@ var _gamePlay = {
 
 	startPlaying: function(){ this.isPlaying = true;  },
 	stopPlaying : function(){ this.isPlaying = false; },
+	pauseGame: function(){ 
+		_gamePlay.isPaused = true; 
+	},
+	resumeGame: function(){ _gamePlay.isPaused = false; },
 
 	// OnClick on the Start Game will execute this one!
 	startGame: function(e){
@@ -38,6 +43,9 @@ var _gamePlay = {
 
 		// Reset stats...
 		this.resetGameStats();
+		if (_gamePlay.isPaused){
+			_gamePlay.resumeGame();
+		}
 
 		// Start the timer and its animation/s...
 		//_gamePlay.startPlaying();
@@ -55,25 +63,33 @@ var _gamePlay = {
 	// Do the algo on shuffle. This acts when on the start of the game.
 	//	and/or during a correct guess...
 	executeGameShuffle: function(){
-		// On randomization....
-		this.target = _gamePlay.getRandomCharacter(0);
-		_board.shuffleBoard(this.target, this.level); // level depends on the players level // -1 is used since 
 
-		// On printing the board...
-		_board.printBoard();
-		_animation.updateBoardLayers(_board.board);
+		if (!this.isPaused){
 
-		// Show what to find...
-		_animation.showWhatToFind(this.target);
+			// On randomization....
+			this.target = _gamePlay.getRandomCharacter(0);
+			_board.shuffleBoard(this.target, this.level); // level depends on the players level // -1 is used since 
 
-		// On showing it and getting back...
-		this.isShowing = true;
-		_animation.showAllBoardLayers();
+			// On printing the board...
+			_board.printBoard();
+			_animation.updateBoardLayers(_board.board);
 
-		setTimeout(function(){
-			_animation.hideAllBoardLayers();
-			_gamePlay.isShowing = false;
-		}, _gamePlay.playerStats.showTimerOffset);
+			// Show what to find...
+			_animation.showWhatToFind(this.target);
+
+			// On showing it and getting back...
+			this.isShowing = true;
+			_animation.showAllBoardLayers();
+
+			// TODO: Please fix here later. Kana bitaw mag pause ka. Dapat
+			//	mu pause pud siya sa setTimeout, and then once i.resume... kebs ra dayun
+			setTimeout(function(){
+				_animation.hideAllBoardLayers();
+				_gamePlay.isShowing = false;
+			}, _gamePlay.playerStats.showTimerOffset);
+
+
+		}
 	},
 
 
@@ -163,7 +179,7 @@ var _gamePlay = {
 	// Game Timer Structure
 	gameTimer: {
 
-		time: 6, timer: null,
+		time: 20, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
 			if (!_gamePlay.isPlaying){
@@ -176,21 +192,31 @@ var _gamePlay = {
 			}	
 		},
 		stop: function(){
+			console.log("Stopping...");
 			// Manually stopping the timer...
 			if (this.timer != null){
+				console.log("Clearing interval");
 				clearInterval(this.timer);
 				this.timer = null;
-			} 
+			} else { console.log("timer is: "+this.timer); }
 			
+			console.log("Executing stop game...");
 			_gamePlay.stopGame();
 		},
 		tiktok: function(txt, lyer){
-			this.time--;
+			if (_gamePlay.isPaused){
+				console.log("Game is Paused...");
+			} else {
+				console.log(this.timer);
+				this.time--;
 
-			this.updateToGUI(this.showInFormat(this.time), txt, lyer);
-			if (this.time == 0){
-				this.stop();
+				this.updateToGUI(this.showInFormat(this.time), txt, lyer);
+				if (this.time == 0){
+					this.stop();
+				}
 			}
+
+			
 		},
 		showInFormat: function(seconds){
 			var result = Math.floor(seconds/60) + ":";
@@ -211,16 +237,12 @@ var _gamePlay = {
 	// Reset thy game stats....
 	resetGameStats: function(){
 		this.score = 0; // Resetting the score...
-		this.gameTimer.time = 6; //Reset the time...
+		this.gameTimer.time = 20; //Reset the time...
 
 		_animation.resetTimerBar(); //Resetting the timer bar in the UI...
 		// TODO: Reset the score ui...
-	},
-
-	// Pause Game...
-	pauseGame: function(){
-
 	}
+
 
 }
 
@@ -540,7 +562,7 @@ var _app = {
 				boardItemLayer.opacity(0).visible(false);
 				// Add up the animation dude...
 				boardItemLayer.on('touchend', function(e){
-					if (_gamePlay.isPlaying && !_gamePlay.isShowing){
+					if (_gamePlay.isPlaying && !_gamePlay.isShowing && !_gamePlay.isPaused){
 						//console.log(e.targetNode.getLayer());
 						//rect.opacity(0); e.targetNode.getLayer().draw();
 
@@ -865,6 +887,10 @@ var _app = {
 			x:bottomLayer.width() * 0.82, y:0, 
 			width:bottomLayer.width() * 0.15, height:bottomLayer.height() * 0.8, fill:"blue"
 		}).on('touchend', function(evt){
+
+			_gamePlay.pauseGame();
+
+
 			var pauselayer = _app.screens[_app.PAUSE_MENU];
 
 			pauselayer.y( h*0.25 ); pauselayer.draw();
@@ -898,8 +924,8 @@ var _app = {
 				fill:"green", stroke:"#29230b", strokeWidth:3
 		}).on('touchend', function(evt){
 			// Act on continue gameplay....
-
 			_animation.hidePauseMenu(evt.targetNode.getLayer());
+			_gamePlay.resumeGame();
 		}); pauseLayer.add(btn);
 
 		// Restart
@@ -911,6 +937,9 @@ var _app = {
 			// Act on continue gameplay....
 
 			_animation.hidePauseMenu(evt.targetNode.getLayer());
+
+			_animation.animateCountDown();
+			_gamePlay.resumeGame();
 		}); pauseLayer.add(btn);
 
 		// Quit to main Menu...
@@ -1278,6 +1307,10 @@ var _animation = {
 			go    = layer.find('#GO_TXT')[0];
 
 		layer.visible(true);
+
+		if (_gamePlay.isPaused){
+			_gamePlay.resetGameStats();
+		}
 
 
 		// Get the tweens...
