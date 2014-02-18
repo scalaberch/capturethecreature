@@ -47,6 +47,11 @@ var _gamePlay = {
 		this.executeGameShuffle();
 
 	},
+	stopGame: function(){
+		this.stopPlaying();
+		this.callEndGame();
+	},
+
 	// Do the algo on shuffle. This acts when on the start of the game.
 	//	and/or during a correct guess...
 	executeGameShuffle: function(){
@@ -158,7 +163,7 @@ var _gamePlay = {
 	// Game Timer Structure
 	gameTimer: {
 
-		time: 2, timer: null,
+		time: 6, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
 			if (!_gamePlay.isPlaying){
@@ -167,7 +172,7 @@ var _gamePlay = {
 
 				}, 1000);
 
-				_gamePlay.isPlaying = true;
+				_gamePlay.startPlaying();
 			}	
 		},
 		stop: function(){
@@ -176,8 +181,8 @@ var _gamePlay = {
 				clearInterval(this.timer);
 				this.timer = null;
 			} 
-			_gamePlay.stopPlaying();
-			_gamePlay.callEndGame();
+			
+			_gamePlay.stopGame();
 		},
 		tiktok: function(txt, lyer){
 			this.time--;
@@ -206,10 +211,15 @@ var _gamePlay = {
 	// Reset thy game stats....
 	resetGameStats: function(){
 		this.score = 0; // Resetting the score...
-		this.gameTimer.time = 2; //Reset the time...
+		this.gameTimer.time = 6; //Reset the time...
 
 		_animation.resetTimerBar(); //Resetting the timer bar in the UI...
 		// TODO: Reset the score ui...
+	},
+
+	// Pause Game...
+	pauseGame: function(){
+
 	}
 
 }
@@ -1108,390 +1118,18 @@ var _app = {
 											height:playAgainBG.height(), fill:"white", align:"center" });
 
 		playAgainBtn.add(playAgainBG); playAgainBtn.add(playAgainText);
-		grp.add(playAgainBtn);
+		playAgainBtn.on('touchstart', function(evt){
+
+		}).on('touchend', function(evt){
+
+			_animation.hidePostGame();
+			_animation.backToMainMenu();
+		}); grp.add(playAgainBtn);
 
 
 		postGameLayer.add(grp);
 		return postGameLayer;
-	},
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	// Method: initialize main menu layer...
-	initMainGameLayer: function(w, h){
-		// Load the main layer
-		var mainLayer = new Kinetic.Layer({ width:w, height:h*2, x:0, y:0, id:"GAME_LAYER" }),
-			mainMenuPage = this.initMainMenuScreen(w, h),
-			gameScreen = this.initGameScreen(w, h);
-
-		var bg = new Kinetic.Image({
-			image: this.resources.gameBackground, width:mainLayer.width(), height:mainLayer.height()
-		}); mainLayer.add(bg);
-
-
-		mainLayer.add(mainMenuPage);
-		mainLayer.add(gameScreen);
-
-		var l = new Kinetic.Layer({ width:w, height:h*2, x:0, y:0, id:"GAME_LAYER" });
-		mainLayer.add(l);
-		return mainLayer;
-	},
-
-
-	// Method: initialize main menu screen
-	initMainMenuScreen: function(w, h){
-		var page = new Kinetic.Group({ width:w, height:h, x:0, y:0, id:"MAIN_MENU_PAGE" });
-
-		// Put the background on the page
-		///var bg = new Kinetic.Image({
-	    //     image: this.resources.mainMenuBackground, width: page.width(), height:page.height()
-		//}); page.add(bg);
-
-		// Add the button...
-		var startGameButton = new Kinetic.Rect({ 	
-								width:page.width()*0.6, 
-								height:page.width()*0.1, 
-								x:page.width()*0.2, 
-								y:page.height()*0.7,
-								fill:"#68b646", 
-								cornerRadius: page.width()*0.03,
-								stroke:"#c3da42",
-
-								fillLinearGradientStartPoint: {x:-50, y:-50},
-								fillLinearGradientEndPoint: {x:50,y:50},
-								fillLinearGradientColorStops: [0, 'red', 300, 'yellow']  
-							});
-
-			// Add the animation...
-		startGameButton.on('touchstart', function(evt){
-			var obj = evt.targetNode;
-			obj.fill('#c3da42'); 
-
-			// Enlarge it!
-			//var btn = _animation.enlargeButton(obj);
-
-			obj.draw();
-
-		}).on('touchend', function(evt){
-
-			var obj = evt.targetNode;
-			obj.fill('#68b646'); 
-
-			//Return to normal size...
-			//var btn = _animation.shrinkButton(obj);
-			//Redraw the background image/s
-			//obj.parent.children[0].draw();
-			//console.log(obj.parent.children[0]);
-
-			obj.draw();
-			_animation.animateNewGame();
-			//_gamePlay.startGame(evt);
-		});
-
-		// Add to mainMenuPage
-		page.add(startGameButton);
-
-		return page;
-	},
-
-	// Method: initialize game screen...
-	initGameScreen: function(w, h){
-		// Create the main game screen
-		var page = new Kinetic.Group({ width:w, height:h, x:0, y:h, id:"GAME_SCREEN" });
-
-		// Put the background on the gameScreen
-		//var bg = new Kinetic.Image({
-	     //   image: this.resources.gameScreenBackground, width: page.width(), height:page.height()
-		//}); page.add(bg);
-
-		// Add up the score and the timer text..
-		var gameStats = this.initGameStatsScreen(w, h);
-		page.add(gameStats);
-		// Tapos, reset the position of the whole stats container...
-		gameStats.y( 0 - gameStats.getParent().height() - gameStats.height() ); //Sa kawalan ng ibabaw gyud na siya...
-
-
-
-		// Then put the character placement grid...
-		//var characterGrid = this.initCharacterGrid(w, h, { w:4, h:5 });
-
-		// Then put the clickable grid...
-		//var clickableGrid = this.initClickableGrid(w, h, { w:4, h:5 });
-		//page.add(clickableGrid); page.add(characterGrid);
-
-		var gameGrid = this.initGameGrid(w, h, gameStats.y() + gameStats.height() + 5);
-		//page.add(gameGrid);
-
-		return page;
-	},
-
-	// Method: initialize gameGrid
-	initGameGrid: function(gameWidth, gameHeight, offsetY){
-		var gameGrid = new Kinetic.Group({ width:gameWidth, height:gameHeight, x:0, y:offsetY });
-
-		// Add up the elements....
-		var params = { w:4, h:5, x:gameWidth*0.1, y:0, width:(gameWidth * 0.80)/4, height: (gameHeight * 0.7)/5 }, elemParams = {};
-		var gameGridElement;
-
-		// Heihercy of the grid:
-		// gameGrid > gameGridElement > character
-		//							  > cover
-
-		// Some Temporary Vars for TEMP*
-		var contentText; var contentBG
-		// End Temporary Vars
-
-		var index = 0;
-		for(var ver = 0; ver < params.h; ver++){
-
-			for (var hor = 0; hor < params.w; hor++){
-
-				gameGridElement = new Kinetic.Group({ name:"GAME_GRID_ELEM", id:index, x:params.x, y:params.y, width:params.width, height:params.height });
-
-				// Add up the elements inside...
-				// TEMP*: Just a grid with some text inside....
-				contentBG = new Kinetic.Rect({
-					stroke:"black", x:0, y:0, width:params.width, height:params.height
-				}); gameGridElement.add(contentBG);
-
-				content = new Kinetic.Text({
-					text:" --- ", fontSize: 24, fontFamily: 'Calibri', fill: '#29230b', x:0, y:0
-				}); gameGridElement.add(content);
-
-
-
-				// Add up the onclick + ontouch event..
-				// Diri ang methods ma map on...
-				gameGridElement.on('touchstart', function(evt){
-
-				}).on('touchend', function(evt){
-					var target = evt.targetNode.getParent(), value, myGuessCorrect, isNumberOfClickables;
-
-					if (_gamePlay.isPlaying){
-						value = target.id();
-
-						isNumberOfClickables = _gamePlay.updateMyGuess(value);
-						if (isNumberOfClickables){ // This means, its now the number of clickables...
-
-							// Clear all clicked interactions...
-							_animation.clearClickedInteractions(target, _gamePlay.myGuess);
-
-
-							myGuessCorrect = _board.checkIfGuessCorrect(_gamePlay.myGuess, _gamePlay.target);
-							if (myGuessCorrect){
-								console.log("Correct guess!");
-
-								// Add up the score...
-								_gamePlay.addUpToScore(_gamePlay.target, target.getLayer());
-								
-
-								// Re shuffle event...
-								_gamePlay.target = _gamePlay.getRandomCharacter(0);
-								_board.shuffleBoard(_gamePlay.target, _gamePlay.level); 
-								_animation.updateGameGridCharacters(_board.board, target.getLayer());
-
-							} else { console.log("Wrong guess!"); }
-
-							//Clear the guess data...
-							_gamePlay.myGuess = [];
-						} else { 
-							//Drawing the isClicked interaction
-							target.children[0].fill('rgba(0,255,0,0.4');
-							target.getLayer().draw();
-						}
-
-						
-
-
-					} else { console.log("You're not playing, mate..."); }
-				});
-
-
-				
-				gameGrid.add(gameGridElement);
-				index++; params.x += params.width;
-			} 
-
-			params.x = gameWidth*0.1;
-			params.y += params.height;
-
-		}
-
-
-		return gameGrid;
-	},
-
-
-	// Method: initialize game screen: clickable grid... currently not used... :3
-	initClickableGrid: function(w, h, dimension){
-		// Put the clickable grid...
-		var clickableGrid = new Kinetic.Group({ width:w*0.8, height:h*0.8, x:w*0.1, y:h*0.1 });
-		var gridElement = null;
-
-		// Grid Dimensions...
-		var count = 0;
-		var params = { width:clickableGrid.width() / dimension.w, height:clickableGrid.height() / dimension.h, x:0, y:0};
-		for(var h=0; h<dimension.h; h++){
-			params.x = 0;
-
-			for(var w=0; w<dimension.w; w++){
-				gridElement = new Kinetic.Rect(params);
-				gridElement.id(count); //Map the index...
-				count++;
-
-				// Some UI tweak
-				gridElement.stroke('rgba(0,255,0,0.2');
-				gridElement.fill('rgba(0,255,0,0.3');
-
-				gridElement.on('touchstart', function(evt){
-					console.log("mousedown a grid elem");
-
-					var object = evt.targetNode;
-					//object.setFill('red'); object.draw();
-
-					// INSERT ANIMATION ON CLICK GRID HERE...
-				}).on('touchend', function(evt){
-					console.log("mouseup a grid elem");
-
-					var object = evt.targetNode;
-					object.setFill('blue'); object.draw();
-					console.log(object.id());
-
-
-					if (_gamePlay.myGuess.indexOf(object.id()) == -1){ //Wala pa sa array
-						// Add them...
-						_gamePlay.addToGuess(object.id());
-
-						// If 3 na kabuok ang elements
-						if (_gamePlay.myGuess.length == _gamePlay.playerStats.allowableClicks){
-							// Execute sa function ni noodles...
-
-							console.log(_gamePlay.myGuess);
-							_gamePlay.myGuess = [];
-						}		
-
-					} else {
-						// Animate out it...
-					}
-
-				});
-
-
-				clickableGrid.add(gridElement);
-				params.x += params.width;
-			}
-
-			params.y += params.height;
-		}
-
-		return clickableGrid;
-	},
-
-	// Method: initialize the grid for character placement... currently not used... :3
-	initCharacterGrid: function(w, h, dimension){
-		var characterGrid = new Kinetic.Group({ width:w*0.8, height:h*0.8, x:w*0.15, y:h*0.1 });
-		var gridElement = null; var offset = w*0.025;
-
-		var params = { width:characterGrid.width() / dimension.w - offset, height:characterGrid.height() / dimension.h - offset, x:0, y:offset*3};
-
-		//TEMPORARY LAYOUT
-		var text, box;
-
-		for(var h=0; h<dimension.h; h++){
-			params.x = 0;
-
-			for(var w=0; w<dimension.w; w++){
-				//gridElement = new Kinetic.Rect(params);
-				
-				// TEMPORARY LAYOUT:
-				gridElement = new Kinetic.Group(params);
-				box = new Kinetic.Rect({ width:characterGrid.width() / dimension.w - offset, height:characterGrid.height() / dimension.h - offset });
-				text = new Kinetic.Text({ text:'0', fontSize: 30, fontFamily: 'Calibri', fill: 'black', name:'CHARACTER_GRID_TXT' });
-				
-				box.stroke("black");
-				gridElement.add(box);
-				gridElement.add(text);
-
-				characterGrid.add(gridElement);
-				params.x += params.width;
-			}
-
-			params.y += params.height;
-		}
-
-		return characterGrid;
-	},
-
-	// Method: updates the character grid by the board generated...
-	// 	@board: is an array of integers. 
-	//
-	// 	Temporary Fix: The contents were just text only...
-	updateCharacterGrid: function(board){
-		var items = this.screens[0].find('.CHARACTER_GRID_TXT'); //this.screens[0]
-		for(var i=0; i<items.length; i++){
-			items[i].text(board[i]);
-			items[i].fill("red");
-
-			items[i].getParent().draw();
-
-			console.log(items[i].text());
-		}
-	},
-
-	// Method: initializes and draws the game stats screen...
-	initGameStatsScreen: function(w, h){
-		var gameStatsContainer = new Kinetic.Group({ width:w+4, height:h*0.12, x:0, y:h*0.05, id:"GAME_STATS_CONT" });
-
-		// Put the background...
-		var background = new Kinetic.Rect({ 	
-								width: gameStatsContainer.width(), 
-								height:gameStatsContainer.height()*1.000, 
-								x:-2, y:0,
-								fill:"#ac7441", 
-								stroke:"#29230b", strokeWidth:3
-						});
-		gameStatsContainer.add(background);
-
-		// Put the timer text...
-		var timerText = new Kinetic.Text({
-			text:"0:00", fontSize: 24, fontFamily: 'Calibri', fill: '#29230b', id:"GAME_TIMER_TXT", x:5, y:2
-		}); gameStatsContainer.add(timerText);
-
-		// Put the score text...
-		var scoreText = new Kinetic.Text({
-			text:"00000", fontSize: 24, fontFamily: 'Calibri', fill: '#29230b', id:"GAME_SCORE_TXT", align:'right',
-			x: gameStatsContainer.width() - 70, y:2
-		}); gameStatsContainer.add(scoreText);
-
-		// Then the timer bar...
-		var timerBarBG = new Kinetic.Rect({
-			x:6, y:timerText.height() + 7, height:5, width:gameStatsContainer.width() * 0.95, fill:"#ac7441", stroke:"#29230b"
-		}); gameStatsContainer.add(timerBarBG);
-
-		var timerBar = new Kinetic.Rect({
-			x:6, y:timerText.height() + 7, height:5, width:timerBarBG.width(), fill:"#29230b", stroke:"#29230b", id:"TIMER_BAR"
-		}); gameStatsContainer.add(timerBar);
-
-		// Update _animation attribute on timerBarOffset (needed for the animation...);
-		_animation.timerBarOffset = timerBar.width() / 121; // 121 kay 2 minutes + 1 offset... :)
-
-
-		return gameStatsContainer;
 	}
-
 
 }
 
@@ -1841,6 +1479,9 @@ var _animation = {
 
 	        }
 		}); tween.play();
+	},
+	hidePostGame: function(){
+		_app.screens[10].y( 0 - _app.screens[10].height() ).draw();
 	},
 
 
