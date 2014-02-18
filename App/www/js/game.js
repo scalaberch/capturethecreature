@@ -10,7 +10,6 @@
 var _gamePlay = {
 
 	isPlaying: false,
-	isShowing: false,
 	score:     0,
 	myGuess:   [],
 	level: 	   3,
@@ -21,7 +20,6 @@ var _gamePlay = {
 
 	playerStats: {
 		allowableClicks:3,
-		showTimerOffset:3000,
 		initPlayerStats: function(){
 			// This will get to the cordova data...
 		}
@@ -33,60 +31,37 @@ var _gamePlay = {
 	// OnClick on the Start Game will execute this one!
 	startGame: function(e){
 		// Initialize the board daan...
-		var gameLayer 		= null, //e.targetNode.getParent().getParent(),
-			gameTimerObj 	= _app.screens[1].find("#GAME_TIMER_TXT")[0];
-<<<<<<< HEAD
+		var gameLayer 		= e.targetNode.getParent().getParent(),
+			gameTimerObj 	= gameLayer.find("#GAME_TIMER_TXT")[0];
 
-		// Reset stats...
-		this.resetGameStats();
+		console.log(gameLayer);
+		console.log("noop");
 
-		// Start the timer and its animation/s...
-		//_gamePlay.startPlaying();
-		_gamePlay.gameTimer.start(gameTimerObj, _app.screens[1]);
-
-		// this.gameTimer.start();
-		this.executeGameShuffle();
-
-	},
-	// Do the algo on shuffle. This acts when on the start of the game.
-	//	and/or during a correct guess...
-	executeGameShuffle: function(){
-		// On randomization....
-		this.target = _gamePlay.getRandomCharacter(0);
-		_board.shuffleBoard(this.target, this.level); // level depends on the players level // -1 is used since 
-
-		// On printing the board...
-		_board.printBoard();
-		_animation.updateBoardLayers(_board.board);
-
-		// Show what to find...
-		_animation.showWhatToFind(this.target);
-
-		// On showing it and getting back...
-		this.isShowing = true;
-		_animation.showAllBoardLayers();
-
-		setTimeout(function(){
-			_animation.hideAllBoardLayers();
-			_gamePlay.isShowing = false;
-		}, _gamePlay.playerStats.showTimerOffset);
-=======
+		// Implement the animation of the 3-2-1 countdown here...
+		//	Assigned: @hillary
 
 		// Resetting the score...
 		this.score = 0;
 
-		// Start the timer and its animation/s...
-		//_gamePlay.startPlaying();
-		_gamePlay.gameTimer.start(gameTimerObj, _app.screens[1]);
-			
 
-		// Update the board...
-		//_animation.updateGameGridCharacters(_board.board, gameLayer);
+		// Do the delay of 3 seconds...
+		setTimeout(function(){
 
-		// this.gameTimer.start();
-		//this.target = _gamePlay.getRandomCharacter(0);
-		//_board.shuffleBoard(this.target, this.level); // level depends on the players level // -1 is used since 
->>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
+			// Start the timer and its animation/s...
+			_gamePlay.startPlaying();
+			_gamePlay.gameTimer.start(gameTimerObj, gameLayer);
+			// Update the board...
+
+			_animation.updateGameGridCharacters(_board.board, gameLayer);
+
+
+		}, 1000);
+
+
+
+	// this.gameTimer.start(); <-- 
+		this.target = _gamePlay.getRandomCharacter(0);
+		_board.shuffleBoard(this.target, this.level); // level depends on the players level // -1 is used since 
 	},
 
 
@@ -108,11 +83,6 @@ var _gamePlay = {
 		} while(i==except);
 		return i;
 	},
-	// (NEW) Check if guess is correct
-	isMyGuessCorrect: function(guess){
-		return _board.checkIfGuessCorrect(guess, this.target);
-	},
-
 
 	// Guess controllers. These puts in on the current guess of the player...
 	//	Handlers are didto sa pag touch
@@ -145,8 +115,7 @@ var _gamePlay = {
 
 	// Invoke the end-game actions...
 	callEndGame: function(){
-		//_animation.slidePostGameDown();
-		_animation.endGameAnimations();
+		_animation.slidePostGameDown();
 	},
 
 	// Add up to score
@@ -154,13 +123,12 @@ var _gamePlay = {
 	//	This is just a basic score = character.score * number
 	//		The trick is just to increment by this value to the _gamePlay.score
 	//	Assigned: @ellenp 
-	addUpToScore: function(character){
+	addUpToScore: function(character, layer){
 		var prevScore = this.score,
 			nextScore = prevScore + (_characters[character].value * this.playerStats.allowableClicks);
 
 		this.score = nextScore;
-		console.log(this.score);
-		_animation.updateScore(prevScore, nextScore); //didto ni i.butang sa addUpToScore
+		_animation.updateScore(prevScore, nextScore, layer); //didto ni i.butang sa addUpToScore
 		
 
 	},
@@ -176,17 +144,12 @@ var _gamePlay = {
 	// Game Timer Structure
 	gameTimer: {
 
-		time: 2, timer: null,
+		time: 121, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
-			if (!_gamePlay.isPlaying){
-				this.timer = setInterval(function(){
-					_gamePlay.gameTimer.tiktok(t, l);
-
-				}, 1000);
-
-				_gamePlay.isPlaying = true;
-			}	
+			this.timer = setInterval(function(){
+				_gamePlay.gameTimer.tiktok(t, l);
+			}, 1000);
 		},
 		stop: function(){
 			// Manually stopping the timer...
@@ -195,7 +158,6 @@ var _gamePlay = {
 				this.timer = null;
 			} 
 			_gamePlay.stopPlaying();
-
 			_gamePlay.callEndGame();
 		},
 		tiktok: function(txt, lyer){
@@ -219,26 +181,9 @@ var _gamePlay = {
 			_animation.updateTimerBar(layer);
 		}
 
-	},
-
-
-	// Reset thy game stats....
-	resetGameStats: function(){
-		this.score = 0; // Resetting the score...
-		this.gameTimer.time = 2; //Reset the time...
-
-		_animation.resetTimerBar(); //Resetting the timer bar in the UI...
-		// TODO: Reset the score ui...
 	}
 
 }
-
-
-
-
-
-
-
 
 // This is the player object. This holds all the attributes for the player
 // 	This includes the level of the player, the experience level and the
@@ -409,12 +354,10 @@ var _board = {
 
 var _characters = [
 	
-	{ name:"NONE", value:0, img:"path_to_image/here", color:"black" },
-	{ name:"Cheekee", value:10, img:"path_to_image/here", color:"red" },
-	{ name:"Chaakee", value:12, img:"path_to_image/here", color:"yellow" },
-	{ name:"Chuukee", value:12, img:"path_to_image/here", color:"blue" },
-	{ name:"Chuukqq", value:40, img:"path_to_image/here", color:"brown" },
-	{ name:"Chuukqa", value:40, img:"path_to_image/here", color:"violet" }
+	{ name:"NONE", value:0, img:"path_to_image/here" },
+	{ name:"Cheekee", value:10, img:"path_to_image/here" },
+	{ name:"Chaakee", value:12, img:"path_to_image/here" },
+	{ name:"Chuukee", value:12, img:"path_to_image/here" }
 
 ];
 
@@ -518,30 +461,22 @@ var _app = {
 		//	Rationale: For it to be independent for every layer draw.
 
 		var params = { cols:4, rows:5, x:_width*0.01, y: _height*0.07, width: (_width - _width*0.04)/4, height: (_height - _height*0.28)/5 };
-		var boardItemLayer, rect, itemLayers = [], i = 0;
+		var boardItemLayer, rect, itemLayers = [];
 
 		for (var vertical = 0; vertical < params.rows; vertical++) {
 
 			for (var horizontal = 0; horizontal < params.cols; horizontal++) {
 
 				boardItemLayer = new Kinetic.Layer({
-					x:params.x, y:params.y, width:params.width, height:params.height, id:i
+					x:params.x, y:params.y, width:params.width, height:params.height
 				});
-
-				var content = new Kinetic.Rect({ //a rect for now...
-					x: boardItemLayer.x(), y: boardItemLayer.y(),
-					width: boardItemLayer.width(), height: boardItemLayer.height(),
-
-					fill:"black"
-				}); boardItemLayer.add(content);
 
 				// Add up everything...
 				var rect = new Kinetic.Rect({
 					x: boardItemLayer.x(), y: boardItemLayer.y(),
 					width: boardItemLayer.width(), height: boardItemLayer.height(),
 
-					fill:"white", //stroke:"red", 
-					strokeWidth:3
+					fill:"green", stroke:"red", strokeWidth:3
 				}); boardItemLayer.add(rect);
 
 
@@ -549,84 +484,7 @@ var _app = {
 				boardItemLayer.opacity(0).visible(false);
 				// Add up the animation dude...
 				boardItemLayer.on('touchend', function(e){
-<<<<<<< HEAD
-					if (_gamePlay.isPlaying && !_gamePlay.isShowing){
-						//console.log(e.targetNode.getLayer());
-						//rect.opacity(0); e.targetNode.getLayer().draw();
-
-						var rect = e.targetNode.getLayer().children[1];
-
-
-						if (_gamePlay.myGuess.indexOf(e.targetNode.getLayer().id()) == -1){ // Wala siya diri...
-							rect.opacity(0);
-
-							_gamePlay.addToGuess(e.targetNode.getLayer().id());
-							
-							if (_gamePlay.myGuess.length == _gamePlay.playerStats.allowableClicks){
-								// Submit it now...
-								if (_gamePlay.isMyGuessCorrect(_gamePlay.myGuess)){
-									// Add to score...
-									_gamePlay.addUpToScore(_gamePlay.target);
-
-
-									_gamePlay.executeGameShuffle();
-								} else { 
-									_animation.hideAllBoardLayers();
-								}
-								
-
-								// Clear the road for it...
-								//_animation.clearClickedInteractions(_gamePlay.myGuess);
-								_gamePlay.myGuess = [];	
-							
-							} else { e.targetNode.getLayer().draw(); }
-=======
-					if (_gamePlay.isPlaying){
-						//console.log(e.targetNode.getLayer());
-						//rect.opacity(0); e.targetNode.getLayer().draw();
-
-						var rect = e.targetNode.getLayer().children[0];
-
-
-						if (_gamePlay.myGuess.indexOf(e.targetNode.getLayer().id()) == -1){ // Wala siya dri. 
-							rect.opacity(0);
-
-							_gamePlay.addToGuess(e.targetNode.getLayer().id());
-							if (_gamePlay.myGuess.length == _gamePlay.playerStats.allowableClicks){
-								// Submit it now...
-
-								// Clear the road for it...
-								_animation.clearClickedInteractions(_gamePlay.myGuess);
-								_gamePlay.myGuess = [];
-							}
-
->>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
-
-						} else { 
-							//rect.opacity(1); 
-							//_gamePlay.removeFromGuess(e.targetNode.getLayer().id());
-
-<<<<<<< HEAD
-							// Comment above: Kay MIND GAME LAGE SIYA...
-						}
-
-						
-=======
-
-						}
-
-						e.targetNode.getLayer().draw();
-
->>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
-
-
-					}
-					
-				}).on('touchstart', function(e){
-					if (_gamePlay.isPlaying){
-						
-
-					}
+					console.log("I can has touch!");
 				});
 
 
@@ -634,8 +492,6 @@ var _app = {
 				this.app.add(boardItemLayer);
 
 				params.x += params.width / 2;
-
-				i++;
 			}
 
 			params.x = _width*0.01;
@@ -653,47 +509,22 @@ var _app = {
 		var pauseLayer = this.initPauseMenu(_width, _height);
 		this.app.add(pauseLayer);
 
-		/*
-<<<<<<< HEAD
-		** Outside layer na ni sila... :)
-=======
-		** Outside Layers.
->>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
-		*/
 
 		// Leaderboard pane...
 		var leaderBoardLayer = this.initLeaderBoardLayer(_width, _height);
 		this.app.add(leaderBoardLayer);
 
-		// Countdown layer...
-		var countdownLayer = this.initCountDownLayer(_width, _height);
-		this.app.add(countdownLayer);
-<<<<<<< HEAD
-=======
 
->>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
 
-		// The "Find Me" Layer
-		var findMeLayer = this.initFindMeLayer(_width, _height);
-		this.app.add(findMeLayer);
-
-		var findMeSLayer = this.initFindMeSwingingLayer(_width, _height);
-		this.app.add(findMeSLayer);
 
 		// Load the postGameLayer
-		var postGameLayer = this.initPostGameLayer(_width, _height);
-		this.app.add(postGameLayer);
+		//var postGameLayer = this.initPostGameLayer(_width, _height);
+		//this.app.add(postGameLayer);
 
 
 		// Put to screens array for reference in below objects
 		//this.screens = [mainLayer, postGameLayer];
-		this.screens = [backgroundMainMenu, gameStatsLayer, gameBoardLayer, leaderBoardLayer, 
-<<<<<<< HEAD
-							pauseLayer, itemLayers, bottomBoardLayer, countdownLayer, findMeLayer, findMeSLayer,
-							postGameLayer];		
-=======
-							pauseLayer, itemLayers, bottomBoardLayer, countdownLayer];		
->>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
+		this.screens = [backgroundMainMenu, gameStatsLayer, gameBoardLayer, leaderBoardLayer, pauseLayer, itemLayers];		
 	},
 
 	// Methods...
@@ -770,14 +601,6 @@ var _app = {
 
 		}).on('touchend', function(evt){
 			_animation.slideLeaderBoardDown();
-
-			var data = $.ajax({
-				url:_server.leaderBoard(),
-				success: function(data){
-
-				}
-
-			});
 		});
 
 		mainMenuLayer.add(startGameButton);
@@ -795,50 +618,36 @@ var _app = {
 
 		// Put the background...
 		var background = new Kinetic.Rect({ 	
-								width: gameStatsLayer.width() * 0.96, 
+								width: gameStatsLayer.width(), 
 								height: gameStatsLayer.height(), 
-								x: w*0.02, y:0,
+								x:-2, y:0,
 								fill:"#ac7441", 
-								stroke:"#29230b", strokeWidth:2,
-
-								cornerRadius:  w*0.01
-		}); gameStatsLayer.add(background);
+								stroke:"#29230b", strokeWidth:3
+						});
+		gameStatsLayer.add(background);
 
 		// Put the timer text...
 		var timerText = new Kinetic.Text({
-<<<<<<< HEAD
-			text:"0:00", fontSize: 24, fontFamily: 'bubbleboddy', fill: '#29230b', id:"GAME_TIMER_TXT", x:w*0.03, y:2
-=======
-			text:"0:00", fontSize: 24, fontFamily: 'Calibri', fill: '#29230b', id:"GAME_TIMER_TXT", x:w*0.03, y:2
->>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
+			text:"0:00", fontSize: 24, fontFamily: 'Calibri', fill: '#29230b', id:"GAME_TIMER_TXT", x:5, y:2
 		}); gameStatsLayer.add(timerText);
 
 		// Put the score text...
 		var scoreText = new Kinetic.Text({
-<<<<<<< HEAD
-			text:"00000", fontSize: 24, fontFamily: 'bubbleboddy', fill: '#29230b', id:"GAME_SCORE_TXT", align:'right',
-			x: gameStatsLayer.width() - gameStatsLayer.width() * 0.24, y:2
-=======
 			text:"00000", fontSize: 24, fontFamily: 'Calibri', fill: '#29230b', id:"GAME_SCORE_TXT", align:'right',
-			x: gameStatsLayer.width() - gameStatsLayer.width() * 0.22, y:2
->>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
+			x: gameStatsLayer.width() - 70, y:2
 		}); gameStatsLayer.add(scoreText);
 
 		// Then the timer bar...
 		var timerBarBG = new Kinetic.Rect({
-<<<<<<< HEAD
-			x:w*0.04, y:timerText.height() + 7, height:5, width:gameStatsLayer.width() * 0.92, fill:"#ac7441", stroke:"#29230b", id:"TIMER_BAR_PARENT"
-=======
-			x:w*0.04, y:timerText.height() + 7, height:5, width:gameStatsLayer.width() * 0.92, fill:"#ac7441", stroke:"#29230b"
->>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
+			x:6, y:timerText.height() + 7, height:5, width:gameStatsLayer.width() * 0.95, fill:"#ac7441", stroke:"#29230b"
 		}); gameStatsLayer.add(timerBarBG);
 
 		var timerBar = new Kinetic.Rect({
-			x:w*0.04, y:timerText.height() + 7, height:5, width:timerBarBG.width(), fill:"#29230b", stroke:"#29230b", id:"TIMER_BAR"
+			x:6, y:timerText.height() + 7, height:5, width:timerBarBG.width(), fill:"#29230b", stroke:"#29230b", id:"TIMER_BAR"
 		}); gameStatsLayer.add(timerBar);
 
 		// Update _animation attribute on timerBarOffset (needed for the animation...);
-		_animation.timerBarOffset = timerBar.width() / _gamePlay.gameTimer.time; // 121 kay 2 minutes + 1 offset... :)
+		_animation.timerBarOffset = timerBar.width() / 121; // 121 kay 2 minutes + 1 offset... :)
 
 
 		return gameStatsLayer;
@@ -936,7 +745,6 @@ var _app = {
 
 
 		bottomLayer.add(pauseButton);
-		bottomLayer.visible(false);
 		return bottomLayer;
 	},
 	// Method: (NEW) Pause Menu...
@@ -996,230 +804,7 @@ var _app = {
 
 		return pauseLayer;
 	},
-	// Count Down Layer stuff...
-	initCountDownLayer: function(w, h){
-		var layer = new Kinetic.Layer({
-			width:w, height:h*0.25, x:0, y:h*0.17 //h*0.02
-		});
-<<<<<<< HEAD
-=======
 
-		// Ready!
-		var ready = new Kinetic.Text({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT",
-
-			text:"ready?", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
-			stroke:"black", strokeWidth:5, opacity:0
-		}); layer.add(ready);
-
-		// Set!
-		var ready = new Kinetic.Text({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"SET_TXT",
-
-			text:"set?", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
-			stroke:"black", strokeWidth:5, opacity:0
-		}); layer.add(ready);
-
-		// Get 'em!'
-		var ready = new Kinetic.Text({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GO_TXT",
-
-			text:"get 'em!", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
-			stroke:"black", strokeWidth:5, opacity:0
-		}); layer.add(ready);
-
-
-		layer.visible(false);
-		return layer;
-	},
->>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
-
-		// Ready!
-		var ready = new Kinetic.Text({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT",
-
-			text:"ready?", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
-			stroke:"black", strokeWidth:5, opacity:0
-		}); layer.add(ready);
-
-		// Set!
-		ready = new Kinetic.Text({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"SET_TXT",
-
-			text:"set?", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
-			stroke:"black", strokeWidth:5, opacity:0
-		}); layer.add(ready);
-
-		// Get 'em!'
-		ready = new Kinetic.Text({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GO_TXT",
-
-			text:"get 'em!", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
-			stroke:"black", strokeWidth:5, opacity:0
-		}); layer.add(ready);
-
-		// Get 'em!'
-		ready = new Kinetic.Text({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GAME_OVER_TXT",
-
-			text:"time's up!", fill:"white", fontSize: 60, fontFamily: 'bubbleboddy', align:'center',
-			stroke:"black", strokeWidth:5, opacity:0
-		}); layer.add(ready);
-
-		layer.visible(false);
-		return layer;
-	},
-	initFindMeLayer: function(w, h){
-		var layer = new Kinetic.Layer({
-			width:w, height:h*0.12, x:0, y:h*0.88, //id:"GAME_BOARD_LAYER" //h*0.02
-		});
-
-		// Put the background...
-		var bg = new Kinetic.Rect({ 	
-								width: layer.width() * 0.36, 
-								height: layer.height(), 
-								x:0, y:0,
-								fill:"#ac7441", 
-								stroke:"#29230b", strokeWidth:3
-		}); //layer.add(bg);
-
-		// Put the pause button...
-		//var pauseButton = new Kinetic.Rect({
-		//	x: layer.width() * 0.82, y:0, 
-		//	width: layer.width() * 0.15, height:layer.height() * 0.8, fill:"red"
-		//}).on('touchend', function(evt){
-			//var pauselayer = _app.screens[_app.PAUSE_MENU];
-
-			//pauselayer.y( h*0.25 ); pauselayer.draw();
-		//});
-	
-		// Put the holder of the target
-		var targetImage = new Kinetic.Rect({
-			width:layer.width() * 0.25, height:layer.height(),
-			x:layer.width() * 0.025, y:0, fill:"black",
-
-			id:"TARGET_IMG"
-		}); layer.add(targetImage);
-
-		// Put the x3 or x4 or xN thingy...
-		var timesSomethingTxt = new Kinetic.Text({
-			text:"x3", fontSize: 24, fontFamily: 'bubbleboddy', fill: 'black', id:"TIMES_TEXT", align:'right',
-			x: layer.width() * 0.275, y:layer.height()*0.5
-		}); layer.add(timesSomethingTxt);
-
-		//layer.add(pauseButton);
-		layer.visible(false);
-		return layer
-	},
-	// Katong mag swing swing... bow...
-	initFindMeSwingingLayer: function(w, h){
-		// Rationale: bulagon nimo ang layer ana para dili hago sa system. 
-		//		layer management thingy as per adviced sa kinetic.js
-		var layer = new Kinetic.Layer({
-			width:w, height:h*0.12, x:0, y:h*0.88, //id:"GAME_BOARD_LAYER" //h*0.02
-		});
-
-		var timesSomethingTxt = new Kinetic.Text({
-			text:"find me!", fontSize: 24, fontFamily: 'bubbleboddy', fill: '#29230b', align:'right',
-			x: layer.width() * 0.38, y:layer.height()*0.2,
-
-			padding:3
-		}); 
-
-		var triangle = new Kinetic.Shape({
-			x:0, y:0,
-			sceneFunc: function(context) {
-	          context.beginPath();
-	          context.moveTo(layer.width() * 0.39, layer.height()*0.26);
-	          context.lineTo(layer.width() * 0.37, layer.height()*0.55);
-	          //context.quadraticCurveTo(300, 100, 260, 170);
-	          context.lineTo(layer.width() * 0.30, layer.height()*0.44);
-	          context.closePath();
-	          // KineticJS specific context method
-	          context.fillStrokeShape(this);
-	        },
-	        fill: '#ac7441',
-	        //stroke: "#29230b",
-	        //strokeWidth: 3
-		});
-
-		var container = new Kinetic.Rect({
-			width: layer.width() * 0.30, 
-			height: timesSomethingTxt.height(), 
-			x:layer.width() * 0.37, y:layer.height()*0.2,
-			fill:"#ac7441", 
-			//stroke:"#29230b", //strokeWidth:3, 
-			cornerRadius:8
-		}); 
-
-		layer.add(triangle);
-		layer.add(container);
-		layer.add(timesSomethingTxt);
-
-		layer.visible(false);
-		return layer;
-	},
-	// Post Game Layer Methods and stuff
-	initPostGameLayer: function(w, h){
-		var postGameLayer = new Kinetic.Layer({ width:w, height:h, x:0, y:0, id:"POST_GAME_LAYER" });
-		postGameLayer.y( 0 - postGameLayer.height());
-
-		// Get the grouping...
-		var grp = new Kinetic.Group({ width:w*0.8, height:h*0.4, x:(w - w*0.8)/2, y:(h - h*0.4)/2, id:"POST_GAME_CONT" });
-		//grp.y( 0 - grp.height()); // Set it to the hidden position;
-
-
-		// Get the background...
-		var bg = new Kinetic.Rect({ width:grp.width(), height:grp.height(), x:0, y:0, fill:"#ac7441", stroke:"#29230b", strokeWidth:3, cornerRadius: grp.width()*0.03, });
-		grp.add(bg);
-
-		// Title Message
-		var titleText = new Kinetic.Text({ x:0, y:3, width:grp.width(),  height:grp.height(), text:"Game Over!",
-												fill:"white", align:"center" });
-		grp.add(titleText);
-		// Score counter...
-
-		// Experience counter...
-
-		// Get the button groups... Button group constants..
-		var buttonWidth = grp.width()*0.33, buttonHeight = grp.height()*0.10;
-
-		//	Play again button...
-		var playAgainBtn  = new Kinetic.Group({ x:0, y:grp.height()*0.7, width:buttonWidth, height:buttonHeight }),
-			playAgainBG   = new Kinetic.Rect({ x:0, y:0, fill:"blue", width:playAgainBtn.width(), height:playAgainBtn.height()}),
-			playAgainText = new Kinetic.Text({ x:0, y:0, text:"Play Again?", width:playAgainBG.width(), 
-												height:playAgainBG.height(), fill:"white", align:"center" });
-
-
-		playAgainBtn.add(playAgainBG); playAgainBtn.add(playAgainText);
-		playAgainBtn.on('touchstart', function(evt){
-
-		}).on('touchend', function(evt){
-			_animation.slidePostGameUp();
-		}); grp.add(playAgainBtn);
-
-		// Share to Facebook Button...
-		playAgainBtn  = new Kinetic.Group({ x:buttonWidth, y:grp.height()*0.7, width:buttonWidth, height:buttonHeight }),
-		playAgainBG   = new Kinetic.Rect({ x:0, y:0, fill:"blue", width:playAgainBtn.width(), height:playAgainBtn.height()}),
-		playAgainText = new Kinetic.Text({ x:0, y:0, text:"Share Score!", width:playAgainBG.width(),
-											 height:playAgainBG.height(), fill:"white", align:"center" });
-
-		playAgainBtn.add(playAgainBG); playAgainBtn.add(playAgainText);
-		grp.add(playAgainBtn);
-
-		// Back to Main Menu Button...
-		playAgainBtn  = new Kinetic.Group({ x:buttonWidth*2, y:grp.height()*0.7, width:buttonWidth, height:buttonHeight }),
-		playAgainBG   = new Kinetic.Rect({ x:0, y:0, fill:"blue", width:playAgainBtn.width(), height:playAgainBtn.height()}),
-		playAgainText = new Kinetic.Text({ x:0, y:0, text:"Back to Menu", width:playAgainBG.width(), 
-											height:playAgainBG.height(), fill:"white", align:"center" });
-
-		playAgainBtn.add(playAgainBG); playAgainBtn.add(playAgainText);
-		grp.add(playAgainBtn);
-
-
-		postGameLayer.add(grp);
-		return postGameLayer;
-	},
 
 
 
@@ -1596,7 +1181,87 @@ var _app = {
 
 
 		return gameStatsContainer;
+	},
+
+
+
+
+	// Post Game Layer Methods and stuff
+	initPostGameLayer: function(w, h){
+		var postGameLayer = new Kinetic.Layer({ width:w, height:h, x:0, y:0, id:"POST_GAME_LAYER" });
+
+		// Get the grouping...
+		var grp = new Kinetic.Group({ width:w*0.8, height:h*0.4, x:(w - w*0.8)/2, y:(h - h*0.4)/2, id:"POST_GAME_CONT" });
+		grp.y( 0 - grp.height()); // Set it to the hidden position;
+
+
+		// Get the background...
+		var bg = new Kinetic.Rect({ width:grp.width(), height:grp.height(), x:0, y:0, fill:"#ac7441", stroke:"#29230b", strokeWidth:3, cornerRadius: grp.width()*0.03, });
+		grp.add(bg);
+
+		// Title Message
+		var titleText = new Kinetic.Text({ x:0, y:3, width:grp.width(),  height:grp.height(), text:"Game Over!",
+												fill:"white", align:"center" });
+		grp.add(titleText);
+		// Score counter...
+
+		// Experience counter...
+
+		// Get the button groups... Button group constants..
+		var buttonWidth = grp.width()*0.33, buttonHeight = grp.height()*0.10;
+
+		//	Play again button...
+		var playAgainBtn  = new Kinetic.Group({ x:0, y:grp.height()*0.7, width:buttonWidth, height:buttonHeight }),
+			playAgainBG   = new Kinetic.Rect({ x:0, y:0, fill:"blue", width:playAgainBtn.width(), height:playAgainBtn.height()}),
+			playAgainText = new Kinetic.Text({ x:0, y:0, text:"Play Again?", width:playAgainBG.width(), 
+												height:playAgainBG.height(), fill:"white", align:"center" });
+
+
+		playAgainBtn.add(playAgainBG); playAgainBtn.add(playAgainText);
+		playAgainBtn.on('touchstart', function(evt){
+
+		}).on('touchend', function(evt){
+			//postGameLayer.
+			//var target = evt.targetNode.getLayer().find("#POST_GAME_CONT")[0];
+			//console.log(target);
+
+			//var i = 0;
+			//var animatet = new Kinetic.Animation(function(frame){
+				//console.log(frame);
+
+				//console.log( target.y() );
+			//	target.x( target.x() + 1);
+			//}); animatet.start();
+
+			_animation.slidePostGameUp();
+
+		}); grp.add(playAgainBtn);
+
+		// Share to Facebook Button...
+		playAgainBtn  = new Kinetic.Group({ x:buttonWidth, y:grp.height()*0.7, width:buttonWidth, height:buttonHeight }),
+		playAgainBG   = new Kinetic.Rect({ x:0, y:0, fill:"blue", width:playAgainBtn.width(), height:playAgainBtn.height()}),
+		playAgainText = new Kinetic.Text({ x:0, y:0, text:"Share Score!", width:playAgainBG.width(),
+											 height:playAgainBG.height(), fill:"white", align:"center" });
+
+		playAgainBtn.add(playAgainBG); playAgainBtn.add(playAgainText);
+		grp.add(playAgainBtn);
+
+		// Back to Main Menu Button...
+		playAgainBtn  = new Kinetic.Group({ x:buttonWidth*2, y:grp.height()*0.7, width:buttonWidth, height:buttonHeight }),
+		playAgainBG   = new Kinetic.Rect({ x:0, y:0, fill:"blue", width:playAgainBtn.width(), height:playAgainBtn.height()}),
+		playAgainText = new Kinetic.Text({ x:0, y:0, text:"Back to Menu", width:playAgainBG.width(), 
+											height:playAgainBG.height(), fill:"white", align:"center" });
+
+		playAgainBtn.add(playAgainBG); playAgainBtn.add(playAgainText);
+		grp.add(playAgainBtn);
+
+
+
+		
+		postGameLayer.add(grp);
+		return postGameLayer;
 	}
+
 
 
 }
@@ -1647,6 +1312,47 @@ var _animation = {
 			}
 		}); tween.play();
 	},
+
+
+
+
+	// This is old... TO BE REPLACED...
+	slidePostGameUp: function(){
+		var postGame = _app.screens[1].find('#POST_GAME_CONT')[0];
+
+		//Slide up action
+		var slideUp = new Kinetic.Animation(function(frame){
+			postGame.y( postGame.y() - 5 ); postGame.getLayer().draw();
+			if (postGame.y() < (0 - postGame.height())) {
+				this.stop(); _animation.slidePostGameDown();
+			}
+		}); slideUp.start(); 
+
+		//Excite action...
+		
+	},
+	slidePostGameDown: function(){
+		var postGame = _app.screens[1].find('#POST_GAME_CONT')[0];
+
+		var slideDown = new Kinetic.Animation(function(frame){
+			postGame.y( postGame.y() + 5 ); postGame.getLayer().draw();
+			if (postGame.y() > ((postGame.getLayer().height() * 0.6) - (postGame.height() / 2))  ) {
+				this.stop();
+				extra.start();
+			}
+		}); slideDown.start();
+
+		var extra = new Kinetic.Animation(function(frame){
+			postGame.y( postGame.y() - 5 ); postGame.getLayer().draw();
+			if (postGame.y() <  ((postGame.getLayer().height() / 2) - (postGame.height() / 2)) ){
+				this.stop();
+			}
+		});
+	},
+
+
+
+
 	// Leaderboard chuchu
 	slideLeaderBoardDown: function(){
 		var layer = _app.screens[3];
@@ -1692,35 +1398,12 @@ var _animation = {
 		// Hide the stats pane...
 		_app.screens[1].y(0 - _app.screens[1].height());
 		_app.screens[1].draw();
-
-<<<<<<< HEAD
-		// Hide the bottom pane...
-		_app.screens[6].visible(false).draw();
-
-		// Hide the "find me"
-		_app.screens[8].visible(false).draw();
-		_app.screens[9].visible(false).draw();
-
-		// Hide the board layers...
-=======
-		// Hide the Bottom Pane.
-		_app.screens[6].visible(false).draw();
-
-		// Hides the Board Layers.
->>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
-		var layers = _app.screens[5], i;
-		for(i=0; i<layers.length; i++){
-			layers[i].visible(false).opacity(0).draw();
-		}
 	},
 	// Animate the clickables in...
 	animateClickables: function(){
 		var clickables = _app.screens[5], tweens = [], tween;
 
 		_animation.a(clickables, 0);
-		
-		// For now.
-		_app.screens[6].visible(true).draw();
 	},
 	a: function(ts, i){ //Helper function for the animation...
 		if (ts.length > i){
@@ -1731,340 +1414,13 @@ var _animation = {
 				duration:0.001,
 				easing: Kinetic.Easings.EaseOut,
 				onFinish: function(){
-					//console.log("yeah");
-					console.log(i);
-					if (i+1 >= ts.length){
-						console.log("dun");
-						_animation.animateCountDown();
-					} else {
-						_animation.a(ts, i+1);
-					}
+					console.log("yeah");
+					_animation.a(ts, i+1);
 				}
 			}); t.play();
-		} else { 
-			//console.log("Stahpp..."); 
-			//this.animateCountDown();
-		}
-<<<<<<< HEAD
-=======
+		} else { console.log("Stahpp..."); }
 
 	},
-
-	// Animate the 3, 2, 1 chuchu
-	animateCountDown: function(){
-		var layer = _app.screens[7],
-			ready = layer.find('#READY_TXT')[0],
-			set   = layer.find('#SET_TXT')[0],
-			go    = layer.find('#GO_TXT')[0];
-
-		layer.visible(true);
-
-		// Get the tweens...
-		// TODO: Get them out later...
-
-		var ready_showTween = new Kinetic.Tween({
-			node:ready,
-			opacity:1,
-			duration:0.3,
-			onFinish: function(){ 
-				ready_showTween.reverse(); 
-				setTimeout(function(){
-					set_showTween.play();
-				}, 300);
-			}
-		});
-
-		var set_showTween = new Kinetic.Tween({
-			node:set,
-			opacity:1,
-			duration:0.3,
-			onFinish: function(){ 
-				set_showTween.reverse(); 
-				setTimeout(function(){
-					go_showTween.play();
-				}, 300);
-			}
-		});
-
-		var go_showTween = new Kinetic.Tween({
-			node:go,
-			opacity:1,
-			duration:0.3,
-			onFinish: function(){
-				go_showTween.reverse();
-				setTimeout(function(){
-					layer.visible(false).draw();
-
-					_gamePlay.startGame();
-				}, 0);
-			}
-		});
->>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
-
-		
-		//setTimeout(function(){
-			ready_showTween.play();
-		//}, 500);
-	},
-	// Updating timerBar
-	updateTimerBar: function(layer)
-	{
-		var timerBar = layer.find("#TIMER_BAR")[0];
-		timerBar.width( timerBar.width() - this.timerBarOffset);
-		layer.draw();
-	},
-	// Clearing the Cliked Grid.
-	clearClickedInteractions: function(guessdata)
-	{
-
-		var elems = _app.screens[5];
-		for(var i=0; i<elems.length; i++){
-			if (guessdata.indexOf(elems[i].id()) != -1)
-			{
-
-
-				elems[i].children[0].opacity(1);
-				elems[i].draw();
-			}
-		}
-
-	},
-
-	// 
-	// Updating the Board Layers.
-
-
-
-
-
-
-
-
-
-
-
-
-
-	// Animate the 3, 2, 1 chuchu
-	animateCountDown: function(){
-		var layer = _app.screens[7],
-			ready = layer.find('#READY_TXT')[0],
-			set   = layer.find('#SET_TXT')[0],
-			go    = layer.find('#GO_TXT')[0];
-
-		layer.visible(true);
-
-
-		// Get the tweens...
-		// TODO: Get them out later...
-
-		var ready_showTween = new Kinetic.Tween({
-			node:ready,
-			opacity:1,
-			duration:0.3,
-			onFinish: function(){ 
-				ready_showTween.reverse(); 
-				setTimeout(function(){
-					set_showTween.play();
-				}, 300);
-			}
-		});
-
-		var set_showTween = new Kinetic.Tween({
-			node:set,
-			opacity:1,
-			duration:0.3,
-			onFinish: function(){ 
-				set_showTween.reverse(); 
-				setTimeout(function(){
-					go_showTween.play();
-				}, 300);
-			}
-		});
-
-		var go_showTween = new Kinetic.Tween({
-			node:go,
-			opacity:1,
-			duration:0.3,
-			onFinish: function(){
-				go_showTween.reverse();
-				setTimeout(function(){
-					layer.visible(false).draw();
-					// The pause button...
-					_app.screens[6].visible(true).draw();
-					// Show the "find me " layer
-					_app.screens[8].visible(true).draw();
-					_app.screens[9].visible(true).draw();
-
-					_animation.findMeSwivel.start();
-
-					_gamePlay.startGame();
-				}, 0);
-			}
-		});
-
-		
-		//setTimeout(function(){
-			ready_showTween.play();
-		//}, 500);
-	},
-	// Updating timerBar
-	updateTimerBar: function(layer){
-		var timerBar = layer.find("#TIMER_BAR")[0];
-		timerBar.width( timerBar.width() - this.timerBarOffset);
-		layer.draw();
-	},
-	// Clearing the cliked ones...
-	clearClickedInteractions: function(guessdata){
-
-		var elems = _app.screens[5];
-		for(var i=0; i<elems.length; i++){
-			if (guessdata.indexOf(elems[i].id()) != -1){
-
-
-				elems[i].children[1].opacity(1);
-				elems[i].draw();
-			}
-		}
-
-	},
-
-	// 
-	// Updating the board layers...
-	updateBoardLayers: function(board){
-		var elems = _app.screens[5], index;
-
-		for (var i=0; i<elems.length; i++){
-
-			index = board[i];
-			elems[i].children[0].fill( _characters[index].color );
-			elems[i].draw();
-
-		}
-	},
-
-	// Showing it out... hihihihi....
-	showAllBoardLayers: function(){
-		var elems = _app.screens[5];
-		for (var i=0; i<elems.length; i++){
-
-			elems[i].children[1].opacity(0);
-			elems[i].draw();
-
-		}
-	},
-	// Hiding it out...
-	hideAllBoardLayers: function(){
-		var elems = _app.screens[5];
-		for (var i=0; i<elems.length; i++){
-
-			elems[i].children[1].opacity(1);
-			elems[i].draw();
-
-		}
-	},
-	// Animating the scoresheets...
-	updateScore: function(previousScore, currentScore){
-		var scoreObj = _app.screens[1].find("#GAME_SCORE_TXT")[0];
-		scoreObj.text(this.fiveDigit(currentScore));
-
-		_app.screens[1].draw();
-	},
-	// The swivel motion of the "find me"
-	findMeSwivel: new Kinetic.Animation(function(frame){
-		var context = _app.screens[9];
-		//context.y( 150 * Math.sin(frame.time * 2 * Math.PI / 1000) + (context.y()/2) );
-
-
-		//context
-	}, _app.screens[9]),
-	
-	// Update the target character i.e. show it...
-	showWhatToFind: function(target){
-		var obj = _app.screens[8].find("#TARGET_IMG")[0];
-
-		obj.fill( _characters[target].color );
-		_app.screens[8].draw();
-	},
-
-	// Reset the timer bar...
-	resetTimerBar: function(){
-		var timerBar  = _app.screens[1].find("#TIMER_BAR")[0],
-			parentBar = _app.screens[1].find("#TIMER_BAR_PARENT")[0];
-
-		timerBar.width( parentBar.width() );
-		_app.screens[1].draw();
-	},
-
-
-	// End Game animation...
-	endGameAnimations: function(){
-
-		// Show the "game over" thingy...
-		_app.screens[7].visible(true);
-		var gameOver = _app.screens[7].find('#GAME_OVER_TXT')[0],
-			
-			gameOverTween = new Kinetic.Tween({
-				node: gameOver,
-				opacity:1,
-				duration:1,
-				onFinish: function(){ 
-					gameOverTween.reverse(); 
-					setTimeout(function(){
-						_app.screens[7].visible(false);
-
-						// Scroll down the post game pane...
-						_animation.slidePostGameDown();
-
-					}, 1000);
-				}
-		}); gameOverTween.play();
-	},
-	slidePostGameUp: function(){
-		var postGamePane = _app.screens[10];
-
-		var tween = new Kinetic.Tween({
-			node: postGamePane,
-			duration: 1,
-	        y: 0 - postGamePane.height(),
-	        easing: Kinetic.Easings.BounceEaseIn,
-	        onFinish: function(){
-	        	// After that, please animate the slide stats pane in nao...
-	        	//_animation.slideStatsPaneIn();
-
-	        	_animation.animateCountDown();
-
-	        }
-		}); tween.play();
-		
-	},
-	slidePostGameDown: function(){
-		var postGamePane = _app.screens[10];
-
-		var tween = new Kinetic.Tween({
-			node: postGamePane,
-			duration: 1,
-	        y: 0,
-	        easing: Kinetic.Easings.BounceEaseOut,
-	        onFinish: function(){
-	        	// After that, please animate the slide stats pane in nao...
-	        	//_animation.slideStatsPaneIn();
-
-
-
-	        }
-		}); tween.play();
-	},
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2106,6 +1462,13 @@ var _animation = {
 		return obj;
 	},
 
+	// Updating timerBar
+	updateTimerBar: function(layer){
+		var timerBar = layer.find("#TIMER_BAR")[0];
+		timerBar.width( timerBar.width() - this.timerBarOffset);
+		layer.draw();
+	},
+
 	// Updating Grid Characters...
 	//	TEMP: This is for the current test...
 	//		just for numbers only...
@@ -2122,9 +1485,20 @@ var _animation = {
 	// Clearing isClicked Interactions.
 	//	Kini siya kay mu clear ang sa pag click bitaw nimo sa grid, mu clear out siya...
 	//	
-	
-<<<<<<< HEAD
-=======
+	clearClickedInteractions: function(target, guessdata){
+		var gameLayer = target.getLayer(),
+			elems     = gameLayer.find(".GAME_GRID_ELEM"), id;
+
+		console.log("Clearing clicked interactions..."+guessdata);
+		for (var i=0; i<elems.length; i++){
+			if (guessdata.indexOf( elems[i].id() ) != -1){
+				//console.log("Naa siya... clear it");
+				//console.log(elems[i].id());
+
+				elems[i].children[0].fill('rgba(0,255,0,0.0');
+			}
+		} gameLayer.draw();
+	},
 
 	// Animating the scoresheets...
 	updateScore: function(previousScore, currentScore, layer){
@@ -2134,7 +1508,6 @@ var _animation = {
 		layer.draw();
 
 	},
->>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
 
 	// Helper: gets a number to a five-digit one...
 	fiveDigit: function(number){
