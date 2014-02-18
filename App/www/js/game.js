@@ -35,6 +35,7 @@ var _gamePlay = {
 		// Initialize the board daan...
 		var gameLayer 		= null, //e.targetNode.getParent().getParent(),
 			gameTimerObj 	= _app.screens[1].find("#GAME_TIMER_TXT")[0];
+<<<<<<< HEAD
 
 		// Reset stats...
 		this.resetGameStats();
@@ -69,6 +70,23 @@ var _gamePlay = {
 			_animation.hideAllBoardLayers();
 			_gamePlay.isShowing = false;
 		}, _gamePlay.playerStats.showTimerOffset);
+=======
+
+		// Resetting the score...
+		this.score = 0;
+
+		// Start the timer and its animation/s...
+		//_gamePlay.startPlaying();
+		_gamePlay.gameTimer.start(gameTimerObj, _app.screens[1]);
+			
+
+		// Update the board...
+		//_animation.updateGameGridCharacters(_board.board, gameLayer);
+
+		// this.gameTimer.start();
+		//this.target = _gamePlay.getRandomCharacter(0);
+		//_board.shuffleBoard(this.target, this.level); // level depends on the players level // -1 is used since 
+>>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
 	},
 
 
@@ -177,6 +195,7 @@ var _gamePlay = {
 				this.timer = null;
 			} 
 			_gamePlay.stopPlaying();
+
 			_gamePlay.callEndGame();
 		},
 		tiktok: function(txt, lyer){
@@ -530,6 +549,7 @@ var _app = {
 				boardItemLayer.opacity(0).visible(false);
 				// Add up the animation dude...
 				boardItemLayer.on('touchend', function(e){
+<<<<<<< HEAD
 					if (_gamePlay.isPlaying && !_gamePlay.isShowing){
 						//console.log(e.targetNode.getLayer());
 						//rect.opacity(0); e.targetNode.getLayer().draw();
@@ -560,15 +580,44 @@ var _app = {
 								_gamePlay.myGuess = [];	
 							
 							} else { e.targetNode.getLayer().draw(); }
+=======
+					if (_gamePlay.isPlaying){
+						//console.log(e.targetNode.getLayer());
+						//rect.opacity(0); e.targetNode.getLayer().draw();
+
+						var rect = e.targetNode.getLayer().children[0];
+
+
+						if (_gamePlay.myGuess.indexOf(e.targetNode.getLayer().id()) == -1){ // Wala siya dri. 
+							rect.opacity(0);
+
+							_gamePlay.addToGuess(e.targetNode.getLayer().id());
+							if (_gamePlay.myGuess.length == _gamePlay.playerStats.allowableClicks){
+								// Submit it now...
+
+								// Clear the road for it...
+								_animation.clearClickedInteractions(_gamePlay.myGuess);
+								_gamePlay.myGuess = [];
+							}
+
+>>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
 
 						} else { 
 							//rect.opacity(1); 
 							//_gamePlay.removeFromGuess(e.targetNode.getLayer().id());
 
+<<<<<<< HEAD
 							// Comment above: Kay MIND GAME LAGE SIYA...
 						}
 
 						
+=======
+
+						}
+
+						e.targetNode.getLayer().draw();
+
+>>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
 
 
 					}
@@ -605,7 +654,11 @@ var _app = {
 		this.app.add(pauseLayer);
 
 		/*
+<<<<<<< HEAD
 		** Outside layer na ni sila... :)
+=======
+		** Outside Layers.
+>>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
 		*/
 
 		// Leaderboard pane...
@@ -615,6 +668,10 @@ var _app = {
 		// Countdown layer...
 		var countdownLayer = this.initCountDownLayer(_width, _height);
 		this.app.add(countdownLayer);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
 
 		// The "Find Me" Layer
 		var findMeLayer = this.initFindMeLayer(_width, _height);
@@ -631,8 +688,12 @@ var _app = {
 		// Put to screens array for reference in below objects
 		//this.screens = [mainLayer, postGameLayer];
 		this.screens = [backgroundMainMenu, gameStatsLayer, gameBoardLayer, leaderBoardLayer, 
+<<<<<<< HEAD
 							pauseLayer, itemLayers, bottomBoardLayer, countdownLayer, findMeLayer, findMeSLayer,
 							postGameLayer];		
+=======
+							pauseLayer, itemLayers, bottomBoardLayer, countdownLayer];		
+>>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
 	},
 
 	// Methods...
@@ -745,18 +806,31 @@ var _app = {
 
 		// Put the timer text...
 		var timerText = new Kinetic.Text({
+<<<<<<< HEAD
 			text:"0:00", fontSize: 24, fontFamily: 'bubbleboddy', fill: '#29230b', id:"GAME_TIMER_TXT", x:w*0.03, y:2
+=======
+			text:"0:00", fontSize: 24, fontFamily: 'Calibri', fill: '#29230b', id:"GAME_TIMER_TXT", x:w*0.03, y:2
+>>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
 		}); gameStatsLayer.add(timerText);
 
 		// Put the score text...
 		var scoreText = new Kinetic.Text({
+<<<<<<< HEAD
 			text:"00000", fontSize: 24, fontFamily: 'bubbleboddy', fill: '#29230b', id:"GAME_SCORE_TXT", align:'right',
 			x: gameStatsLayer.width() - gameStatsLayer.width() * 0.24, y:2
+=======
+			text:"00000", fontSize: 24, fontFamily: 'Calibri', fill: '#29230b', id:"GAME_SCORE_TXT", align:'right',
+			x: gameStatsLayer.width() - gameStatsLayer.width() * 0.22, y:2
+>>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
 		}); gameStatsLayer.add(scoreText);
 
 		// Then the timer bar...
 		var timerBarBG = new Kinetic.Rect({
+<<<<<<< HEAD
 			x:w*0.04, y:timerText.height() + 7, height:5, width:gameStatsLayer.width() * 0.92, fill:"#ac7441", stroke:"#29230b", id:"TIMER_BAR_PARENT"
+=======
+			x:w*0.04, y:timerText.height() + 7, height:5, width:gameStatsLayer.width() * 0.92, fill:"#ac7441", stroke:"#29230b"
+>>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
 		}); gameStatsLayer.add(timerBarBG);
 
 		var timerBar = new Kinetic.Rect({
@@ -927,6 +1001,38 @@ var _app = {
 		var layer = new Kinetic.Layer({
 			width:w, height:h*0.25, x:0, y:h*0.17 //h*0.02
 		});
+<<<<<<< HEAD
+=======
+
+		// Ready!
+		var ready = new Kinetic.Text({
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT",
+
+			text:"ready?", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
+			stroke:"black", strokeWidth:5, opacity:0
+		}); layer.add(ready);
+
+		// Set!
+		var ready = new Kinetic.Text({
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"SET_TXT",
+
+			text:"set?", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
+			stroke:"black", strokeWidth:5, opacity:0
+		}); layer.add(ready);
+
+		// Get 'em!'
+		var ready = new Kinetic.Text({
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GO_TXT",
+
+			text:"get 'em!", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
+			stroke:"black", strokeWidth:5, opacity:0
+		}); layer.add(ready);
+
+
+		layer.visible(false);
+		return layer;
+	},
+>>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
 
 		// Ready!
 		var ready = new Kinetic.Text({
@@ -1587,6 +1693,7 @@ var _animation = {
 		_app.screens[1].y(0 - _app.screens[1].height());
 		_app.screens[1].draw();
 
+<<<<<<< HEAD
 		// Hide the bottom pane...
 		_app.screens[6].visible(false).draw();
 
@@ -1595,6 +1702,12 @@ var _animation = {
 		_app.screens[9].visible(false).draw();
 
 		// Hide the board layers...
+=======
+		// Hide the Bottom Pane.
+		_app.screens[6].visible(false).draw();
+
+		// Hides the Board Layers.
+>>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
 		var layers = _app.screens[5], i;
 		for(i=0; i<layers.length; i++){
 			layers[i].visible(false).opacity(0).draw();
@@ -1605,6 +1718,9 @@ var _animation = {
 		var clickables = _app.screens[5], tweens = [], tween;
 
 		_animation.a(clickables, 0);
+		
+		// For now.
+		_app.screens[6].visible(true).draw();
 	},
 	a: function(ts, i){ //Helper function for the animation...
 		if (ts.length > i){
@@ -1629,8 +1745,105 @@ var _animation = {
 			//console.log("Stahpp..."); 
 			//this.animateCountDown();
 		}
+<<<<<<< HEAD
+=======
 
 	},
+
+	// Animate the 3, 2, 1 chuchu
+	animateCountDown: function(){
+		var layer = _app.screens[7],
+			ready = layer.find('#READY_TXT')[0],
+			set   = layer.find('#SET_TXT')[0],
+			go    = layer.find('#GO_TXT')[0];
+
+		layer.visible(true);
+
+		// Get the tweens...
+		// TODO: Get them out later...
+
+		var ready_showTween = new Kinetic.Tween({
+			node:ready,
+			opacity:1,
+			duration:0.3,
+			onFinish: function(){ 
+				ready_showTween.reverse(); 
+				setTimeout(function(){
+					set_showTween.play();
+				}, 300);
+			}
+		});
+
+		var set_showTween = new Kinetic.Tween({
+			node:set,
+			opacity:1,
+			duration:0.3,
+			onFinish: function(){ 
+				set_showTween.reverse(); 
+				setTimeout(function(){
+					go_showTween.play();
+				}, 300);
+			}
+		});
+
+		var go_showTween = new Kinetic.Tween({
+			node:go,
+			opacity:1,
+			duration:0.3,
+			onFinish: function(){
+				go_showTween.reverse();
+				setTimeout(function(){
+					layer.visible(false).draw();
+
+					_gamePlay.startGame();
+				}, 0);
+			}
+		});
+>>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
+
+		
+		//setTimeout(function(){
+			ready_showTween.play();
+		//}, 500);
+	},
+	// Updating timerBar
+	updateTimerBar: function(layer)
+	{
+		var timerBar = layer.find("#TIMER_BAR")[0];
+		timerBar.width( timerBar.width() - this.timerBarOffset);
+		layer.draw();
+	},
+	// Clearing the Cliked Grid.
+	clearClickedInteractions: function(guessdata)
+	{
+
+		var elems = _app.screens[5];
+		for(var i=0; i<elems.length; i++){
+			if (guessdata.indexOf(elems[i].id()) != -1)
+			{
+
+
+				elems[i].children[0].opacity(1);
+				elems[i].draw();
+			}
+		}
+
+	},
+
+	// 
+	// Updating the Board Layers.
+
+
+
+
+
+
+
+
+
+
+
+
 
 	// Animate the 3, 2, 1 chuchu
 	animateCountDown: function(){
@@ -1910,6 +2123,18 @@ var _animation = {
 	//	Kini siya kay mu clear ang sa pag click bitaw nimo sa grid, mu clear out siya...
 	//	
 	
+<<<<<<< HEAD
+=======
+
+	// Animating the scoresheets...
+	updateScore: function(previousScore, currentScore, layer){
+		var scoreObj = layer.find("#GAME_SCORE_TXT")[0];
+		scoreObj.text(this.fiveDigit(currentScore));
+
+		layer.draw();
+
+	},
+>>>>>>> 38b36f9fe27afe65c479f7744ade189587ef0c6c
 
 	// Helper: gets a number to a five-digit one...
 	fiveDigit: function(number){
