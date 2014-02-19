@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type='text/javascript' src='js/jquery23.js'></script>
+	<script type='text/javascript'>
+
+	$(document).ready(function(){
+		console.log("whoow!");
+	 
+	/*	$.ajax({
+			url:"http://capturethatcreature.ap01.aws.af.cm/",
+			//dataType:"json",
+			success: function(data){
+				alert(data);
+				$('#foo').html(data);
+			}
+		}); */
+
+		  $.ajaxSetup({ cache: true });
+		  $.getScript('//connect.facebook.net/en_UK/all.js', function(){
+		    FB.init({
+		      appId: '783064738375108',
+		    });     
+		    
+		    $('#loginbutton,#feedbutton').removeAttr('disabled');
+		    //FB.getLoginStatus(updateStatusCallback);
+		  });
+
+	});
+	</script>
+</head>
+<body>
+	<div id="fb-root"></div>
+	<div id='foo'>
+		fdsfds
+
+	</div>
+	<p>fdsfds</p>
+
+
+</body>
+
+</html>
