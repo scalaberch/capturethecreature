@@ -688,6 +688,7 @@ var _app = {
 
 		// Button/s
 		// Add the button...
+		/*
 		var startGameButton = new Kinetic.Rect({ 	
 								width: w*0.6, 
 								height: h*0.1, 
@@ -701,45 +702,106 @@ var _app = {
 								fillLinearGradientEndPoint: {x:50,y:50},
 								fillLinearGradientColorStops: [0, 'red', 300, 'yellow']  
 							});
+		*/
+		var startGameButton = new Kinetic.Group({
+			width: w*0.6, height: h*0.3, x: w*0.2, y: h*0.55, id:"START_BTN"
+		});
 
-		var leaderBoardBtn = new Kinetic.Rect({ 	
-								width: w*0.6, 
-								height: h*0.05, 
-								x: w*0.2, 
-								y: h*0.82,
-								fill:"#68b64c", 
-								cornerRadius:  w*0.03,
-								stroke:"#c3da42",
+		// Elems... :)
+		var rect2 = new Kinetic.Rect({
+			width:startGameButton.width(), height: h*0.11, x:0, y: 15,
+			fill:"#9b8f82", cornerRadius:  startGameButton.width()*0.13
+		}); startGameButton.add(rect2);
 
-								fillLinearGradientStartPoint: {x:-50, y:-50},
-								fillLinearGradientEndPoint: {x:50,y:50},
-								fillLinearGradientColorStops: [0, 'red', 300, 'yellow']  
-							});
+		var rect = new Kinetic.Rect({
+			width:startGameButton.width(), height: h*0.1, x:0, y:0,
+			fill:"#ffe284", cornerRadius:  startGameButton.width()*0.13
+		}); startGameButton.add(rect);
 
-		
+		var rect1 = new Kinetic.Rect({
+			width:startGameButton.width(), height: h*0.1, x:0, y: 5,
+			fill:"#ffc14d", cornerRadius:  startGameButton.width()*0.13
+		}); startGameButton.add(rect1);
+
+		var t = new Kinetic.Text({
+			width:rect1.width(), height:rect1.height(), x:rect1.x(), y:rect1.y() + 8,
+
+			text:"PLAY GAME", fill:"white", fontSize: 30, fontFamily: 'bubbleboddy light', align:'center',
+		}); startGameButton.add(t);
+
 		// Add the animation...
 		startGameButton.on('touchstart', function(evt){
-			var obj = evt.targetNode;
-			obj.fill('#c3da42'); 
-			obj.draw();
+			var btn = _app.screens[0].find("#START_BTN")[0];
 
-		}).on('touchend mouseup', function(evt){
-			console.log('fofoasdfasf');
+			btn.children[1].y( btn.children[1].y() + 10 );
+			btn.children[2].y( btn.children[2].y() + 10 );
+			btn.children[3].y( btn.children[3].y() + 10 );
 
+			_app.screens[0].draw();
+			//evt.targetNode.getLayer().draw();
+		}).on('touchend', function(evt){
+			var btn = _app.screens[0].find("#START_BTN")[0];
 
-			var obj = evt.targetNode;
-			obj.fill('#68b646'); 
+			btn.children[1].y( btn.children[1].y() - 10 );
+			btn.children[2].y( btn.children[2].y() - 10 );
+			btn.children[3].y( btn.children[3].y() - 10 );
 
-			obj.draw(); 
+			_app.screens[0].draw();
+
 			_animation.animateNewGame();
 			//_gamePlay.startGame(evt);
 		});
 
 
+
+
+		var leaderBoardBtn = new Kinetic.Group({
+			width: w*0.3, height: h*0.3, x: w*0.2, y: h*0.70, id:"LEADERBOARD_BTN"
+		});
+
+		// Elems... :)
+		var rect2 = new Kinetic.Rect({
+			width: leaderBoardBtn.width(), height: h*0.10, x:0, y: 15,
+			fill:"#9b8f82", cornerRadius:  leaderBoardBtn.width()*2*0.13
+		}); leaderBoardBtn.add(rect2);
+
+		var rect = new Kinetic.Rect({
+			width: leaderBoardBtn.width(), height: h*0.1, x:0, y:0,
+			fill:"#ffe284", cornerRadius:  leaderBoardBtn.width()*2*0.13
+		}); leaderBoardBtn.add(rect);
+
+		var rect1 = new Kinetic.Rect({
+			width: leaderBoardBtn.width(), height: h*0.1, x:0, y: 5,
+			fill:"#ffc14d", cornerRadius:  leaderBoardBtn.width()*2*0.13
+		}); leaderBoardBtn.add(rect1);
+
+		var t = new Kinetic.Text({
+			width:rect1.width(), height:rect1.height(), x:rect1.x(), y:rect1.y() + 12,
+
+			text:"%", fill:"white", fontSize: 24, fontFamily: 'bubbleboddy light', align:'center',
+		}); leaderBoardBtn.add(t);
+
+
 		// Leader Board Btn Action
 		leaderBoardBtn.on('touchstart', function(evt){
+			var btn = _app.screens[0].find("#LEADERBOARD_BTN")[0];
 
+			btn.children[1].y( btn.children[1].y() + 6 );
+			btn.children[2].y( btn.children[2].y() + 6 );
+			btn.children[3].y( btn.children[3].y() + 6 );
+
+			_app.screens[0].draw();
 		}).on('touchend', function(evt){
+			var btn = _app.screens[0].find("#LEADERBOARD_BTN")[0];
+
+			btn.children[1].y( btn.children[1].y() - 6 );
+			btn.children[2].y( btn.children[2].y() - 6 );
+			btn.children[3].y( btn.children[3].y() - 6 );
+
+			_app.screens[0].draw();
+
+
+
 			_animation.slideLeaderBoardDown();
 
 			var data = $.ajax({
@@ -751,9 +813,58 @@ var _app = {
 			});
 		});
 
+
+
+		var helpBtn = new Kinetic.Group({
+			width: w*0.3, height: h*0.3, x: w*0.51, y: h*0.70, id:"HELP_BTN"
+		});
+
+		// Elems... :)
+		var rect2 = new Kinetic.Rect({
+			width: helpBtn.width(), height: h*0.10, x:0, y: 15,
+			fill:"#9b8f82", cornerRadius:  helpBtn.width()*2*0.13
+		}); helpBtn.add(rect2);
+
+		var rect = new Kinetic.Rect({
+			width: helpBtn.width(), height: h*0.1, x:0, y:0,
+			fill:"#d6d6d6", cornerRadius:  helpBtn.width()*2*0.13
+		}); helpBtn.add(rect);
+
+		var rect1 = new Kinetic.Rect({
+			width: helpBtn.width(), height: h*0.1, x:0, y: 5,
+			fill:"#b8b8b8", cornerRadius:  helpBtn.width()*2*0.13
+		}); helpBtn.add(rect1);
+
+		var t = new Kinetic.Text({
+			width:rect1.width(), height:rect1.height(), x:rect1.x(), y:rect1.y() + 12,
+
+			text:"?", fill:"white", fontSize: 24, fontFamily: 'bubbleboddy light', align:'center',
+		}); helpBtn.add(t);
+
+
+		helpBtn.on('touchstart', function(evt){
+			var btn = _app.screens[0].find("#HELP_BTN")[0];
+
+			btn.children[1].y( btn.children[1].y() + 6 );
+			btn.children[2].y( btn.children[2].y() + 6 );
+			btn.children[3].y( btn.children[3].y() + 6 );
+
+			_app.screens[0].draw();
+
+		}).on('touchend', function(evt){
+			var btn = _app.screens[0].find("#HELP_BTN")[0];
+
+			btn.children[1].y( btn.children[1].y() - 6 );
+			btn.children[2].y( btn.children[2].y() - 6 );
+			btn.children[3].y( btn.children[3].y() - 6 );
+
+			_app.screens[0].draw();
+		});
+
+
 		mainMenuLayer.add(startGameButton);
 		mainMenuLayer.add(leaderBoardBtn);
-
+		mainMenuLayer.add(helpBtn);
 
 
 		return mainMenuLayer;
@@ -835,9 +946,16 @@ var _app = {
 								y:leaderBoardLayer.height() * 0.1, 
 
 								cornerRadius:  leaderBoardLayer.width()*0.03,
-								fill:"#ac7441", 
-								stroke:"#29230b", strokeWidth:3
+								fill:"#9b8f82", 
+								//stroke:"#29230b", strokeWidth:3
 		}); leaderBoardLayer.add(background);
+
+		// Title Bar...
+		var title = new Kinetic.Text({
+			width:background.width(), height:background.height(), x:background.x(), y:background.y() + 8,
+
+			text:"LEADERBOARD", fill:"white", fontSize: 24, fontFamily: 'bubbleboddy light', align:'center',
+		}); leaderBoardLayer.add(title);
 
 		// Close button nigga!
 		var closeButton = new Kinetic.Group({ }),
