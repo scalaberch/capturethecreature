@@ -632,10 +632,6 @@ var _app = {
 		var bottomBoardLayer = this.initGameBottomLayer(_width, _height);
 		this.app.add(bottomBoardLayer);
 
-		// In-gameplay: pause menu
-		var pauseLayer = this.initPauseMenu(_width, _height);
-		this.app.add(pauseLayer);
-
 		/*
 		** Outside layer na ni sila... :)
 		*/
@@ -658,6 +654,10 @@ var _app = {
 		// Load the postGameLayer
 		var postGameLayer = this.initPostGameLayer(_width, _height);
 		this.app.add(postGameLayer);
+
+		// In-gameplay: pause menu
+		var pauseLayer = this.initPauseMenu(_width, _height);
+		this.app.add(pauseLayer);
 
 
 		// Put to screens array for reference in below objects
@@ -688,21 +688,7 @@ var _app = {
 
 		// Button/s
 		// Add the button...
-		/*
-		var startGameButton = new Kinetic.Rect({ 	
-								width: w*0.6, 
-								height: h*0.1, 
-								x: w*0.2, 
-								y: h*0.7,
-								fill:"#68b646", 
-								cornerRadius:  w*0.03,
-								stroke:"#c3da42",
 
-								fillLinearGradientStartPoint: {x:-50, y:-50},
-								fillLinearGradientEndPoint: {x:50,y:50},
-								fillLinearGradientColorStops: [0, 'red', 300, 'yellow']  
-							});
-		*/
 		var startGameButton = new Kinetic.Group({
 			width: w*0.6, height: h*0.3, x: w*0.2, y: h*0.55, id:"START_BTN"
 		});
@@ -876,34 +862,56 @@ var _app = {
 		});
 
 		// Put the background...
-		var background = new Kinetic.Rect({ 	
-								width: gameStatsLayer.width() * 0.96, 
-								height: gameStatsLayer.height(), 
-								x: w*0.02, y:0,
-								fill:"#ac7441", 
-								stroke:"#29230b", strokeWidth:2,
+		var background = new Kinetic.Group({
+			width: gameStatsLayer.width() * 0.96, 
+			height: gameStatsLayer.height(), x: w*0.02, y:0,
+		});
 
-								cornerRadius:  w*0.01
-		}); gameStatsLayer.add(background);
+		var r = new Kinetic.Rect({ 	
+			width: background.width(), 
+			height: background.height() * 0.88, 
+			x:0, y:5, 
+
+			cornerRadius:  w*0.01, fill:"#7a726a", 
+		}); background.add(r);
+
+		r = new Kinetic.Rect({ 	
+			width: background.width(), 
+			height: background.height() * 0.8, 
+			x:0, y:0, 
+
+			cornerRadius:  w*0.01, fill:"#ffe284", 
+		}); background.add(r);
+
+		r = new Kinetic.Rect({ 	
+			width: background.width(), 
+			height: background.height() * 0.8, 
+			x:0, y:2, 
+
+			cornerRadius:  w*0.01, fill:"#ffc14d", 
+		}); background.add(r);
+
+		gameStatsLayer.add(background);
+
 
 		// Put the timer text...
 		var timerText = new Kinetic.Text({
-			text:"0:00", fontSize: 24, fontFamily: 'bubbleboddy', fill: '#29230b', id:"GAME_TIMER_TXT", x:w*0.03, y:2
+			text:"0:00", fontSize: 24, fontFamily: 'bubbleboddy light', fill: 'white', id:"GAME_TIMER_TXT", x:w*0.03, y:2
 		}); gameStatsLayer.add(timerText);
 
 		// Put the score text...
 		var scoreText = new Kinetic.Text({
-			text:"00000", fontSize: 24, fontFamily: 'bubbleboddy', fill: '#29230b', id:"GAME_SCORE_TXT", align:'right',
+			text:"00000", fontSize: 24, fontFamily: 'bubbleboddy light', fill: 'white', id:"GAME_SCORE_TXT", align:'right',
 			x: gameStatsLayer.width() - gameStatsLayer.width() * 0.24, y:2
 		}); gameStatsLayer.add(scoreText);
 
 		// Then the timer bar...
 		var timerBarBG = new Kinetic.Rect({
-			x:w*0.04, y:timerText.height() + 7, height:5, width:gameStatsLayer.width() * 0.92, fill:"#ac7441", stroke:"#29230b", id:"TIMER_BAR_PARENT"
+			x:w*0.04, y:timerText.height() + 3, height:5, width:gameStatsLayer.width() * 0.92, fill:"#7a726a", stroke:"#7a726a", id:"TIMER_BAR_PARENT"
 		}); gameStatsLayer.add(timerBarBG);
 
 		var timerBar = new Kinetic.Rect({
-			x:w*0.04, y:timerText.height() + 7, height:5, width:timerBarBG.width(), fill:"#29230b", stroke:"#29230b", id:"TIMER_BAR"
+			x:w*0.04, y:timerText.height() + 3, height:5, width:timerBarBG.width(), fill:"white", stroke:"white", id:"TIMER_BAR"
 		}); gameStatsLayer.add(timerBar);
 
 		// Update _animation attribute on timerBarOffset (needed for the animation...);
@@ -935,13 +943,35 @@ var _app = {
 	// Method: (NEW) LeaderBoardLayer
 	initLeaderBoardLayer: function(w, h){
 		var leaderBoardLayer = new Kinetic.Layer({
-			width:w, height:h, x:0, y:0, id:"GAME_BOARD_LAYER" //h*0.02
+			width:w, height:h, x:0, y:0, id:"LEADERBOARD_LAYER" //h*0.02
 		});
 
 		// Background nigga!
 		var background = new Kinetic.Rect({ 	
 								width: leaderBoardLayer.width() * 0.8, 
-								height: leaderBoardLayer.height() * 0.8, 
+								height: leaderBoardLayer.height() * 0.84, 
+								x:leaderBoardLayer.width() * 0.1, 
+								y:leaderBoardLayer.height() * 0.1, 
+
+								cornerRadius:  leaderBoardLayer.width()*0.03,
+								fill:"#7a726a", 
+								//stroke:"#29230b", strokeWidth:3
+		}); leaderBoardLayer.add(background);
+
+		background = new Kinetic.Rect({ 	
+								width: leaderBoardLayer.width() * 0.8, 
+								height: leaderBoardLayer.height() * 0.79, 
+								x:leaderBoardLayer.width() * 0.1, 
+								y:leaderBoardLayer.height() * 0.09, 
+
+								cornerRadius:  leaderBoardLayer.width()*0.03,
+								fill:"#d8bfa3", 
+								//stroke:"#29230b", strokeWidth:3
+		}); leaderBoardLayer.add(background);
+
+		background = new Kinetic.Rect({ 	
+								width: leaderBoardLayer.width() * 0.8, 
+								height: leaderBoardLayer.height() * 0.79, 
 								x:leaderBoardLayer.width() * 0.1, 
 								y:leaderBoardLayer.height() * 0.1, 
 
@@ -958,20 +988,41 @@ var _app = {
 		}); leaderBoardLayer.add(title);
 
 		// Close button nigga!
-		var closeButton = new Kinetic.Group({ }),
-			closeButtonBG = new Kinetic.Circle({
-				  radius: leaderBoardLayer.width()*0.07,
-				  fill: 'red',
-				  stroke: 'black',
-				  strokeWidth: 3,
+		var closeButton = new Kinetic.Group({ 
+			x: leaderBoardLayer.width() *0.50,
+			y: leaderBoardLayer.height() * 0.80,
+			id:"LEADERBOARD_CLOSE_BTN"
+		}),
 
-				  x:leaderBoardLayer.width() - background.x(), 
-				  y:leaderBoardLayer.height() - background.height()
-			});
+		// Background of the close button
+		closeButtonBG = new Kinetic.Circle({
+			  radius: leaderBoardLayer.width()*0.07,
+			  fill: '#7a726a', x:0, y:10
+		}); closeButton.add(closeButtonBG);
 
-		closeButton.add(closeButtonBG);
+		closeButtonBG = new Kinetic.Circle({
+			  radius: leaderBoardLayer.width()*0.07,
+			  fill: '#ffe284', x:0, y:0
+		}); closeButton.add(closeButtonBG);
+
+		closeButtonBG = new Kinetic.Circle({
+			  radius: leaderBoardLayer.width()*0.07,
+			  fill: '#ffc14d', x:0, y:3
+		}); closeButton.add(closeButtonBG);
+
+
 		closeButton.on('touchend', function(evt){
+			var obj = _app.screens[3].find("#LEADERBOARD_CLOSE_BTN")[0];
+			obj.children[1].y( obj.children[1].y() - 4 );
+			obj.children[2].y( obj.children[2].y() - 4 );
+			_app.screens[3].draw();
+
 			_animation.slideLeaderBoardUp();
+		}).on('touchstart', function(evt){
+			var obj = _app.screens[3].find("#LEADERBOARD_CLOSE_BTN")[0];
+			obj.children[1].y( obj.children[1].y() + 4 );
+			obj.children[2].y( obj.children[2].y() + 4 );
+			_app.screens[3].draw();
 		});
 
 
@@ -1011,7 +1062,7 @@ var _app = {
 
 			var pauselayer = _app.screens[_app.PAUSE_MENU];
 
-			pauselayer.y( h*0.25 ); pauselayer.draw();
+			pauselayer.y( 0 ); pauselayer.draw();
 		});
 
 
@@ -1021,63 +1072,229 @@ var _app = {
 	},
 	// Method: (NEW) Pause Menu...
 	initPauseMenu: function(w, h){
-		var pauseLayer = new Kinetic.Layer({
-			width:w*0.8, height:h*0.5, x:w*0.1, y:h*0.25, id:"GAME_BOARD_LAYER" //h*0.02
+
+		var layer = new Kinetic.Layer({
+			width:w, height:h, x:0, y:0
 		});
 
-		// Put the background...
+		var backdrop = new Kinetic.Rect({
+			width:layer.width(), height:layer.height(), x:0, y:0,
+			fill:"black", opacity:0.6
+		}); layer.add(backdrop);
+
+		var pauseLayer = new Kinetic.Group({
+			width:w*0.8, height:h*0.5, x:w*0.1, y:h*0.25, id:"PAUSE_MENU_LAYER" //h*0.02
+		});
+
+		// Background nigga!
 		var background = new Kinetic.Rect({ 	
 								width: pauseLayer.width(), 
 								height: pauseLayer.height(), 
-								x:0, y:0,
-								fill:"#ac7441", 
-								stroke:"#29230b", strokeWidth:3
+								x:0, 
+								y:3, 
+
+								cornerRadius:  pauseLayer.width()*0.03,
+								fill:"#7a726a", 
+								//stroke:"#29230b", strokeWidth:3
 		}); pauseLayer.add(background);
 
+		background = new Kinetic.Rect({ 	
+								width: pauseLayer.width(), 
+								height: pauseLayer.height() * 0.95, 
+								x:0, 
+								y:0, 
+
+								cornerRadius:  pauseLayer.width()*0.03,
+								fill:"#d8bfa3", 
+								//stroke:"#29230b", strokeWidth:3
+		}); pauseLayer.add(background);
+
+		background = new Kinetic.Rect({ 	
+								width: pauseLayer.width(), 
+								height: pauseLayer.height() * 0.95, 
+								x:0,
+								y:3, 
+
+								cornerRadius:  pauseLayer.width()*0.03,
+								fill:"#9b8f82", 
+								//stroke:"#29230b", strokeWidth:3
+		}); pauseLayer.add(background);
+
+		// Title Bar...
+		var title = new Kinetic.Text({
+			width:pauseLayer.width(), height:pauseLayer.height(), x:0, y:3,
+
+			text:"game paused", fill:"white", fontSize: 24, fontFamily: 'bubbleboddy light', align:'center',
+		}); pauseLayer.add(title);
+
+
 		// Buttons...
-		// Continue...
-		var btn = new Kinetic.Rect({ 	
-				width: pauseLayer.width() * 0.9, height: pauseLayer.height() * 0.15, //pauseLayer.height() , 
-				x:pauseLayer.width() * 0.05, y:pauseLayer.height() * 0.2,
-				fill:"green", stroke:"#29230b", strokeWidth:3
-		}).on('touchend', function(evt){
-			// Act on continue gameplay....
+
+
+		// Continue button...
+		var btn = new Kinetic.Group({
+			width: pauseLayer.width() * 0.9, height: pauseLayer.height() * 0.2,
+			x:pauseLayer.width() * 0.05, y:pauseLayer.height() * 0.2, id:"PAUSE_MENU_CONT_BTN"
+		}), txt;
+
+		background = new Kinetic.Rect({
+			width: btn.width(), height:btn.height() * 0.90, x:0, y:5,
+			cornerRadius:  btn.width()*0.05,
+			fill: "#7a726a"
+		}); btn.add(background);
+
+		background = new Kinetic.Rect({
+			width: btn.width(), height:btn.height() * 0.80, x:0, y:0,
+			cornerRadius:  btn.width()*0.05,
+			fill: "#ffe284"
+		}); btn.add(background);
+
+		background = new Kinetic.Rect({
+			width: btn.width(), height:btn.height() * 0.80, x:0, y:2,
+			cornerRadius:  btn.width()*0.05,
+			fill: "#ffc14d"
+		}); btn.add(background);
+
+		txt = new Kinetic.Text({
+			width:btn.width(), height:btn.height(), x:0, y:8,
+			text:"CONTINUE", fill:"white", fontSize: 24, fontFamily: 'bubbleboddy light', align:'center',
+		}); btn.add(txt);
+
+		btn.on('touchend', function(evt){
+			var btn = _app.screens[4].find("#PAUSE_MENU_CONT_BTN")[0];
+
+			btn.children[1].y( btn.children[1].y() - 4 );
+			btn.children[2].y( btn.children[2].y() - 4 );
+			btn.children[3].y( btn.children[3].y() - 4 );
+
+			_app.screens[4].draw();
+
 			_animation.hidePauseMenu(evt.targetNode.getLayer());
 			_gamePlay.resumeGame();
+		}).on('touchstart', function(evt){
+			var btn = _app.screens[4].find("#PAUSE_MENU_CONT_BTN")[0];
+
+			btn.children[1].y( btn.children[1].y() + 4 );
+			btn.children[2].y( btn.children[2].y() + 4 );
+			btn.children[3].y( btn.children[3].y() + 4 );
+
+			_app.screens[4].draw();
 		}); pauseLayer.add(btn);
 
+
 		// Restart
-		btn = new Kinetic.Rect({ 	
-				width: pauseLayer.width() * 0.9, height: pauseLayer.height() * 0.15, //pauseLayer.height() , 
-				x:pauseLayer.width() * 0.05, y:pauseLayer.height() * 0.4,
-				fill:"green", stroke:"#29230b", strokeWidth:3
-		}).on('touchend', function(evt){
-			// Act on continue gameplay....
+		btn = new Kinetic.Group({
+			width: pauseLayer.width() * 0.9, height: pauseLayer.height() * 0.2,
+			x:pauseLayer.width() * 0.05, y:pauseLayer.height() * 0.43, id:"PAUSE_MENU_RESTART_BTN"
+		}), txt;
+
+		background = new Kinetic.Rect({
+			width: btn.width(), height:btn.height() * 0.9, x:0, y:5,
+			cornerRadius:  btn.width()*0.05,
+			fill: "#7a726a"
+		}); btn.add(background);
+
+		background = new Kinetic.Rect({
+			width: btn.width(), height:btn.height() * 0.80, x:0, y:0,
+			cornerRadius:  btn.width()*0.05,
+			fill: "#ffe284"
+		}); btn.add(background);
+
+		background = new Kinetic.Rect({
+			width: btn.width(), height:btn.height() * 0.80, x:0, y:2,
+			cornerRadius:  btn.width()*0.05,
+			fill: "#ffc14d"
+		}); btn.add(background);
+
+		txt = new Kinetic.Text({
+			width:btn.width(), height:btn.height(), x:0, y:8,
+			text:"RESTART", fill:"white", fontSize: 24, fontFamily: 'bubbleboddy light', align:'center',
+		}); btn.add(txt);
+
+		btn.on('touchend', function(evt){
+			var btn = _app.screens[4].find("#PAUSE_MENU_RESTART_BTN")[0];
+
+			btn.children[1].y( btn.children[1].y() - 4 );
+			btn.children[2].y( btn.children[2].y() - 4 );
+			btn.children[3].y( btn.children[3].y() - 4 );
+
+			_app.screens[4].draw();
+
 
 			_animation.hidePauseMenu(evt.targetNode.getLayer());
 
 			_animation.animateCountDown();
-			_gamePlay.resumeGame();
-		}); pauseLayer.add(btn);
+			_gamePlay.resumeGame()
+		}).on('touchstart', function(evt){
+			var btn = _app.screens[4].find("#PAUSE_MENU_RESTART_BTN")[0];
 
-		// Quit to main Menu...
-		btn = new Kinetic.Rect({ 	
-				width: pauseLayer.width() * 0.9, height: pauseLayer.height() * 0.15, //pauseLayer.height() , 
-				x:pauseLayer.width() * 0.05, y:pauseLayer.height() * 0.6,
-				fill:"green", stroke:"#29230b", strokeWidth:3
-		}).on('touchend', function(evt){
-			// Act on continue gameplay....
+			btn.children[1].y( btn.children[1].y() + 4 );
+			btn.children[2].y( btn.children[2].y() + 4 );
+			btn.children[3].y( btn.children[3].y() + 4 );
+
+			_app.screens[4].draw();
+		}); pauseLayer.add(btn);
+	
+
+		// QUIT TO MAIN MENU
+		btn = new Kinetic.Group({
+			width: pauseLayer.width() * 0.9, height: pauseLayer.height() * 0.2,
+			x:pauseLayer.width() * 0.05, y:pauseLayer.height() * 0.66, id:"PAUSE_MENU_QUIT_BTN"
+		}), txt;
+
+		background = new Kinetic.Rect({
+			width: btn.width(), height:btn.height() * 0.9, x:0, y:5,
+			cornerRadius:  btn.width()*0.05,
+			fill: "#7a726a"
+		}); btn.add(background);
+
+		background = new Kinetic.Rect({
+			width: btn.width(), height:btn.height() * 0.80, x:0, y:0,
+			cornerRadius:  btn.width()*0.05,
+			fill: "#ffe284"
+		}); btn.add(background);
+
+		background = new Kinetic.Rect({
+			width: btn.width(), height:btn.height() * 0.80, x:0, y:2,
+			cornerRadius:  btn.width()*0.05,
+			fill: "#ffc14d"
+		}); btn.add(background);
+
+		txt = new Kinetic.Text({
+			width:btn.width(), height:btn.height(), x:0, y:8,
+			text:"QUIT GAME", fill:"white", fontSize: 24, fontFamily: 'bubbleboddy light', align:'center',
+		}); btn.add(txt);
+
+		btn.on('touchend', function(evt){
+			var btn = _app.screens[4].find("#PAUSE_MENU_QUIT_BTN")[0];
+
+			btn.children[1].y( btn.children[1].y() - 4 );
+			btn.children[2].y( btn.children[2].y() - 4 );
+			btn.children[3].y( btn.children[3].y() - 4 );
+
+			_app.screens[4].draw();
+
 
 			_animation.hidePauseMenu(evt.targetNode.getLayer());
 			_animation.backToMainMenu();
+		}).on('touchstart', function(evt){
+			var btn = _app.screens[4].find("#PAUSE_MENU_QUIT_BTN")[0];
+
+			btn.children[1].y( btn.children[1].y() + 4 );
+			btn.children[2].y( btn.children[2].y() + 4 );
+			btn.children[3].y( btn.children[3].y() + 4 );
+
+			_app.screens[4].draw();
 		}); pauseLayer.add(btn);
 
 
 
-		// Put it on the top board...
-		pauseLayer.y( 0 - pauseLayer.height());
+		layer.add(pauseLayer);
 
-		return pauseLayer;
+		// Put it on the top board...
+		//pauseLayer.y( 0 - pauseLayer.height());
+		layer.y( 0 - layer.height());
+		return layer;
 	},
 	// Count Down Layer stuff...
 	initCountDownLayer: function(w, h){
@@ -1221,8 +1438,39 @@ var _app = {
 
 
 		// Get the background...
-		var bg = new Kinetic.Rect({ width:grp.width(), height:grp.height(), x:0, y:0, fill:"#ac7441", stroke:"#29230b", strokeWidth:3, cornerRadius: grp.width()*0.03, });
-		grp.add(bg);
+		//var bg = new Kinetic.Rect({ width:grp.width(), height:grp.height(), x:0, y:0, fill:"#ac7441", stroke:"#29230b", strokeWidth:3, cornerRadius: grp.width()*0.03, });
+		//grp.add(bg);
+		var backdrop = new Kinetic.Rect({
+			width:postGameLayer.width(), height:postGameLayer.height(), x:0, y:0,
+			fill:"black", opacity:0.6
+		}); postGameLayer.add(backdrop);
+
+
+		var bg = new Kinetic.Rect({ 	
+			width: grp.width(), 
+			height: grp.height() * 0.88, 
+			x:0, y:5, 
+
+			cornerRadius:  w*0.04, fill:"#7a726a", 
+		}); grp.add(bg);
+
+		bg = new Kinetic.Rect({ 	
+			width: grp.width(), 
+			height: grp.height() * 0.8, 
+			x:0, y:0, 
+
+			cornerRadius:  w*0.04, fill:"#ffe284", 
+		}); grp.add(bg);
+
+		bg = new Kinetic.Rect({ 	
+			width: grp.width(), 
+			height: grp.height() * 0.8, 
+			x:0, y:4, 
+
+			cornerRadius:  w*0.04, fill:"#ffc14d", 
+		}); grp.add(bg);
+
+
 
 		// Title Message
 		var titleText = new Kinetic.Text({ x:0, y:3, width:grp.width(),  height:grp.height(), text:"Game Over!",
@@ -1349,7 +1597,7 @@ var _animation = {
 	// Pause Menu...
 	showPauseMenu: function(pauseMenuLayer){
 
-		pauseMenuLayer.y( 0 - pauseMenuLayer.height());
+		pauseMenuLayer.y( 0 );
 		pauseMenuLayer.draw();
 
 
