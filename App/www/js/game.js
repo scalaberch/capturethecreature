@@ -1037,33 +1037,69 @@ var _app = {
 	// Method: (NEW) BottomLayer
 	initGameBottomLayer: function(w, h){
 		var bottomLayer = new Kinetic.Layer({
-			width:w, height:h*0.12, x:0, y:h*0.88, //id:"GAME_BOARD_LAYER" //h*0.02
+			width:w, height:h*0.12, x:0, y:h*0.92, //id:"GAME_BOARD_LAYER" //h*0.02
 		});
 
-		// Put the background...
-		var background = new Kinetic.Rect({ 	
-								width: bottomLayer.width(), 
-								height: bottomLayer.height(), 
-								x:0, y:0,
-								fill:"#ac7441", 
-								stroke:"#29230b", strokeWidth:3
+		var pauseButton = new Kinetic.Group({
+			x:bottomLayer.width() * 0.90, y:0, 
+			width:bottomLayer.width() * 0.15, height:bottomLayer.height() * 0.8,
+			id:"GAME_PAUSE_BTN"
 		});
 
-		//bottomLayer.add(background);
+		var pButtonBG = new Kinetic.Circle({
+			  radius: bottomLayer.width()*0.07,
+			  fill: '#7a726a', x:0, y:10
+		}); pauseButton.add(pButtonBG);
 
-		// Put the pause button...
-		var pauseButton = new Kinetic.Rect({
-			x:bottomLayer.width() * 0.82, y:0, 
-			width:bottomLayer.width() * 0.15, height:bottomLayer.height() * 0.8, fill:"blue"
-		}).on('touchend', function(evt){
+		pButtonBG = new Kinetic.Circle({
+			  radius: bottomLayer.width()*0.07,
+			  fill: '#ffe284', x:0, y:0
+		}); pauseButton.add(pButtonBG);
+
+		pButtonBG = new Kinetic.Circle({
+			  radius: bottomLayer.width()*0.07,
+			  fill: '#ffc14d', x:0, y:3
+		}); pauseButton.add(pButtonBG);
+
+		// Add the pause logo...
+		var r = new Kinetic.Rect({
+			width:pauseButton.height() * 0.2, height: pauseButton.height() * 0.5, x:0 + pauseButton.width() * 0.03, 
+			y:0 - pauseButton.height() * 0.23,
+			fill:"#7a726a"
+		}); pauseButton.add(r);
+
+		r = new Kinetic.Rect({
+			width:pauseButton.height() * 0.2, height: pauseButton.height() * 0.5, x:0 - pauseButton.width() * 0.23, 
+			y:0 - pauseButton.height() * 0.23,
+			fill:"#7a726a"
+		}); pauseButton.add(r);
+
+		pauseButton.on('touchend', function(evt){
+			var obj = _app.screens[6].find("#GAME_PAUSE_BTN")[0];
+
+			obj.children[1].y( obj.children[1].y() - 4 );
+			obj.children[2].y( obj.children[2].y() - 4 );
+			obj.children[3].y( obj.children[3].y() - 4 );
+			obj.children[4].y( obj.children[4].y() - 4 );
+
+			_app.screens[6].draw();
+
 
 			_gamePlay.pauseGame();
 
-
 			var pauselayer = _app.screens[_app.PAUSE_MENU];
-
 			pauselayer.y( 0 ); pauselayer.draw();
+		}).on('touchstart', function(evt){
+			var obj = _app.screens[6].find("#GAME_PAUSE_BTN")[0];
+
+			obj.children[1].y( obj.children[1].y() + 4 );
+			obj.children[2].y( obj.children[2].y() + 4 );
+			obj.children[3].y( obj.children[3].y() + 4 );
+			obj.children[4].y( obj.children[4].y() + 4 );
+
+			_app.screens[6].draw();
 		});
+		
 
 
 		bottomLayer.add(pauseButton);
