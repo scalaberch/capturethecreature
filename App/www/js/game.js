@@ -179,7 +179,7 @@ var _gamePlay = {
 	// Game Timer Structure
 	gameTimer: {
 
-		time: 31, timer: null,
+		time: 121, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
 			if (!_gamePlay.isPlaying){
@@ -237,7 +237,7 @@ var _gamePlay = {
 	// Reset thy game stats....
 	resetGameStats: function(){
 		this.score = 0; // Resetting the score...
-		this.gameTimer.time = 31; //Reset the time...
+		this.gameTimer.time = 121; //Reset the time...
 
 		_animation.resetTimerBar(); //Resetting the timer bar in the UI...
 		// TODO: Reset the score ui...
@@ -366,7 +366,7 @@ var _board = {
 			// Implement a funciton that gets an index randomly from
 			// 	the _characters indeces except the current element.
 
-			do{
+			do {
 				// find a random index, from the array of characters,
 				// which is not equal to the index you want to find
 				// AND not equal to zero -> NONE
