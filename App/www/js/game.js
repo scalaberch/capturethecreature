@@ -12,9 +12,10 @@ var _gamePlay = {
 	isPlaying: false,
 	isShowing: false,
 	isPaused:  false,
+
 	score:     0,
 	myGuess:   [],
-	level: 	   3,
+	level: 	   3, // limit of the taps :)
 	target:    null,
 
 	//temp var...
@@ -23,9 +24,34 @@ var _gamePlay = {
 	playerStats: {
 		allowableClicks:3,
 		showTimerOffset:3000,
+		numberOfCorrectGuesses: 0,
+
 		initPlayerStats: function(){
 			// This will get to the cordova data...
+		},
+
+		reset: function(){
+			_gamePlay.level = 3;
+			this.showTimerOffset = 3000;
+			numberOfCorrectGuesses = 0;
+		},
+		update: function(){
+
+			// Update on showTimerOffset
+			if (this.showTimerOffset > 999){
+				this.showTimerOffset -= 166;
+			}
+
+			// Update on number of taps...
+			//switch(previousCorrectGuess){
+			switch( _gamePlay.numberOfCorrectGuesses){
+				case 4: _gamePlay.level = 4; break;
+				case 7: _gamePlay.level = 5; break;
+				case 10: _gamePlay.level = 6; break;
+			}
+
 		}
+
 	},
 
 	startPlaying: function(){ this.isPlaying = true;  },
@@ -87,7 +113,6 @@ var _gamePlay = {
 				_animation.hideAllBoardLayers();
 				_gamePlay.isShowing = false;
 			}, _gamePlay.playerStats.showTimerOffset);
-
 
 		}
 	},
@@ -172,6 +197,9 @@ var _gamePlay = {
 	//	This is invoked after a correct guess. Diri ang action para mu paspas ug magkadaghan ba ang guesses...
 	//	Assigned: @jantaps2k + @ellenp
 	updateGameStats: function(){
+		this.playerStats.numberOfCorrectGuesses
+
+
 
 	},
 
@@ -179,7 +207,7 @@ var _gamePlay = {
 	// Game Timer Structure
 	gameTimer: {
 
-		time: 121, timer: null,
+		time: 16, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
 			if (!_gamePlay.isPlaying){
@@ -206,6 +234,8 @@ var _gamePlay = {
 		tiktok: function(txt, lyer){
 			if (_gamePlay.isPaused){
 				console.log("Game is Paused...");
+			} else if (_gamePlay.isShowing){
+				console.log("Showing tiles...");
 			} else {
 				console.log(this.timer);
 				this.time--;
@@ -237,7 +267,7 @@ var _gamePlay = {
 	// Reset thy game stats....
 	resetGameStats: function(){
 		this.score = 0; // Resetting the score...
-		this.gameTimer.time = 121; //Reset the time...
+		this.gameTimer.time = 16; //Reset the time...
 
 		_animation.resetTimerBar(); //Resetting the timer bar in the UI...
 		// TODO: Reset the score ui...
@@ -606,29 +636,29 @@ var _app = {
 						if (_gamePlay.myGuess.indexOf(e.targetNode.getLayer().id()) == -1){ // The clicked btn is not yet in the array...
 							// -- hide the cover...
 							rect.opacity(0);
-
 							_gamePlay.addToGuess(e.targetNode.getLayer().id());
 							
-							if (_gamePlay.myGuess.length == _gamePlay.playerStats.allowableClicks){ // Number of clicks are in the limit...
-								
+							e.targetNode.getLayer().draw();
+							if (_gamePlay.myGuess.length == _gamePlay.level){ // Number of clicks are in the limit...
 
-								// Submit it now...
-								if (_gamePlay.isMyGuessCorrect(_gamePlay.myGuess)){
-									// Add to score...
-									_gamePlay.addUpToScore(_gamePlay.target);
+								setTimeout(function(){
+									// Submit it now...
+									if (_gamePlay.isMyGuessCorrect(_gamePlay.myGuess)){
+										// Add to score...
+										_gamePlay.addUpToScore(_gamePlay.target);
+										_gamePlay.executeGameShuffle();
+									} else { 
+										_animation.hideAllBoardLayers();
+									}
+									
+									// Clear the road for it...
+									//_animation.clearClickedInteractions(_gamePlay.myGuess);
+									_gamePlay.myGuess = [];	
 
 
-									_gamePlay.executeGameShuffle();
-								} else { 
-									_animation.hideAllBoardLayers();
-								}
-								
+								}, 500); // Stop for .5 secs para makita ang last na item...
 
-								// Clear the road for it...
-								//_animation.clearClickedInteractions(_gamePlay.myGuess);
-								_gamePlay.myGuess = [];	
-							
-							} else { e.targetNode.getLayer().draw(); }
+							} //else { e.targetNode.getLayer().draw(); }
 
 						} else { // The clicked btn is in the array, so don't move.
 
