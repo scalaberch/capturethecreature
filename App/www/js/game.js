@@ -1297,9 +1297,9 @@ var _app = {
 			_animation.hidePauseMenu(evt.targetNode.getLayer());
 			_animation.updateScore(00000, 00000);
 
-
-			_animation.animateCountDown();
-			_gamePlay.resumeGame();
+			_gamePlay.isPlaying = false;
+			//_animation.animateCountDown();
+			//_gamePlay.resumeGame();
 		}).on('touchstart', function(evt){
 			var btn = _app.screens[4].find("#PAUSE_MENU_RESTART_BTN")[0];
 
@@ -1353,6 +1353,9 @@ var _app = {
 			_animation.hidePauseMenu(evt.targetNode.getLayer());
 			_animation.updateScore(00000, 00000);
 			_animation.backToMainMenu();
+
+			// update the time to zero and the timerbar to zero...
+			
 		}).on('touchstart', function(evt){
 			var btn = _app.screens[4].find("#PAUSE_MENU_QUIT_BTN")[0];
 
