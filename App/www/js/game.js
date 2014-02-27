@@ -22,8 +22,8 @@ var _gamePlay = {
 	gameLayer:null,
 
 	playerStats: {
-		allowableClicks:3,
-		showTimerOffset:3000,
+		showTimerOffset: 3000,
+		showTimer: 3000/1000,
 		numberOfCorrectGuesses: 0,
 
 		initPlayerStats: function(){
@@ -35,19 +35,23 @@ var _gamePlay = {
 			this.showTimerOffset = 3000;
 			numberOfCorrectGuesses = 0;
 		},
-		update: function(){
+		update: function()
+		{
 
 			// Update on showTimerOffset
 			if (this.showTimerOffset > 999){
 				this.showTimerOffset -= 166;
+				
+				this.showTimer = this.showTimerOffset/1000;
 			}
 
 			// Update on number of taps...
 			//switch(previousCorrectGuess){
-			switch( _gamePlay.numberOfCorrectGuesses){
-				case 4: _gamePlay.level = 4; break;
-				case 7: _gamePlay.level = 5; break;
-				case 10: _gamePlay.level = 6; break;
+			this.numberOfCorrectGuesses += 1;
+			switch( this.numberOfCorrectGuesses){
+				case 5: _gamePlay.level = 4; break;
+				case 10: _gamePlay.level = 5; break;
+				case 15: _gamePlay.level = 6; break;
 			}
 
 		}
@@ -69,6 +73,8 @@ var _gamePlay = {
 
 		// Reset stats...
 		this.resetGameStats();
+		this.playerStats.reset();
+			
 		if (_gamePlay.isPaused){
 			_gamePlay.resumeGame();
 		}
@@ -207,7 +213,7 @@ var _gamePlay = {
 	// Game Timer Structure
 	gameTimer: {
 
-		time: 16, timer: null,
+		time: 0, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
 			if (!_gamePlay.isPlaying){
@@ -267,7 +273,7 @@ var _gamePlay = {
 	// Reset thy game stats....
 	resetGameStats: function(){
 		this.score = 0; // Resetting the score...
-		this.gameTimer.time = 16; //Reset the time...
+		this.gameTimer.time = 120; //Reset the time...
 
 		_animation.resetTimerBar(); //Resetting the timer bar in the UI...
 		// TODO: Reset the score ui...
@@ -644,6 +650,8 @@ var _app = {
 								setTimeout(function(){
 									// Submit it now...
 									if (_gamePlay.isMyGuessCorrect(_gamePlay.myGuess)){
+									// Update gamePlay Stats
+									_gamePlay.playerStats.update();
 										// Add to score...
 										_gamePlay.addUpToScore(_gamePlay.target);
 										_gamePlay.executeGameShuffle();
