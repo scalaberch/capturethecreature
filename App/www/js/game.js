@@ -109,20 +109,25 @@ var _gamePlay = {
 			// Show what to find...
 			_animation.showWhatToFind(this.target);
 
-			// On showing it and getting back...
-			this.isShowing = true;
-			_animation.showAllBoardLayers();
+			// Shows all the board layers               
+			this.showAllBoardLayers();
 
 			// TODO: Please fix here later. Kana bitaw mag pause ka. Dapat
 			//	mu pause pud siya sa setTimeout, and then once i.resume... kebs ra dayun
-			setTimeout(function(){
-				_animation.hideAllBoardLayers();
-				_gamePlay.isShowing = false;
-			}, _gamePlay.playerStats.showTimerOffset);
+			//setTimeout(function(){
+				//_animation.hideAllBoardLayers();
+				//_gamePlay.isShowing = false;
+			//}, _gamePlay.playerStats.showTimerOffset);        
 
 		}
 	},
-
+	// Show all board layers								
+	showAllBoardLayers: function()
+	{
+		this.isShowing = true;
+		_animation.showAllBoardLayers();						
+	},
+	
 
 	// 	Randomly getting a character from the you know :)
 	// 	  Returns the index of the random character... 
@@ -190,22 +195,14 @@ var _gamePlay = {
 	//	Assigned: @ellenp 
 	addUpToScore: function(character){
 		var prevScore = this.score,
-			nextScore = prevScore + (_characters[character].value * this.playerStats.allowableClicks);
+			nextScore = prevScore + (_characters[character].value * this.level); 
+			
+			
 
 		this.score = nextScore;
 		console.log(this.score);
 		_animation.updateScore(prevScore, nextScore); //didto ni i.butang sa addUpToScore
 		
-
-	},
-
-	// Update my gameStats...
-	//	This is invoked after a correct guess. Diri ang action para mu paspas ug magkadaghan ba ang guesses...
-	//	Assigned: @jantaps2k + @ellenp
-	updateGameStats: function(){
-		this.playerStats.numberOfCorrectGuesses
-
-
 
 	},
 
@@ -226,22 +223,37 @@ var _gamePlay = {
 			}	
 		},
 		stop: function(){
-			console.log("Stopping...");
+
 			// Manually stopping the timer...
 			if (this.timer != null){
-				console.log("Clearing interval");
+
 				clearInterval(this.timer);
 				this.timer = null;
 			} else { console.log("timer is: "+this.timer); }
 			
-			console.log("Executing stop game...");
+
 			_gamePlay.stopGame();
 		},
 		tiktok: function(txt, lyer){
 			if (_gamePlay.isPaused){
-				console.log("Game is Paused...");
+
+																
+				
 			} else if (_gamePlay.isShowing){
-				console.log("Showing tiles...");
+
+				if (_gamePlay.playerStats.showTimer < 0)
+				{
+					// Covers the layers
+					_animation.hideAllBoardLayers();
+					// Returns to original state
+					_gamePlay.playerStats.showTimer = _gamePlay.playerStats.showTimerOffset/1000;
+					_gamePlay.isShowing = false;
+				} 		
+				else 
+				{
+					_gamePlay.playerStats.showTimer--;
+				}
+
 			} else {
 				console.log(this.timer);
 				this.time--;
@@ -253,7 +265,7 @@ var _gamePlay = {
 			}
 
 			
-		},
+		},	
 		showInFormat: function(seconds){
 			var result = Math.floor(seconds/60) + ":";
 			if (seconds % 60 < 10){ result += "0"; }
@@ -650,13 +662,17 @@ var _app = {
 								setTimeout(function(){
 									// Submit it now...
 									if (_gamePlay.isMyGuessCorrect(_gamePlay.myGuess)){
-									// Update gamePlay Stats
-									_gamePlay.playerStats.update();
+										// Updates gamePlay Stats
+										_gamePlay.playerStats.update();
+										
 										// Add to score...
 										_gamePlay.addUpToScore(_gamePlay.target);
 										_gamePlay.executeGameShuffle();
 									} else { 
-										_animation.hideAllBoardLayers();
+										// Shows the current slide again if guess is incorrect  
+										_gamePlay.showAllBoardLayers();	
+										
+										
 									}
 									
 									// Clear the road for it...
@@ -1150,30 +1166,37 @@ var _app = {
 		}); pauseButton.add(r);
 
 		pauseButton.on('touchend', function(evt){
-			var obj = _app.screens[6].find("#GAME_PAUSE_BTN")[0];
+			if ( _gamePlay.isPlaying)
+			{										
+				var obj = _app.screens[6].find("#GAME_PAUSE_BTN")[0];
 
-			obj.children[1].y( obj.children[1].y() - 4 );
-			obj.children[2].y( obj.children[2].y() - 4 );
-			obj.children[3].y( obj.children[3].y() - 4 );
-			obj.children[4].y( obj.children[4].y() - 4 );
+				obj.children[1].y( obj.children[1].y() - 4 );
+				obj.children[2].y( obj.children[2].y() - 4 );
+				obj.children[3].y( obj.children[3].y() - 4 );
+				obj.children[4].y( obj.children[4].y() - 4 );
 
-			_app.screens[6].draw();
+				_app.screens[6].draw();
 
 
-			_gamePlay.pauseGame();
+				_gamePlay.pauseGame();
 
-			var pauselayer = _app.screens[_app.PAUSE_MENU];
-			pauselayer.y( 0 ); pauselayer.draw();
+				var pauselayer = _app.screens[_app.PAUSE_MENU];
+				pauselayer.y( 0 ); pauselayer.draw();
+			}
 		}).on('touchstart', function(evt){
-			var obj = _app.screens[6].find("#GAME_PAUSE_BTN")[0];
+			if (_gamePlay.isPlaying)
+			{
+				var obj = _app.screens[6].find("#GAME_PAUSE_BTN")[0];
 
-			obj.children[1].y( obj.children[1].y() + 4 );
-			obj.children[2].y( obj.children[2].y() + 4 );
-			obj.children[3].y( obj.children[3].y() + 4 );
-			obj.children[4].y( obj.children[4].y() + 4 );
+				obj.children[1].y( obj.children[1].y() + 4 );
+				obj.children[2].y( obj.children[2].y() + 4 );
+				obj.children[3].y( obj.children[3].y() + 4 );
+				obj.children[4].y( obj.children[4].y() + 4 );
 
-			_app.screens[6].draw();
-		});
+				_app.screens[6].draw();
+
+			}
+		});	
 		
 
 
