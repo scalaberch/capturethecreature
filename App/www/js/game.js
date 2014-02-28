@@ -1353,11 +1353,12 @@ var _app = {
 			btn.children[3].y( btn.children[3].y() - 4 );
 
 			_app.screens[4].draw();
-
+			
+			// Re-initialize when paused
+			_gamePlay.isPaused = true;
 
 			_animation.hidePauseMenu(evt.targetNode.getLayer());
 			_animation.updateScore(00000, 00000);
-
 
 			_animation.animateCountDown();
 			_gamePlay.resumeGame();
