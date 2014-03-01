@@ -559,7 +559,7 @@ var _app = {
 		// Image resources...
 		mainMenuBackground: 		null,
 		gameScreenBackground: 		null,
-		gameBackground: 	  		null
+		gameBackground: 	  		null,
 
 		readyImage: 				null,
 		setImage:  					null,
