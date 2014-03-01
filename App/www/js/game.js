@@ -530,6 +530,12 @@ var _app = {
 			this.gameBackground = new Image(); this.gameBackground.src = "img/background.jpg";
 			// Load images of the characters...
 			this.__loadCharImages();
+			
+			// load the images										
+			this.readyImage = new Image(); this.readyImage.src = 'img/ready.png';
+			this.setImage = new Image(); this.setImage.src = 'img/set.png';
+			this.goImage = new Image(); this.goImage.src = 'img/go.png';
+			this.gameOverImage = new Image(); this.gameOverImage.src = 'img/gameover.png';
 
 		},
 		__loadCharImages: function(){
@@ -555,6 +561,11 @@ var _app = {
 		gameScreenBackground: 		null,
 		gameBackground: 	  		null
 
+		readyImage: 				null,
+		setImage:  					null,
+		goImage: 					null,
+		gameOverImage: 				null
+		
 
 	},
 
@@ -1354,12 +1365,11 @@ var _app = {
 
 			_app.screens[4].draw();
 			
-			// Re-initialize when paused
-			_gamePlay.isPaused = true;
 
 			_animation.hidePauseMenu(evt.targetNode.getLayer());
 			_animation.updateScore(00000, 00000);
 
+			
 			_animation.animateCountDown();
 			_gamePlay.resumeGame();
 		}).on('touchstart', function(evt){
@@ -1441,35 +1451,27 @@ var _app = {
 		});
 
 		// Ready!
-		var ready = new Kinetic.Text({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT",
+		//var ready = new Kinetic.Text({
+		//	width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT",
 
-			text:"ready?", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
-			stroke:"black", strokeWidth:5, opacity:0
+		//	text:"ready?", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
+		//	stroke:"black", strokeWidth:5, opacity:0
+		//}); layer.add(ready);
+		
+		var ready = new Kinetic.Image({
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT", image: _app.resources.readyImage, opacity:0
 		}); layer.add(ready);
 
-		// Set!
-		ready = new Kinetic.Text({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"SET_TXT",
-
-			text:"set?", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
-			stroke:"black", strokeWidth:5, opacity:0
+		ready = new Kinetic.Image({
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"SET_TXT", image: _app.resources.setImage, opacity:0
 		}); layer.add(ready);
 
-		// Get 'em!'
-		ready = new Kinetic.Text({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GO_TXT",
-
-			text:"get 'em!", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
-			stroke:"black", strokeWidth:5, opacity:0
+		ready = new Kinetic.Image({
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GO_TXT", image: _app.resources.goImage, opacity:0
 		}); layer.add(ready);
 
-		// Get 'em!'
-		ready = new Kinetic.Text({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GAME_OVER_TXT",
-
-			text:"time's up!", fill:"white", fontSize: 60, fontFamily: 'bubbleboddy', align:'center',
-			stroke:"black", strokeWidth:5, opacity:0
+		ready = new Kinetic.Image({
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GAME_OVER_TXT", image: _app.resources.gameOverImage, opacity:0
 		}); layer.add(ready);
 
 		layer.visible(false);
