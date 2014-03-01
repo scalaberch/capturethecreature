@@ -814,7 +814,7 @@ var _app = {
 		var t = new Kinetic.Text({
 			width:rect1.width(), height:rect1.height(), x:rect1.x(), y:rect1.y() + 8,
 
-			text:"PLAY GAME", fill:"white", fontSize: 30, fontFamily: 'bubbleboddy light', align:'center',
+			text:"PLAY GAME", fill:"white", fontSize: 30, fontFamily: 'pussycat1', align:'center',
 		}); startGameButton.add(t);
 
 		// Add the animation...
@@ -866,7 +866,7 @@ var _app = {
 		var t = new Kinetic.Text({
 			width:rect1.width(), height:rect1.height(), x:rect1.x(), y:rect1.y() + 12,
 
-			text:"%", fill:"white", fontSize: 24, fontFamily: 'bubbleboddy light', align:'center',
+			text:"SCORES", fill:"white", fontSize: 24, fontFamily: 'pussycat1', align:'center',
 		}); leaderBoardBtn.add(t);
 
 
@@ -888,21 +888,64 @@ var _app = {
 
 			_app.screens[0].draw();
 
+			_app.screens[3].find('#leaderBoardContentMsg')[0].text("LOADING LEADERBOARD...");  
+			_app.screens[3].draw();
+
+			
+			_animation.slideLeaderBoardDown(); var data;
+			setTimeout(function(){
+				data = $.ajax({
+					url: _server.getLeaderBoardLocation(),
+					dataType:"json"
+				});
+				
+				data.fail(function(jqXHR, textStatus){
+
+					_app.screens[3].find('#leaderBoardContentMsg')[0].text("Unable to connect to server. Check your network connection and please try again.");
+					_app.screens[3].draw();
+
+					console.log(jqXHR);
+					console.log(textStatus);
+				});
+
+				data.success(function(data){
+
+					console.log(data);
+					_app.screens[3].find('#leaderBoardContentMsg')[0].opacity(0);
+
+					var items = _app.screens[3].find("#leaderBoardContainerScores")[0];
+					
+					
+					
+					
+					
+					var index_counter = 2;
+					for(var i=0; i<data.length; i++){
+						console.log(data[i]);
+
+						items.children[index_counter].children[0].text( data[i].name );
+						items.children[index_counter].children[1].text( data[i].score );
+
+						index_counter++;
+					}
 
 
-			_animation.slideLeaderBoardDown();
 
-			var data = $.ajax({
-				url:_server.leaderBoard(),
-				success: function(data){
 
-				}
+					_app.screens[3].find("#leaderBoardContainerScores")[0].opacity(1);
+					_app.screens[3].draw();
 
-			});
+
+
+
+				});
+
+
+			}, 1000); 
 		});
 
 
-
+		
 		var helpBtn = new Kinetic.Group({
 			width: w*0.3, height: h*0.3, x: w*0.51, y: h*0.70, id:"HELP_BTN"
 		});
@@ -926,7 +969,7 @@ var _app = {
 		var t = new Kinetic.Text({
 			width:rect1.width(), height:rect1.height(), x:rect1.x(), y:rect1.y() + 12,
 
-			text:"?", fill:"white", fontSize: 24, fontFamily: 'bubbleboddy light', align:'center',
+			text:"HELP", fill:"white", fontSize: 24, fontFamily: 'pussycat1', align:'center',
 		}); helpBtn.add(t);
 
 
@@ -998,12 +1041,12 @@ var _app = {
 
 		// Put the timer text...
 		var timerText = new Kinetic.Text({
-			text:"0:00", fontSize: 24, fontFamily: 'bubbleboddy light', fill: 'white', id:"GAME_TIMER_TXT", x:w*0.03, y:2
+			text:"0:00", fontSize: 24, fontFamily: 'pussycat1', fill: 'white', id:"GAME_TIMER_TXT", x:w*0.03, y:2
 		}); gameStatsLayer.add(timerText);
 
 		// Put the score text...
 		var scoreText = new Kinetic.Text({
-			text:"00000", fontSize: 24, fontFamily: 'bubbleboddy light', fill: 'white', id:"GAME_SCORE_TXT", align:'right',
+			text:"00000", fontSize: 24, fontFamily: 'pussycat1', fill: 'white', id:"GAME_SCORE_TXT", align:'right',
 			x: gameStatsLayer.width() - gameStatsLayer.width() * 0.24, y:2
 		}); gameStatsLayer.add(scoreText);
 
@@ -1086,7 +1129,7 @@ var _app = {
 		var title = new Kinetic.Text({
 			width:background.width(), height:background.height(), x:background.x(), y:background.y() + 8,
 
-			text:"LEADERBOARD", fill:"white", fontSize: 24, fontFamily: 'bubbleboddy light', align:'center',
+			text:"LEADERBOARD", fill:"white", fontSize: 30, fontFamily: 'pussycat1', align:'center',
 		}); leaderBoardLayer.add(title);
 
 		// Close button nigga!
@@ -1269,7 +1312,7 @@ var _app = {
 		var title = new Kinetic.Text({
 			width:pauseLayer.width(), height:pauseLayer.height(), x:0, y:3,
 
-			text:"game paused", fill:"white", fontSize: 24, fontFamily: 'bubbleboddy light', align:'center',
+			text:"GAME PAUSED", fill:"white", fontSize: 24, fontFamily: 'pussycat1', align:'center',
 		}); pauseLayer.add(title);
 
 
@@ -1302,7 +1345,7 @@ var _app = {
 
 		txt = new Kinetic.Text({
 			width:btn.width(), height:btn.height(), x:0, y:8,
-			text:"CONTINUE", fill:"white", fontSize: 24, fontFamily: 'bubbleboddy light', align:'center',
+			text:"CONTINUE", fill:"white", fontSize: 24, fontFamily: 'pussycat1', align:'center',
 		}); btn.add(txt);
 
 		btn.on('touchend', function(evt){
@@ -1353,7 +1396,7 @@ var _app = {
 
 		txt = new Kinetic.Text({
 			width:btn.width(), height:btn.height(), x:0, y:8,
-			text:"RESTART", fill:"white", fontSize: 24, fontFamily: 'bubbleboddy light', align:'center',
+			text:"RESTART", fill:"white", fontSize: 24, fontFamily: 'pussycat1', align:'center',
 		}); btn.add(txt);
 
 		btn.on('touchend', function(evt){
@@ -1365,11 +1408,12 @@ var _app = {
 
 			_app.screens[4].draw();
 			
-
+			// Re-initialize when paused
+			_gamePlay.isPaused = true;
+			
 			_animation.hidePauseMenu(evt.targetNode.getLayer());
 			_animation.updateScore(00000, 00000);
 
-			
 			_animation.animateCountDown();
 			_gamePlay.resumeGame();
 		}).on('touchstart', function(evt){
@@ -1409,7 +1453,7 @@ var _app = {
 
 		txt = new Kinetic.Text({
 			width:btn.width(), height:btn.height(), x:0, y:8,
-			text:"QUIT GAME", fill:"white", fontSize: 24, fontFamily: 'bubbleboddy light', align:'center',
+			text:"QUIT GAME", fill:"white", fontSize: 24, fontFamily: 'pussycat1', align:'center',
 		}); btn.add(txt);
 
 		btn.on('touchend', function(evt){
