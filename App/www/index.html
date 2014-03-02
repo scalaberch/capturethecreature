@@ -18,14 +18,73 @@
 	</style>
 </head>
 <body>
-	<div id='gameContainer'></div>
+	<div id="fb-root"></div>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '783064738375108',
+          status     : true,
+          xfbml      : true
+        });
+      };
 
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/all.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+
+      function showFB(){
+      	FB.Event.subscribe('auth.authResponseChange', function(response) {
+		    if (response.status === 'connected') {
+		      console.log('Logged in');
+		    } else {
+		      FB.login();
+		    }
+  		});
+      }
+
+      function fb_publish() {
+	     FB.ui(
+	       {
+	         method:"feed",
+	         name: 'I just scored 699 points in Capture that Creature!',
+		     caption: 'Play Capture that Creature now!',
+		     description: (
+		          'Capture that Creature is a mobile game application ' +
+		          'for Android. Find the cute creatures and get points if  ' +
+		          'you get them!'
+		     ),
+		     link:"http://scalaberch.wordpress.com",
+		     display: "dialog"
+	       },
+	       function(response) {
+	         if (response && response.post_id) {
+	           alert('Post was published.');
+	         } else {
+	           alert('Post was not published.');
+	         }
+	       }
+	     );  
+	  }
+
+
+
+
+      	
+    </script>
+
+	<div id='gameContainer'></div>
 	<script type='text/javascript' src='js/jquery23.js'></script>
-<!--	<script type='text/javascript' src='js/cordova.js'></script> -->
+<!--	<script type='text/javascript' src='js/phonegap.js'></script> 
+	<script type='text/javascript' src='js/cordova.js'></script> -->
 	<script type='text/javascript' src='js/kinetic.js'></script>
 	<script type='text/javascript' src='js/game.js'></script>
 	<!-- <script type='text/javascript' src='gamejquery.js'></script> -->
 	
 	<!-- <script type="text/javascript" src="js/SocialSharing.js"> </script> -->
+
 </body>
 </html>

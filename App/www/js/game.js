@@ -1,11 +1,123 @@
 
 
 
+var _server = {
+
+	//host: "http://192.168.10.104/capturethecreature/Server",
+	host: "http://capturethatcreature.ap01.aws.af.cm/Server",
+
+	getLeaderBoardLocation: function(){
+		return this.host + "/score/view/";
+		//return this.host;
+	},
+	submitScoreLocation: function(){
+		return this.host + "/score/add/"
+	}
+
+}
+
+
+// localStorage objecvt
+//	Requires: cordova.js
+//	This implements the localStorage. Pero pwede ra gud ni sa normal na HTML5 but ang
+//		implementation kay sa cordova man guuud... :3
+
+var _localStorage = {
+
+	db: null,
+	dbSize: 1000000, //in bytes... this is 1MB
+
+	tblName:"LOCALSCORE",
+	temp: {	//Temporary storage...
+		name:null, score:null, timeStamp:null
+	},
+	queryResult: null, //This is the result variable for the query
+
+	init: function(){
+		this.db = window.openDatabase("ctcLocal", "1.000", "Capture that Creature Local DB", this.dbSize);
+
+		// Make the table... if not existing...
+		this.db.transaction(this.makeTable, function(tx){ console.log("Table initialized"); }, function(tx, err){
+			console.log("Error in initializing table..."+err);
+		});
+
+	},
+
+	// Insert something to the table...
+	insertFieldToTable: function(name, score){
+
+		this.db.transaction(function(tx){
+			tx.executeSql("INSERT INTO LocalScore (name, score, timeStamp, isTransmitted) VALUES (?,?,?)", [name, score, "TIME_STAMP"]);
+		}, function(tx){ console.log("Inserted a field!"); }, function(tx, err){
+			console.log("Error in inserting a field.");
+		});
+		
+	},
+
+	// Populate the table, i mean, make the table.
+	makeTable: function(tx){
+		//tx.executeSql("DROP TABLE IF EXISTS LocalScore");
+		tx.executeSql("CREATE TABLE IF NOT EXIST LocalScore (scoreID INTEGER NOT NULL PRIMARY KEY, name VARCHAR(50), score INTEGER, timestamp DATETIME, isTransmitted VARCHAR(5) )");
+	},
+
+	// Get something from the table...
+	getDataFromTable: function(){
+		// Initialize parameters...
+		this.queryResult = null;
+		var context = this;
+
+		// Execute the query
+		this.db.transaction(function(tx){
+			console.log("Executing query...");
+			tx.executeSql('SHOW TABLES', [], context.returnDataFromTable, function(tx, err){
+				console.log(err);
+			});
+		}, this.onSuccess, this.onFailure);
+		
+		return this.queryResult;
+	},
+	returnDataFromTable: function(tx, results){
+		console.log(results);
+
+
+		console.log("Printing from the you know");
+		console.log("Returned rows = " + results.rows.length);
+        // this will be true since it was a select statement and so rowsAffected was 0
+        if (!results.rowsAffected) {
+            console.log('No rows affected!');
+            return false;
+        }
+        // for an insert statement, this property will return the ID of the last inserted row
+        //console.log("Last inserted row ID = " + results.insertId);
+
+        this.queryResult = results;
+	},
+
+
+	// Success and failure handlers...
+	onSuccess: function(tx){ console.log("Transaction success..."); },
+	onFailure: function(tx, err){ console.log("Transaction fail. "+err); }
+}
+
+//console.log("Initializing db");
+//_localStorage.init();
+//_localStorage.insertFieldToTable("scalaberch", 69);
+//setTimeout(function(){/
+//	_localStorage.getDataFromTable();
+//}, 5000);
+
 
 // This is the object for the gameplay...
 //	You'll need this for the current game session. Each session is
 //	limited to 2 minutes only. User credentials are either stored in
 //	session/phone storage or at Facebook
+
+
+var _facebook = {
+
+	
+}
+
 
 var _gamePlay = {
 
@@ -210,7 +322,7 @@ var _gamePlay = {
 	// Game Timer Structure
 	gameTimer: {
 
-		time: 0, timer: null,
+		time: 10, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
 			if (!_gamePlay.isPlaying){
@@ -285,7 +397,7 @@ var _gamePlay = {
 	// Reset thy game stats....
 	resetGameStats: function(){
 		this.score = 0; // Resetting the score...
-		this.gameTimer.time = 120; //Reset the time...
+		this.gameTimer.time = 10; //Reset the time...
 
 		_animation.resetTimerBar(); //Resetting the timer bar in the UI...
 		// TODO: Reset the score ui...
@@ -1047,7 +1159,7 @@ var _app = {
 		// Put the score text...
 		var scoreText = new Kinetic.Text({
 			text:"00000", fontSize: 24, fontFamily: 'pussycat1', fill: 'white', id:"GAME_SCORE_TXT", align:'right',
-			x: gameStatsLayer.width() - gameStatsLayer.width() * 0.24, y:2
+			x: gameStatsLayer.width() - gameStatsLayer.width() * 0.18, y:2
 		}); gameStatsLayer.add(scoreText);
 
 		// Then the timer bar...
@@ -1131,6 +1243,58 @@ var _app = {
 
 			text:"LEADERBOARD", fill:"white", fontSize: 30, fontFamily: 'pussycat1', align:'center',
 		}); leaderBoardLayer.add(title);
+
+		// loading message...
+		var loadingMsg = new Kinetic.Text({
+			text:"LOADING LEADERBOARD...", fill:"#ddd", fontSize: 24, fontFamily: 'pussycat1', align:'center', width:background.width(), 
+			id:"leaderBoardContentMsg", x: background.x(), y:background.height() * 0.5,
+		}); leaderBoardLayer.add(loadingMsg);
+
+
+		var leaderBoardContent = new Kinetic.Group({
+			width:background.width() * 0.95, height:background.height(), x:background.width() * 0.15, y:background.height() * 0.30,
+			id:"leaderBoardContainerScores", opacity:0
+		});
+
+		// Print the first part of the list
+		var scoretext = new Kinetic.Text({
+			text:"PLAYER NAME", fill:"#ddd", fontSize: 24, fontFamily: 'pussycat1', align:'left', 
+			width:leaderBoardContent.width(), x:0, y:0
+		}); leaderBoardContent.add(scoretext);
+
+		scoretext = new Kinetic.Text({
+			text:"SCORE", fill:"#ddd", fontSize: 24, fontFamily: 'pussycat1', align:'right', 
+			width:leaderBoardContent.width(), x:0, y:0
+		}); leaderBoardContent.add(scoretext);
+
+
+		// The chuchu...
+		var elem, container, str, name, score;
+
+		var why = scoretext.height(), ex;
+		for(var i=0; i<10; i++){ // Kay top ten raman...
+			str = ""; //sc"+i;
+
+			elem = new Kinetic.Group();
+
+			name = new Kinetic.Text({
+				text:str, fill:"#ddd", fontSize: 24, fontFamily: 'pussycat1', align:'left', 
+				width:leaderBoardContent.width(), x:0, y:why
+			}); elem.add(name);
+
+			score = new Kinetic.Text({
+				text:str, fill:"#ddd", fontSize: 24, fontFamily: 'pussycat1', align:'right', 
+				width:leaderBoardContent.width(), x:0, y:why
+			}); elem.add(score);
+
+			leaderBoardContent.add(elem);
+			why += scoretext.height();
+		}
+
+
+		// Put the group on the you know
+		leaderBoardLayer.add(leaderBoardContent);
+
 
 		// Close button nigga!
 		var closeButton = new Kinetic.Group({ 
@@ -1784,6 +1948,30 @@ var _app = {
 			obj.children[3].y( obj.children[3].y() - 3);
 
 			_app.screens[10].draw();
+
+
+			// Send data to the server...
+			var shareData = $.ajax({
+				url:"",
+				data:"POST"
+			});
+
+			shareData.fail(function(){
+				console.log("Could not connect to the server. Please try again.");
+			});
+
+			shareData.success(function(data){
+				// if data is true...
+
+					// share to facebook...
+			});
+
+
+
+			// Then share to facebook...
+
+
+
 		});
 		grp.add(playAgainBtn);
 
@@ -2339,6 +2527,11 @@ window.onload = function(){
 	_app.__init__();
 	//_animation.slideMainMenuUp();
 }
+
+function onDeviceReady() {
+    _app.__init__();
+}
+//document.addEventListener("deviceready", onDeviceReady, false);
 
 
 
