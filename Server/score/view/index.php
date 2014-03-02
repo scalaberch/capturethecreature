@@ -1,31 +1,33 @@
 <?php
 
-if(isset($_GET))
-{
-
-mysql_connect('localhost','damz', 'password') OR DIE ("Server is Busy");
-mysql_select_db('ctcdb');
 
 
-$result = mysql_query("SELECT * FROM player Order by score DESC");
-$total_rows=mysql_num_rows($result);
 
-echo "{";
-	for($rows=0; $rows<$total_rows; $rows++)
-	{ 
-	$row=mysql_fetch_array($result, MYSQL_ASSOC);
-	$name = $row['name'];
-	$score = $row['score'];
+//mysql_connect('localhost','damz', 'password') OR DIE ("Server is Busy");
+//mysql_select_db('ctcdb');
 
-	if($rows==$total_rows-1)
-		echo '"name":"'.$name.'","score":'.$score.'}';
-	else
-		echo '"name":"'.$name.'","score":'.$score.',';
+//print_r($mysql_config);
 
-
-	}
-
+$link = mysql_connect('localhost', 'root', 'root');
+if (!$link){
+	//echo "cant connect...";
 }
+
+$db_selected = mysql_select_db('ctc', $link);
+
+$query = mysql_query("SELECT * FROM player ORDER BY score DESC");
+//$total_rows=mysql_num_rows($result);
+
+$json = '['; $first = true;
+while($result = mysql_fetch_array($query)){
+	if ($first){ $first = false; } else { $json .= ", "; }
+
+	$json .= '{"name":"'.$result['name'].'", "score":'.$result['score'].'}';
+} $json .= ']';
+
+echo $json;
+mysql_close($link);
+
 
 
 

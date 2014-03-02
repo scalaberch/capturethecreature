@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang='en'>
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 	<link rel='stylesheet' type='text/css' href='css/font.css' />
 	<style>
 	body{ padding:0px; margin:0px; }
@@ -46,6 +47,11 @@
   		});
       }
 
+
+
+
+
+
       function fb_publish() {
 	     FB.ui(
 	       {
@@ -62,12 +68,23 @@
 	       },
 	       function(response) {
 	         if (response && response.post_id) {
-	           alert('Post was published.');
+	           console.log('Post was published.');
 	         } else {
-	           alert('Post was not published.');
+	           console.log('Post was not published.');
 	         }
 	       }
 	     );  
+	  }
+
+	  function fb_test(){
+	  	FB.api('/me/feed', 'post', { message: "A test post." }, function(response) {
+		  if (!response || response.error) {
+		    alert('Error occured');
+		  } else {
+		    alert('Post ID: ' + response.id);
+		  }
+		});
+
 	  }
 
 
