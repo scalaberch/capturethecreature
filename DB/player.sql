@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Feb 18, 2014 at 04:35 PM
+-- Generation Time: Mar 02, 2014 at 01:58 AM
 -- Server version: 5.5.8
 -- PHP Version: 5.3.5
 
@@ -18,8 +18,6 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 --
 -- Database: `ctcdb`
 --
-CREATE DATABASE `ctcdb` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `ctcdb`;
 
 -- --------------------------------------------------------
 
@@ -31,13 +29,11 @@ CREATE TABLE IF NOT EXISTS `player` (
   `playerID` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL,
   `score` int(8) NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`playerID`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Dumping data for table `player`
 --
 
-INSERT INTO `player` (`playerID`, `name`, `score`) VALUES
-(1, 'damz', 9000),
-(2, 'ellen', 500);
