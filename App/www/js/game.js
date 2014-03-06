@@ -1582,7 +1582,7 @@ var _app = {
 
 
 		var loadingMsg = new Kinetic.Text({
-			text:helpText, fill:"#ddd", fontSize: 17, fontFamily: _app.font, align:'center', width:background.width(), 
+			text:helpText, fill:"#ddd", fontSize: 20, fontFamily: _app.font, align:'center', width:background.width(), 
 			x: background.x(), y:background.height() * 0.3,
 		}); leaderBoardLayer.add(loadingMsg);
 		
@@ -1591,8 +1591,17 @@ var _app = {
 		helpText = "Found on the bottom left of the screen is an image of what the missing creature looks like. Find a few that looks just like it. Beware because they tend to move fast and hide! So you have to recall where they were exactly, and tap their positions to proceed to the next set of creatures you need to find. Hurry! You don't have much time. Find as many different kinds of creatures as you can.";
 
 		var loadingMsg = new Kinetic.Text({
-			text:helpText, fill:"#ddd", fontSize: 17, fontFamily: _app.font, align:'center', width:background.width(), 
+			text:helpText, fill:"#ddd", fontSize: 20, fontFamily: _app.font, align:'center', width:background.width(), 
 			x: background.x(), y: h + background.height() * 0.3,
+		}); leaderBoardLayer.add(loadingMsg);
+		
+		var prevY = loadingMsg.y(); h = loadingMsg.height();
+		
+		helpText = "Hurry! You don't have much time. Find as many different kinds of creatures as you can.";
+		
+		var loadingMsg = new Kinetic.Text({
+			text:helpText, fill:"#ddd", fontSize: 20, fontFamily: _app.font, align:'center', width:background.width(), 
+			x: background.x(), y: h + prevY,
 		}); leaderBoardLayer.add(loadingMsg);
 		
 		
