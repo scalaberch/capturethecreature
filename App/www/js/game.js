@@ -7,7 +7,7 @@ var _server = {
 	host: "http://capturethatcreature.ap01.aws.af.cm/Server",
 	localhost: "/capturethecreature/Server",
 
-	local:true,
+	local:false,
 
 	getLeaderBoardLocation: function(){
 		if (this.local){
@@ -32,88 +32,101 @@ var _server = {
 
 var _localStorage = {
 
-	db: null,
-	dbSize: 1000000, //in bytes... this is 1MB
+  db: null,
 
-	tblName:"LOCALSCORE",
-	temp: {	//Temporary storage...
-		name:null, score:null, timeStamp:null
-	},
-	queryResult: null, //This is the result variable for the query
+  init: function(){
+    if (!window.openDatabase) {
+           // not all mobile devices support databases  if it does not, thefollowing alert will display
+           // indicating the device will not be albe to run this application
+      console.log('Databases are not supported in this browser.');
+      return;
+    }
 
-	init: function(){
-		this.db = window.openDatabase("ctcLocal", "1.000", "Capture that Creature Local DB", this.dbSize);
+    //_localStorage.db = openDatabase("CTCLocalDB", "1.0000", "CTC Local DB", 65535);
+    var db = openDatabase('CTCLocalDBFinal', '1.0000', 'CTCLocalDatabase', 65535);
 
-		// Make the table... if not existing...
-		this.db.transaction(this.makeTable, function(tx){ console.log("Table initialized"); }, function(tx, err){
-			console.log("Error in initializing table..."+err);
-		});
+    // This will execute the table chochoo....
+    var context = this;
 
-	},
+    db.transaction(function(t){
+      //console.log(t);
 
-	// Insert something to the table...
-	insertFieldToTable: function(name, score){
+      t.executeSql( 'DROP TABLE TempScores ', function(){ console.log("Query Null Data."); }, function(){ console.log("Query Error."); } );
+      t.executeSql( 'CREATE TABLE TempScores (ScoresId INTEGER NOT NULL PRIMARY KEY, Name TEXT, Score INTEGER, Date TEXT, Transmit TEXT) ',  function(){ console.log("Query Null Data."); }, function(e){ console.log(e); } );
+      t.executeSql( 'CREATE TABLE PhoneUser (Name TEXT)', function(){ console.log("Query Null Data."); },function(e){ console.log(e); } );
 
-		this.db.transaction(function(tx){
-			tx.executeSql("INSERT INTO LocalScore (name, score, timeStamp, isTransmitted) VALUES (?,?,?)", [name, score, "TIME_STAMP"]);
-		}, function(tx){ console.log("Inserted a field!"); }, function(tx, err){
-			console.log("Error in inserting a field.");
-		});
-		
-	},
-
-	// Populate the table, i mean, make the table.
-	makeTable: function(tx){
-		//tx.executeSql("DROP TABLE IF EXISTS LocalScore");
-		tx.executeSql("CREATE TABLE IF NOT EXIST LocalScore (scoreID INTEGER NOT NULL PRIMARY KEY, name VARCHAR(50), score INTEGER, timestamp DATETIME, isTransmitted VARCHAR(5) )");
-	},
-
-	// Get something from the table...
-	getDataFromTable: function(){
-		// Initialize parameters...
-		this.queryResult = null;
-		var context = this;
-
-		// Execute the query
-		this.db.transaction(function(tx){
-			console.log("Executing query...");
-			tx.executeSql('SHOW TABLES', [], context.returnDataFromTable, function(tx, err){
-				console.log(err);
-			});
-		}, this.onSuccess, this.onFailure);
-		
-		return this.queryResult;
-	},
-	returnDataFromTable: function(tx, results){
-		console.log(results);
+    }, function(t, e){ console.log("Initial Transaction failed."); }, this.successCallBack)
 
 
-		console.log("Printing from the you know");
-		console.log("Returned rows = " + results.rows.length);
-        // this will be true since it was a select statement and so rowsAffected was 0
-        if (!results.rowsAffected) {
-            console.log('No rows affected!');
-            return false;
-        }
-        // for an insert statement, this property will return the ID of the last inserted row
-        //console.log("Last inserted row ID = " + results.insertId);
 
-        this.queryResult = results;
-	},
+    this.db = db;
+    return _localStorage.db;
+  },
+
+  // Insert to scores...
+  insertScore: function(name, score){
+    if (this.db == null){
+      return false;
+    } else {
+      this.db.transaction(function(t) {
+          t.executeSql('INSERT INTO TempScores(Name, Score, Transmit) VALUES (?,?,?)',[name, score, 'READY'], 
+          this.nullHandler,this.errorHandler);
+      }); 
+    } 
+  },
+
+  // Update Fields as Sent...
 
 
-	// Success and failure handlers...
-	onSuccess: function(tx){ console.log("Transaction success..."); },
-	onFailure: function(tx, err){ console.log("Transaction fail. "+err); }
+  // Wipe out the data...
+  wipeData: function(){
+    if (this.db == null){
+      return false;
+    } else {
+      this.db.transaction(function(t) {
+          t.executeSql('DELETE FROM TempScores',[], this.nullHandler,this.errorHandler);
+      });
+    }
+  },
+
+  // View scores...
+  viewScores: function(){
+    var results = [], context = this;
+
+    _localStorage.db.transaction(function(transaction) {
+       transaction.executeSql('SELECT * FROM TempScores;', [],
+         
+         function(transaction, result) {
+
+              if (result != null && result.rows != null) {
+                  for (var i = 0; i < result.rows.length; i++) {
+
+                    //var row = result.rows.item(i);
+                    //$('#lbUsers').append('<br>' + row.ScoresId + '. ' +row.Name+ ' ' + row.Score + ' ' + row.GameDate);
+
+                    results.push( result.rows.item(i) );
+
+                  }
+
+              }
+
+              console.log(results);
+         
+         },context.errorHandler);
+     }, _localStorage.errorHandler, this.nullHandler);
+
+  },
+
+  // Handlers...
+  nullHandler:  function(){ },
+  errorHandler: function(transaction, e) {
+      console.log('Error: ' + e.message + ' code: ' + e.code);
+  },
+  successCallBack: function(){
+      console.log("SQL Action success!");
+  }
+
 }
-
-//console.log("Initializing db");
-//_localStorage.init();
-//_localStorage.insertFieldToTable("scalaberch", 69);
-//setTimeout(function(){/
-//	_localStorage.getDataFromTable();
-//}, 5000);
-
 
 // This is the object for the gameplay...
 //	You'll need this for the current game session. Each session is
@@ -252,6 +265,9 @@ var _gamePlay = {
 			// Shows all the board layers               
 			this.showAllBoardLayers();
 
+			// Show how many to be caught!
+			_animation.updateNumberPieces("standby");
+
 			// TODO: Please fix here later. Kana bitaw mag pause ka. Dapat
 			//	mu pause pud siya sa setTimeout, and then once i.resume... kebs ra dayun
 			//setTimeout(function(){
@@ -325,6 +341,7 @@ var _gamePlay = {
 	// Invoke the end-game actions...
 	callEndGame: function(){
 		//_animation.slidePostGameDown();
+		_localStorage.insertScore("Player Name", this.score);
 		_animation.endGameAnimations();
 	},
 
@@ -350,7 +367,7 @@ var _gamePlay = {
 	// Game Timer Structure
 	gameTimer: {
 
-		time: 3, timer: null,
+		time: 2, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
 			if (!_gamePlay.isPlaying){
@@ -425,12 +442,136 @@ var _gamePlay = {
 	// Reset thy game stats....
 	resetGameStats: function(){
 		this.score = 0; // Resetting the score...
-		this.gameTimer.time = 3; //Reset the time...
+		this.gameTimer.time = 2; //Reset the time...
 
 		_animation.resetTimerBar(); //Resetting the timer bar in the UI...
 		// TODO: Reset the score ui...
-	}
+	},
 
+
+
+	// Some methodological stuff
+	shareToFacebook: function(){
+
+		//fb_publish();
+
+		// Consolidate the data from the localStorage...
+		var gameData = [];
+
+		_localStorage.db.transaction(function(transaction) {
+       		transaction.executeSql('SELECT * FROM TempScores;', [],
+         
+	        function(transaction, result) {
+
+	        	  var stringData = "";
+
+	              if (result != null && result.rows != null) {
+	                  
+
+	                  for (var i = 0; i < result.rows.length; i++) {
+
+	                    //var row = result.rows.item(i);
+	                    //$('#lbUsers').append('<br>' + row.ScoresId + '. ' +row.Name+ ' ' + row.Score + ' ' + row.GameDate);
+
+	                    //'{"name":"321","score":23}#$#{"name:"131"'
+
+	                    var name =  result.rows.item(i).Name;
+	                    var score = result.rows.item(i).Score;
+
+	                    //if(i==result.rows.length-1)
+	                    //	stringData += '{"name":"' + name + '","score":' + score + '}';
+	                    //else
+	                    	stringData += '{"name":"' + name + '","score":' + score + '}#';
+
+	                  }
+
+
+	              }
+	              		//return stringData 
+	              	stringData += '{}#{}'; // Dummy crap...
+	              	console.log(stringData);
+	              	// Then get the current data and add it to the queued data...
+					//gameData.push( { "name":"Current Test Player", "score":_gamePlay.score, "timestamp":null } );
+
+					// Send data to the server...
+					var shareData = $.ajax({
+						url: _server.submitScoreLocation(),
+						type:"POST", data: { scores: stringData }  //{ scores:{"test":1, "test2":2} }
+					});
+
+					shareData.fail(function(){
+						console.log("Could not connect to the server. Please try again.");
+					});
+
+					shareData.success(function(data){
+						console.log("Receiving response...");
+						console.log(data);
+							// if data is true...
+
+								// share to facebook...
+						_localStorage.wipeData();
+					});
+	         
+	        }, _localStorage.errorHandler);
+
+     	}, _localStorage.errorHandler, _localStorage.nullHandler);
+
+/*
+		FB.ui(
+	       {
+	         method:"feed",
+	         name: 'I just scored '+this.score+' points in Capture that Creature!',
+		     caption: 'Play Capture that Creature now!',
+		     description: (
+		          'Capture that Creature is a mobile game application ' +
+		          'for Android. Find the cute creatures and get points if  ' +
+		          'you get them!'
+		     ),
+		     link:"http://scalaberch.wordpress.com",
+		     display: "dialog"
+	       },
+	       function(response) {
+	         if (response && response.post_id) {
+	           console.log('Post was published.');
+	         } else {
+	           console.log('Post was not published.');
+	         }
+	       }
+	     );
+
+
+		console.log("Sending data...");
+		//console.log(JSON.stringify(gameData));
+
+		var stringData = "";
+		for(var i=0; i<gameData.length; i++){
+			console.log(gameData[i]);
+			stringData += "#$#";
+		}
+
+		console.log(stringData);
+
+
+		// Send data to the server...
+		var shareData = $.ajax({
+			url: _server.submitScoreLocation(),
+			type:"POST", data: { scores:JSON.stringify(gameData) }  //{ scores:{"test":1, "test2":2} }
+		});
+
+		shareData.fail(function(){
+			console.log("Could not connect to the server. Please try again.");
+		});
+
+		shareData.success(function(data){
+			console.log("Receiving response...");
+			console.log(data);
+				// if data is true...
+
+					// share to facebook...
+
+		}); */
+
+	}
 
 }
 
@@ -678,6 +819,9 @@ var _app = {
 			this.goImage = new Image(); this.goImage.src = 'img/go.png';
 			this.gameOverImage = new Image(); this.gameOverImage.src = 'img/gameover.png';
 
+			// load the callout
+			this.calloutImage = new Image(); this.calloutImage.src = "img/callout.png";
+
 		},
 		__loadCharImages: function(){
 			var img, imgAlt, name;
@@ -705,13 +849,19 @@ var _app = {
 		readyImage: 				null,
 		setImage:  					null,
 		goImage: 					null,
-		gameOverImage: 				null
+		gameOverImage: 				null,
+
+		calloutImage: 				null
 		
 
 	},
 
 	// Application Initiator. Call this on start of the application.
 	__init__: function(){
+		// Initialize localStorage issues...
+		_localStorage.init();
+
+
 		// Get the width and height of the screen...
 		var w = window, d = document, e = d.documentElement, g = d.getElementsByTagName('body')[0];
 		var _width = w.innerWidth || e.clientWidth || g.clientWidth, _height = w.innerHeight|| e.clientHeight|| g.clientHeight;
@@ -815,12 +965,14 @@ var _app = {
 									// Submit it now...
 									if (_gamePlay.isMyGuessCorrect(_gamePlay.myGuess)){
 										// Updates gamePlay Stats
+										_animation.updateNumberPieces("positive");
 										_gamePlay.playerStats.update();
 										
 										// Add to score...
 										_gamePlay.addUpToScore(_gamePlay.target);
 										_gamePlay.executeGameShuffle();
 									} else { 
+										_animation.updateNumberPieces("negative");
 										// Shows the current slide again if guess is incorrect  
 										_gamePlay.showAllBoardLayers();	
 										
@@ -902,12 +1054,16 @@ var _app = {
 		var pauseLayer = this.initPauseMenu(_width, _height);
 		this.app.add(pauseLayer);
 
+		// Help message...
+		var helpMessage = this.initHelpMessage(_width, _height);
+		this.app.add(helpMessage);
+
 
 		// Put to screens array for reference in below objects
 		//this.screens = [mainLayer, postGameLayer];
 		this.screens = [backgroundMainMenu, gameStatsLayer, gameBoardLayer, leaderBoardLayer, 
 							pauseLayer, itemLayers, bottomBoardLayer, countdownLayer, findMeLayer, findMeSLayer,
-							postGameLayer];		
+							postGameLayer, helpMessage];		
 	},
 
 	// Methods...
@@ -921,9 +1077,6 @@ var _app = {
 		var mainMenuLayer = new Kinetic.Layer({
 			width:w, height:h, x:0, y:0, id:"LOADING_SCREEN_MENU_LAYER"
 		});
-
-
-
 
 		return mainMenuLayer;
 	},
@@ -1135,6 +1288,7 @@ var _app = {
 			btn.children[3].y( btn.children[3].y() - 6 );
 
 			_app.screens[0].draw();
+			_animation.slideHelpViewDown();
 		});
 
 
@@ -1376,9 +1530,118 @@ var _app = {
 
 		return leaderBoardLayer;
 	},
-	// Method:
+	// Method: (NEW) Help message...
+	initHelpMessage: function(w, h){
+		var leaderBoardLayer = new Kinetic.Layer({
+			width:w, height:h, x:0, y:0 //h*0.02
+		});
+
+		// Background nigga!
+		var background = new Kinetic.Rect({ 	
+								width: leaderBoardLayer.width() * 0.8, 
+								height: leaderBoardLayer.height() * 0.84, 
+								x:leaderBoardLayer.width() * 0.1, 
+								y:leaderBoardLayer.height() * 0.1, 
+
+								cornerRadius:  leaderBoardLayer.width()*0.03,
+								fill:"#7a726a", 
+								//stroke:"#29230b", strokeWidth:3
+		}); leaderBoardLayer.add(background);
+
+		background = new Kinetic.Rect({ 	
+								width: leaderBoardLayer.width() * 0.8, 
+								height: leaderBoardLayer.height() * 0.79, 
+								x:leaderBoardLayer.width() * 0.1, 
+								y:leaderBoardLayer.height() * 0.09, 
+
+								cornerRadius:  leaderBoardLayer.width()*0.03,
+								fill:"#d8bfa3", 
+								//stroke:"#29230b", strokeWidth:3
+		}); leaderBoardLayer.add(background);
+
+		background = new Kinetic.Rect({ 	
+								width: leaderBoardLayer.width() * 0.8, 
+								height: leaderBoardLayer.height() * 0.79, 
+								x:leaderBoardLayer.width() * 0.1, 
+								y:leaderBoardLayer.height() * 0.1, 
+
+								cornerRadius:  leaderBoardLayer.width()*0.03,
+								fill:"#9b8f82", 
+								//stroke:"#29230b", strokeWidth:3
+		}); leaderBoardLayer.add(background);
+
+		// Title Bar...
+		var title = new Kinetic.Text({
+			width:background.width(), height:background.height(), x:background.x(), y:background.y() + 8,
+
+			text:"HOW TO PLAY", fill:"white", fontSize: 30, fontFamily: _app.font, align:'center',
+		}); leaderBoardLayer.add(title);
 
 
+		var helpText = "Tap the characters to play. You are given two minutes to solve the game.";
+
+
+		var loadingMsg = new Kinetic.Text({
+			text:helpText, fill:"#ddd", fontSize: 17, fontFamily: _app.font, align:'center', width:background.width(), 
+			x: background.x(), y:background.height() * 0.3,
+		}); leaderBoardLayer.add(loadingMsg);
+
+
+		// Close button nigga!
+		var closeButton = new Kinetic.Group({ 
+			x: leaderBoardLayer.width() *0.35,
+			y: leaderBoardLayer.height() * 0.75,
+			id:"HELP_CLOSE_BTN"
+		}),
+
+		// Background of the close button
+		closeButtonBG = new Kinetic.Rect({
+			width: leaderBoardLayer.width() * 0.3, height: leaderBoardLayer.height()*0.082,
+			fill: '#7a726a', x:0, y:13, cornerRadius: leaderBoardLayer.width() * 0.03
+		}); closeButton.add(closeButtonBG);
+
+		closeButtonBG = new Kinetic.Rect({
+			width: leaderBoardLayer.width() * 0.3, height: leaderBoardLayer.height()*0.065,
+			fill: '#ffe284', x:0, y:10, cornerRadius: leaderBoardLayer.width() * 0.03
+		}); closeButton.add(closeButtonBG);
+
+		closeButtonBG = new Kinetic.Rect({
+			width: leaderBoardLayer.width() * 0.3, height: leaderBoardLayer.height()*0.065,
+			fill: '#ffc14d', x:0, y:12, cornerRadius: leaderBoardLayer.width() * 0.03
+		}); closeButton.add(closeButtonBG);
+
+		var closeText = new Kinetic.Text({
+			text:"CLOSE", x:0, y:22, width:leaderBoardLayer.width() * 0.3, 
+			height:leaderBoardLayer.height()*0.065, align:'center', fill:'white'
+		}); closeButton.add(closeText);
+
+
+		closeButton.on('touchend', function(evt){
+			var obj = _app.screens[11].find("#HELP_CLOSE_BTN")[0];
+			obj.children[1].y( obj.children[1].y() - 3 );
+			obj.children[2].y( obj.children[2].y() - 3 );
+			obj.children[3].y( obj.children[3].y() - 3 );
+			_app.screens[11].draw();
+
+			//_animation.slideLeaderBoardUp();
+			_animation.slideHelpViewUp();
+		}).on('touchstart', function(evt){
+			var obj = _app.screens[11].find("#HELP_CLOSE_BTN")[0];
+			obj.children[1].y( obj.children[1].y() + 3 );
+			obj.children[2].y( obj.children[2].y() + 3 );
+			obj.children[3].y( obj.children[3].y() + 3 );
+			_app.screens[11].draw();
+		});
+
+
+
+		leaderBoardLayer.add(closeButton);
+
+		// Reset on the height + position
+		leaderBoardLayer.y( 0 - leaderBoardLayer.height());
+
+		return leaderBoardLayer;
+	},
 	// Method: (NEW) BottomLayer
 	initGameBottomLayer: function(w, h){
 		var bottomLayer = new Kinetic.Layer({
@@ -1744,11 +2007,29 @@ var _app = {
 			id:"TARGET_IMG"
 		}); layer.add(targetImage);
 
+
+		var callOut = new Kinetic.Group({
+			id:"BOTTOM_CALLOUT", x: layer.width() * 0.26, y:0 - layer.height()*0.12,
+			width: layer.width()*0.8, height:layer.height()*1
+		});
+
+		var callOutBG = new Kinetic.Image({
+			image:_app.resources.calloutImage, width: callOut.width()*0.65, height:callOut.height()*1
+		}); callOut.add(callOutBG);
+
+		var callOutText = new Kinetic.Text({
+			text:"This is a text.", fontSize: 20, fontFamily: _app.font, fill: 'white', id:"TIMES_TEXT", align:'right',
+			x: callOut.width() * 0.1, y:callOut.height() * 0.15
+		}); callOut.add(callOutText); //callOut.add(calloutText);
+
+
+		layer.add(callOut);
+
 		// Put the x3 or x4 or xN thingy...
-		var timesSomethingTxt = new Kinetic.Text({
-			text:"x3", fontSize: 24, fontFamily: 'bubbleboddy', fill: 'black', id:"TIMES_TEXT", align:'right',
-			x: layer.width() * 0.275, y:layer.height()*0.5
-		}); //layer.add(timesSomethingTxt);
+		//var timesSomethingTxt = new Kinetic.Text({
+		//	text:"x3", fontSize: 20, fontFamily: _app.font, fill: 'white', id:"TIMES_TEXT", align:'right',
+		//	x: layer.width() * 0.270, y:layer.height()*0.55
+		//}); layer.add(timesSomethingTxt);
 
 		//layer.add(pauseButton);
 		layer.visible(false);
@@ -1987,41 +2268,8 @@ var _app = {
 
 
 			// Check if logged in...
-
-
-
-
-			// Consolidate the data from the localStorage...
-			var gameData = [];
-
-
-			// Then get the current data and add it to the queued data...
-			gameData.push( { "name":"Test Player", "score":_gamePlay.score, "timestamp":null } );
-
-			console.log("Sending data...");
-			// Send data to the server...
-			var shareData = $.ajax({
-				url: _server.submitScoreLocation(),
-				type:"POST", data:{ scores:gameData }
-			});
-
-			shareData.fail(function(){
-				console.log("Could not connect to the server. Please try again.");
-			});
-
-			shareData.success(function(data){
-				console.log("Receiving response...");
-				console.log(data);
-				// if data is true...
-
-					// share to facebook...
-			});
-
-
-
-			// Then share to facebook...
-
-
+			// TODO: This is the popup publish feature of facebook. Share ni diritso.
+			_gamePlay.shareToFacebook();
 
 		});
 		grp.add(playAgainBtn);
@@ -2408,6 +2656,9 @@ var _animation = {
 
 	// End Game animation...
 	endGameAnimations: function(){
+
+
+
 		// Show the "game over" thingy...
 		_app.screens[7].visible(true);
 		var gameOver = _app.screens[7].find('#GAME_OVER_TXT')[0],
@@ -2478,7 +2729,39 @@ var _animation = {
 	hidePostGame: function(){
 		_app.screens[10].y( 0 - _app.screens[10].height() ).draw();
 	},
-	// Reset the 
+	// Animate up and down the help menu...
+	slideHelpViewDown: function(){
+		var layer = _app.screens[11];
+		var tween = new Kinetic.Tween({
+			node: layer,
+			duration:1,
+			y:0,
+			easing:Kinetic.Easings.BounceEaseOut
+		}); tween.play();
+	},
+	slideHelpViewUp: function(){
+		var layer = _app.screens[11];
+		var tween = new Kinetic.Tween({
+			node: layer,
+			duration:1,
+			y:0 - layer.height(),
+			easing:Kinetic.Easings.BounceEaseIn
+		}); tween.play();
+	},
+	updateNumberPieces: function(n){
+
+		var string;
+
+		if (n == "standby"){
+			string = "Find "+_gamePlay.level+" of me";
+		} else if (n == "positive"){
+			string = "You got it!";
+		} else if (n == "negative"){
+			string = "No, no. It's not!";
+		}
+		_app.screens[8].find("#TIMES_TEXT")[0].text(string);
+		_app.screens[8].draw();
+	},
 
 
 
