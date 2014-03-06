@@ -1578,15 +1578,24 @@ var _app = {
 		}); leaderBoardLayer.add(title);
 
 
-		var helpText = "Tap the characters to play. You are given two minutes to solve the game.";
+		var helpText = "Help! The animals have gone lose! Your task is to seek them out. Don't worry, they'll taunt you to look for them.";
 
 
 		var loadingMsg = new Kinetic.Text({
 			text:helpText, fill:"#ddd", fontSize: 17, fontFamily: _app.font, align:'center', width:background.width(), 
 			x: background.x(), y:background.height() * 0.3,
 		}); leaderBoardLayer.add(loadingMsg);
+		
+		var h = loadingMsg.height();
+		
+		helpText = "Found on the bottom left of the screen is an image of what the missing creature looks like. Find a few that looks just like it. Beware because they tend to move fast and hide! So you have to recall where they were exactly, and tap their positions to proceed to the next set of creatures you need to find. Hurry! You don't have much time. Find as many different kinds of creatures as you can.";
 
-
+		var loadingMsg = new Kinetic.Text({
+			text:helpText, fill:"#ddd", fontSize: 17, fontFamily: _app.font, align:'center', width:background.width(), 
+			x: background.x(), y: h + background.height() * 0.3,
+		}); leaderBoardLayer.add(loadingMsg);
+		
+		
 		// Close button nigga!
 		var closeButton = new Kinetic.Group({ 
 			x: leaderBoardLayer.width() *0.35,
