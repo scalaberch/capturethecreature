@@ -1605,12 +1605,6 @@ var _app = {
 		}); leaderBoardLayer.add(loadingMsg);
 
 
-		var loadingMsg = new Kinetic.Text({
-			text:helpText, fill:"#ddd", fontSize: 17, fontFamily: _app.font, align:'center', width:background.width(), 
-			x: background.x(), y:background.height() * 0.3,
-		}); leaderBoardLayer.add(loadingMsg);
-
-
 		// Close button nigga!
 		var closeButton = new Kinetic.Group({ 
 			x: leaderBoardLayer.width() *0.35,
