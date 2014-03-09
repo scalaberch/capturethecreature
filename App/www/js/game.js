@@ -165,6 +165,7 @@ var _gamePlay = {
 	isPlaying: false,
 	isShowing: false,
 	isPaused:  false,
+	isFirstView: true,
 
 	score:     0,
 	myGuess:   [],
@@ -281,6 +282,7 @@ var _gamePlay = {
 	showAllBoardLayers: function()
 	{
 		this.isShowing = true;
+
 		_animation.showAllBoardLayers();						
 	},
 	
@@ -397,6 +399,14 @@ var _gamePlay = {
 																
 				
 			} else if (_gamePlay.isShowing){
+
+				if (!_gamePlay.isFirstView){
+					this.time--;
+					this.updateToGUI(this.showInFormat(this.time), txt, lyer);
+					if (this.time == 0){
+						this.stop();
+					}
+				}
 
 				if (_gamePlay.playerStats.showTimer < 0)
 				{
@@ -898,7 +908,7 @@ var _app = {
 		//	Rationale: For it to be independent for every layer draw.
 
 		var params = { cols:4, rows:5, x:_width*0.01, y: _height*0.07, width: (_width - _width*0.04)/4, height: (_height - _height*0.28)/5 };
-		var boardItemLayer, rect, itemLayers = [], i = 0;
+		var boardItemLayer1, rect, itemLayers = [], i = 0, content;
 
 		for (var vertical = 0; vertical < params.rows; vertical++) {
 
@@ -911,7 +921,7 @@ var _app = {
 				//console.log(boardItemLayer.width() +" x "+ boardItemLayer.height());
 
 
-				var content = new Kinetic.Group({
+				content = new Kinetic.Group({
 					x: boardItemLayer.x(), y: boardItemLayer.y(),
 					width: boardItemLayer.width(), height: boardItemLayer.height()
 				});
@@ -927,7 +937,7 @@ var _app = {
 				boardItemLayer.add(content);
 
 				// Add up everything...
-				var rect = new Kinetic.Rect({
+				rect = new Kinetic.Rect({
 					x: boardItemLayer.x(), y: boardItemLayer.y(),
 					width: boardItemLayer.width(), height: boardItemLayer.height(),
 
@@ -951,7 +961,7 @@ var _app = {
 						//rect.opacity(0); e.targetNode.getLayer().draw();
 
 						var rect = e.targetNode.getLayer().children[1];
-
+						_gamePlay.isFirstView = false;
 
 						if (_gamePlay.myGuess.indexOf(e.targetNode.getLayer().id()) == -1){ // The clicked btn is not yet in the array...
 							// -- hide the cover...
@@ -967,12 +977,15 @@ var _app = {
 										// Updates gamePlay Stats
 										_animation.updateNumberPieces("positive");
 										_gamePlay.playerStats.update();
+										_gamePlay.isFirstView = true;
 										
 										// Add to score...
 										_gamePlay.addUpToScore(_gamePlay.target);
 										_gamePlay.executeGameShuffle();
 									} else { 
 										_animation.updateNumberPieces("negative");
+										_gamePlay.isFirstView = false;
+
 										// Shows the current slide again if guess is incorrect  
 										_gamePlay.showAllBoardLayers();	
 										
@@ -1582,7 +1595,7 @@ var _app = {
 
 
 		var loadingMsg = new Kinetic.Text({
-			text:helpText, fill:"#ddd", fontSize: 20, fontFamily: _app.font, align:'center', width:background.width(), 
+			text:helpText, fill:"#ddd", fontSize: 14, fontFamily: _app.font, align:'center', width:background.width(), 
 			x: background.x(), y:background.height() * 0.3,
 		}); leaderBoardLayer.add(loadingMsg);
 		
@@ -1591,7 +1604,7 @@ var _app = {
 		helpText = "Found on the bottom left of the screen is an image of what the missing creature looks like. Find a few that looks just like it. Beware because they tend to move fast and hide! So you have to recall where they were exactly, and tap their positions to proceed to the next set of creatures you need to find.";
 
 		var loadingMsg = new Kinetic.Text({
-			text:helpText, fill:"#ddd", fontSize: 20, fontFamily: _app.font, align:'center', width:background.width(), 
+			text:helpText, fill:"#ddd", fontSize: 14, fontFamily: _app.font, align:'center', width:background.width(), 
 			x: background.x(), y: h + background.height() * 0.3,
 		}); leaderBoardLayer.add(loadingMsg);
 		
@@ -1600,7 +1613,7 @@ var _app = {
 		helpText = "Hurry! You don't have much time. Find as many different kinds of creatures as you can.";
 		
 		var loadingMsg = new Kinetic.Text({
-			text:helpText, fill:"#ddd", fontSize: 20, fontFamily: _app.font, align:'center', width:background.width(), 
+			text:helpText, fill:"#ddd", fontSize: 14, fontFamily: _app.font, align:'center', width:background.width(), 
 			x: background.x(), y: h + prevY,
 		}); leaderBoardLayer.add(loadingMsg);
 
@@ -1984,20 +1997,24 @@ var _app = {
 		//}); layer.add(ready);
 		
 		var ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT", image: _app.resources.readyImage //, opacity:0
-		}); ready.visible(false); layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT", image: _app.resources.readyImage , opacity:0
+		}); //ready.visible(false); 
+		layer.add(ready);
 
 		ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"SET_TXT", image: _app.resources.setImage //, opacity:0
-		}); ready.visible(false); layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"SET_TXT", image: _app.resources.setImage , opacity:0
+		}); //ready.visible(false); 
+		layer.add(ready);
 
 		ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GO_TXT", image: _app.resources.goImage //, opacity:0
-		}); ready.visible(false); layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GO_TXT", image: _app.resources.goImage , opacity:0
+		}); //ready.visible(false); 
+		layer.add(ready);
 
 		ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GAME_OVER_TXT", image: _app.resources.gameOverImage //, opacity:0
-		}); ready.visible(false); layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GAME_OVER_TXT", image: _app.resources.gameOverImage , opacity:0
+		}); //ready.visible(false); 
+		layer.add(ready);
 
 		layer.visible(false);
 		return layer;
@@ -2036,8 +2053,8 @@ var _app = {
 		}); callOut.add(callOutBG);
 
 		var callOutText = new Kinetic.Text({
-			text:"This is a text.", fontSize: 20, fontFamily: _app.font, fill: 'white', id:"TIMES_TEXT", align:'right',
-			x: callOut.width() * 0.1, y:callOut.height() * 0.15
+			text:"This is a text.", fontSize: 12, fontFamily: _app.font, fill: 'white', id:"TIMES_TEXT", align:'left',
+			x: callOut.width() * 0.1, y:callOut.height() * 0.15, width: callOut.width() * 0.5
 		}); callOut.add(callOutText); //callOut.add(calloutText);
 
 
@@ -2460,7 +2477,7 @@ var _animation = {
 		// Hide the board layers...
 		var layers = _app.screens[5], i;
 		for(i=0; i<layers.length; i++){
-			layers[i].visible(false).opacity(0).draw();
+			layers[i].visible(false).draw();
 		}
 	},
 
@@ -2476,6 +2493,8 @@ var _animation = {
 			clickables[i].visible(true);
 			clickables[i].draw();
 		}
+
+		_animation.animateCountDown();
 
 	},
 	a: function(ts, i){ //Helper function for the animation...
@@ -2885,9 +2904,16 @@ _app.resources.__init();
 window.onload = function(){
 	console.log("Starting application...!");
 	// Start! :)
-	_app.__init__();
+	
 	//_animation.slideMainMenuUp();
+
+	//alert("Finished loading...");
 }
+
+$(window).ready(function(){
+	_app.__init__();
+});
+
 
 function onDeviceReady() {
     _app.__init__();
