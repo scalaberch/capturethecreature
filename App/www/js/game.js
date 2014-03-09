@@ -137,6 +137,29 @@ var _localStorage = {
 var _facebook = {
 
 	init: function(){
+
+		if ((typeof cordova == 'undefined') && (typeof Cordova == 'undefined')) 
+			alert('Cordova variable is missing. Check  cordova.js included correctly');
+            	if (typeof CDV == 'undefined') 
+			alert('CDV variable is missing. Check cdv-plugin-fb-connect.js is included correctly');
+            	if (typeof FB == 'undefined') 
+			alert('FB variable is missing. Check the Facebook JS SDK file included.');
+
+
+			FB.Event.subscribe('auth.login', function(response) {
+                               alert('login event fired !!');
+                               });
+            
+            	FB.Event.subscribe('auth.logout', function(response) {
+                               alert('logout event fired !!');
+                               });
+           
+            
+            	FB.Event.subscribe('auth.statusChange', function(response) {
+                               alert('statusChange event fired !!');
+                               });
+            
+/*
 		window.fbAsyncInit = function() {
 	        FB.init({
 	          appId      : '783064738375108',
@@ -151,12 +174,70 @@ var _facebook = {
 	         js = d.createElement(s); js.id = id;
 	         js.src = "//connect.facebook.net/en_US/all.js";
 	         fjs.parentNode.insertBefore(js, fjs);
-	    }(document, 'script', 'facebook-jssdk'));
+	    }(document, 'script', 'facebook-jssdk')); */
 	},
 
 	postOnWall: function(){
 
+	},
+
+	getLoginStatus: function()
+	{
+                FB.getLoginStatus(function(response) {
+                                  if (response.status == 'connected') 
+				  {
+                                  	alert('You are connected to Fb');
+                                  } 
+				  else 
+				  {
+                                 	alert('not connected to FB');
+                                  }
+                                  });
+
+
+	},
+
+	logout: function()
+	{
+                FB.logout(function(response) {
+                          alert('logged out');
+                          });
+
+	},
+
+	login: function()
+	{
+                FB.login(
+                         function(response) {
+                         if (response.session) {
+                         alert('you are logged in');
+                         } else {
+                         alert('you are not logged in');
+                         }
+                         },
+                         { scope: "email" }
+                         );
+	},
+
+	postMsg: function()
+	{
+
+		FB.ui( { 
+			method:"feed", 
+			name: 'I just scored '+_gamePlay.score+' points in Capture that Creature!', 
+			caption: 'Play Capture that Creature now!', 
+			description: ( 'Capture that Creature is a mobile game application ' + 
+				'for Android. Find the cute creatures and get points if ' +
+				'you get them!' ), link:"http://www.facebook.com/capturethatcreaturegame", 
+			display: "dialog" 
+		}, function(response) { 
+			if (response && response.post_id) { console.log('Post was published.'); } 
+			else { console.log('Post was not published.'); } 
+		} );
+
 	}
+
+
 }
 
 
@@ -449,7 +530,13 @@ var _gamePlay = {
 	},
 
 
+	// Some methodological stuff 
+	shareToFacebook: function(){ 
+	//fb_publish(); 
+	// Consolidate the data from the localStorage... 
+	var gameData = []; 
 
+<<<<<<< HEAD
 	// Some methodological stuff
 	shareToFacebook: function(){
 
@@ -530,7 +617,55 @@ var _gamePlay = {
 		 });
 
 
+=======
+	FB.login(function(response) { 
+		if (response.authResponse) { 
+			FB.api('/me', function(response) { 
+			_localStorage.db.transaction(function(transaction) { 
+				
+				transaction.executeSql('SELECT * FROM TempScores;', [], function(transaction, result) { 
+					var stringData = ""; 
+					if (result != null && result.rows != null) { 
+						for (var i = 0; i < result.rows.length; i++) { 
+							//var row = result.rows.item(i); 
+							//$('#lbUsers').append('<br>' + row.ScoresId + '. ' +row.Name+ ' ' + row.Score + ' ' + row.GameDate); 
+							//'{"name":"321","score":23}#$#{"name:"131"' 
+							var name = response.name; //result.rows.item(i).Name; 
+							var score = result.rows.item(i).Score; 
+							//if(i==result.rows.length-1) 
+							// stringData += '{"name":"' + name + '","score":' + score + '}'; 
+							//else 
+							stringData += '{"name":"' + name + '","score":' + score + '}#'; 
+						} 
+					} //end if
+
+					stringData += '{}#{}'; // Dummy crap...
+					console.log(stringData); 
+
+					//Share to facebook...
+					_facebook.postMsg();
+
+					// Then get the current data and add it to the queued data... 
+					//gameData.push( { "name":"Current Test Player", "score":_gamePlay.score, "timestamp":null } ); 
+					// Send data to the server... 
+					var shareData = $.ajax({ url: _server.submitScoreLocation(), 
+						type:"POST", data: { scores: stringData } 
+					}); 
+
+					shareData.fail(function(){ console.log("Could not connect to the server. Please try again."); }); 
+					shareData.success(function(data){ console.log("Receiving response..."); console.log(data); 
+						// if data is true... // share to facebook... 
+						_localStorage.wipeData(); 
+					}); 
+				}, _localStorage.errorHandler); //end executeSql
+			}, _localStorage.errorHandler, _localStorage.nullHandler);  //end db.transaction
+			}); //end FB.api('me')
+		} else { console.log('User cancelled login or did not fully authorize.'); } 
+
+	}); 
+>>>>>>> FETCH_HEAD
 	}
+
 
 }
 
@@ -1022,7 +1157,11 @@ var _app = {
 		//this.screens = [mainLayer, postGameLayer];
 		this.screens = [backgroundMainMenu, gameStatsLayer, gameBoardLayer, leaderBoardLayer, 
 							pauseLayer, itemLayers, bottomBoardLayer, countdownLayer, findMeLayer, findMeSLayer,
-							postGameLayer, helpMessage];		
+							postGameLayer, helpMessage];	
+
+
+		// Initialize facebook
+		_facebook.init();	
 	},
 
 	// Methods...
@@ -2217,6 +2356,8 @@ var _app = {
 			obj.children[3].y( obj.children[3].y() + 3);
 
 			_app.screens[10].draw();
+
+			_gamePlay.shareToFacebook();
 		}).on('touchend', function(evt){
 			var obj = _app.screens[10].find("#END_GAME_SHARE_BTN")[0];
 
@@ -2231,7 +2372,7 @@ var _app = {
 			// TODO: This is the popup publish feature of facebook. Share ni diritso.
 			_gamePlay.shareToFacebook();
 
-		});
+		}).on('touch', function(){ _gamePlay.shareToFacebook(); });
 		grp.add(playAgainBtn);
 
 
@@ -2819,6 +2960,12 @@ window.onload = function(){
 	console.log("Starting application...!");
 	// Start! :)
 	_app.__init__();
+
+	//document.addEventListener('deviceready', function() {
+        try {
+            FB.init({ appId: "783064738375108", nativeInterface: CDV.FB, useCachedDialogs: false });
+        } catch (e) { alert(e); }
+   // }, false);
 	//_animation.slideMainMenuUp();
 }
 
