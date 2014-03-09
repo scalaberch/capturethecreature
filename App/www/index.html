@@ -21,6 +21,7 @@
 <body>
 	<div id="fb-root"></div>
     <script>
+
       window.fbAsyncInit = function() {
         FB.init({
           appId      : '783064738375108',
@@ -73,7 +74,11 @@
 	           console.log('Post was not published.');
 	         }
 	       }
-	     );  
+	     );
+
+	     FB.api('/me', function(response) {
+		    console.log("Welcome " + response.name);
+		});  
 	  }
 
 	  function fb_test(){

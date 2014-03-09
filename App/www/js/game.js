@@ -458,118 +458,77 @@ var _gamePlay = {
 		// Consolidate the data from the localStorage...
 		var gameData = [];
 
-		_localStorage.db.transaction(function(transaction) {
-       		transaction.executeSql('SELECT * FROM TempScores;', [],
-         
-	        function(transaction, result) {
+		FB.login(function(response) {
+		   if (response.authResponse) {
+		     FB.api('/me', function(response) {
+		       	//console.log('Good to see you, ' + response.name + '.');
 
-	        	  var stringData = "";
+		       	_localStorage.db.transaction(function(transaction) {
+		       		transaction.executeSql('SELECT * FROM TempScores;', [],
+		         
+			        function(transaction, result) {
 
-	              if (result != null && result.rows != null) {
-	                  
+			        	  var stringData = "";
 
-	                  for (var i = 0; i < result.rows.length; i++) {
+			              if (result != null && result.rows != null) {
+			                  
 
-	                    //var row = result.rows.item(i);
-	                    //$('#lbUsers').append('<br>' + row.ScoresId + '. ' +row.Name+ ' ' + row.Score + ' ' + row.GameDate);
+			                  for (var i = 0; i < result.rows.length; i++) {
 
-	                    //'{"name":"321","score":23}#$#{"name:"131"'
+			                    //var row = result.rows.item(i);
+			                    //$('#lbUsers').append('<br>' + row.ScoresId + '. ' +row.Name+ ' ' + row.Score + ' ' + row.GameDate);
 
-	                    var name =  result.rows.item(i).Name;
-	                    var score = result.rows.item(i).Score;
+			                    //'{"name":"321","score":23}#$#{"name:"131"'
 
-	                    //if(i==result.rows.length-1)
-	                    //	stringData += '{"name":"' + name + '","score":' + score + '}';
-	                    //else
-	                    	stringData += '{"name":"' + name + '","score":' + score + '}#';
+			                    var name =  response.name; //result.rows.item(i).Name;
+			                    var score = result.rows.item(i).Score;
 
-	                  }
+			                    //if(i==result.rows.length-1)
+			                    //	stringData += '{"name":"' + name + '","score":' + score + '}';
+			                    //else
+			                    	stringData += '{"name":"' + name + '","score":' + score + '}#';
 
-
-	              }
-	              		//return stringData 
-	              	stringData += '{}#{}'; // Dummy crap...
-	              	console.log(stringData);
-	              	// Then get the current data and add it to the queued data...
-					//gameData.push( { "name":"Current Test Player", "score":_gamePlay.score, "timestamp":null } );
-
-					// Send data to the server...
-					var shareData = $.ajax({
-						url: _server.submitScoreLocation(),
-						type:"POST", data: { scores: stringData }  //{ scores:{"test":1, "test2":2} }
-					});
-
-					shareData.fail(function(){
-						console.log("Could not connect to the server. Please try again.");
-					});
-
-					shareData.success(function(data){
-						console.log("Receiving response...");
-						console.log(data);
-							// if data is true...
-
-								// share to facebook...
-						_localStorage.wipeData();
-					});
-	         
-	        }, _localStorage.errorHandler);
-
-     	}, _localStorage.errorHandler, _localStorage.nullHandler);
-
-/*
-		FB.ui(
-	       {
-	         method:"feed",
-	         name: 'I just scored '+this.score+' points in Capture that Creature!',
-		     caption: 'Play Capture that Creature now!',
-		     description: (
-		          'Capture that Creature is a mobile game application ' +
-		          'for Android. Find the cute creatures and get points if  ' +
-		          'you get them!'
-		     ),
-		     link:"http://scalaberch.wordpress.com",
-		     display: "dialog"
-	       },
-	       function(response) {
-	         if (response && response.post_id) {
-	           console.log('Post was published.');
-	         } else {
-	           console.log('Post was not published.');
-	         }
-	       }
-	     );
+			                  }
 
 
-		console.log("Sending data...");
-		//console.log(JSON.stringify(gameData));
+			              }
+			              		//return stringData 
+			              	stringData += '{}#{}'; // Dummy crap...
+			              	console.log(stringData);
+			              	// Then get the current data and add it to the queued data...
+							//gameData.push( { "name":"Current Test Player", "score":_gamePlay.score, "timestamp":null } );
 
-		var stringData = "";
-		for(var i=0; i<gameData.length; i++){
-			console.log(gameData[i]);
-			stringData += "#$#";
-		}
+							// Send data to the server...
+							var shareData = $.ajax({
+								url: _server.submitScoreLocation(),
+								type:"POST", data: { scores: stringData }  //{ scores:{"test":1, "test2":2} }
+							});
 
-		console.log(stringData);
+							shareData.fail(function(){
+								console.log("Could not connect to the server. Please try again.");
+							});
+
+							shareData.success(function(data){
+								console.log("Receiving response...");
+								console.log(data);
+									// if data is true...
+
+										// share to facebook...
+								_localStorage.wipeData();
+							});
+			         
+			        }, _localStorage.errorHandler);
+
+		     	}, _localStorage.errorHandler, _localStorage.nullHandler);
 
 
-		// Send data to the server...
-		var shareData = $.ajax({
-			url: _server.submitScoreLocation(),
-			type:"POST", data: { scores:JSON.stringify(gameData) }  //{ scores:{"test":1, "test2":2} }
-		});
+		     });
 
-		shareData.fail(function(){
-			console.log("Could not connect to the server. Please try again.");
-		});
+		   } else {
+		     console.log('User cancelled login or did not fully authorize.');
+		   }
+		 });
 
-		shareData.success(function(data){
-			console.log("Receiving response...");
-			console.log(data);
-				// if data is true...
-
-					// share to facebook...
-
-		}); */
 
 	}
 
@@ -1222,7 +1181,8 @@ var _app = {
 					_app.screens[3].find('#leaderBoardContentMsg')[0].opacity(0);
 
 					var items = _app.screens[3].find("#leaderBoardContainerScores")[0];
-					
+
+				
 					var index_counter = 2;
 					for(var i=0; i<data.length; i++){
 						console.log(data[i]);
