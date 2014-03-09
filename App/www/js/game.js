@@ -367,7 +367,7 @@ var _gamePlay = {
 	// Game Timer Structure
 	gameTimer: {
 
-		time: 2, timer: null,
+		time: 120, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
 			if (!_gamePlay.isPlaying){
@@ -442,7 +442,7 @@ var _gamePlay = {
 	// Reset thy game stats....
 	resetGameStats: function(){
 		this.score = 0; // Resetting the score...
-		this.gameTimer.time = 2; //Reset the time...
+		this.gameTimer.time = 120; //Reset the time...
 
 		_animation.resetTimerBar(); //Resetting the timer bar in the UI...
 		// TODO: Reset the score ui...
@@ -2771,11 +2771,11 @@ var _animation = {
 		var string;
 
 		if (n == "standby"){
-			string = "Find "+_gamePlay.level+" of me";
+			string = "There are "+_gamePlay.level+" of me.";
 		} else if (n == "positive"){
-			string = "You got it!";
+			string = "You found me!";
 		} else if (n == "negative"){
-			string = "No, no. It's not!";
+			string = "Try again! There are "+_gamePlay.level+" of me.";
 		}
 		_app.screens[8].find("#TIMES_TEXT")[0].text(string);
 		_app.screens[8].draw();
