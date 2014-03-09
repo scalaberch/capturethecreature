@@ -938,7 +938,7 @@ var _app = {
 
 
 				// Reset on the sizing + opacity...
-				boardItemLayer.opacity(0).visible(false);
+				boardItemLayer.visible(false);
 				
 
 
@@ -1984,20 +1984,20 @@ var _app = {
 		//}); layer.add(ready);
 		
 		var ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT", image: _app.resources.readyImage, opacity:0
-		}); layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT", image: _app.resources.readyImage //, opacity:0
+		}); ready.visible(false); layer.add(ready);
 
 		ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"SET_TXT", image: _app.resources.setImage, opacity:0
-		}); layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"SET_TXT", image: _app.resources.setImage //, opacity:0
+		}); ready.visible(false); layer.add(ready);
 
 		ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GO_TXT", image: _app.resources.goImage, opacity:0
-		}); layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GO_TXT", image: _app.resources.goImage //, opacity:0
+		}); ready.visible(false); layer.add(ready);
 
 		ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GAME_OVER_TXT", image: _app.resources.gameOverImage, opacity:0
-		}); layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GAME_OVER_TXT", image: _app.resources.gameOverImage //, opacity:0
+		}); ready.visible(false); layer.add(ready);
 
 		layer.visible(false);
 		return layer;
@@ -2469,7 +2469,14 @@ var _animation = {
 	animateClickables: function(){
 		var clickables = _app.screens[5], tweens = [], tween;
 
-		_animation.a(clickables, 0);
+		//_animation.a(clickables, 0);
+		console.log(clickables);
+
+		for (var i=0; i<clickables.length; i++){
+			clickables[i].visible(true);
+			clickables[i].draw();
+		}
+
 	},
 	a: function(ts, i){ //Helper function for the animation...
 		if (ts.length > i){
@@ -2509,6 +2516,8 @@ var _animation = {
 		if (_gamePlay.isPaused){
 			_gamePlay.resetGameStats();
 		}
+
+
 
 
 		// Get the tweens...
@@ -2552,7 +2561,7 @@ var _animation = {
 					_app.screens[8].visible(true).draw();
 					_app.screens[9].visible(true).draw();
 
-					_animation.findMeSwivel.start();
+					//.findMeSwivel.start();
 
 					_gamePlay.startGame();
 				}, 0);
