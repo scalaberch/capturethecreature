@@ -395,8 +395,7 @@ var _gamePlay = {
 		},
 		tiktok: function(txt, lyer){
 			if (_gamePlay.isPaused){
-
-																
+									
 				
 			} else if (_gamePlay.isShowing){
 
@@ -408,7 +407,7 @@ var _gamePlay = {
 					}
 				}
 
-				if (_gamePlay.playerStats.showTimer < 0)
+				if (_gamePlay.playerStats.showTimer <= 0)
 				{
 					// Covers the layers
 					_animation.hideAllBoardLayers();
@@ -1222,7 +1221,7 @@ var _app = {
 				
 				data.fail(function(jqXHR, textStatus){
 
-					_app.screens[3].find('#leaderBoardContentMsg')[0].text("Unable to connect to server. Check your network connection and please try again.");
+					_app.screens[3].find('#leaderBoardContentMsg')[0].text("Unable to connect to server. Check your network connection and please try again. "+textStatus);
 					_app.screens[3].draw();
 
 					console.log(jqXHR);
