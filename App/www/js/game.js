@@ -927,7 +927,7 @@ var _app = {
 
 				var shownImage, catchedImage;
 				shownImage = new Kinetic.Image(); 
-				catchedImage = new Kinetic.Image();
+				catchedImage = new Kinetic.Image({ width:params.width, height:params.height });
 
 				content.add(shownImage);
 				content.add(catchedImage);
@@ -2628,7 +2628,15 @@ var _animation = {
 			// elems[i].children[0].children[0] --> Uncovered image...
 			// elems[i].children[0].children[1] --> dakpan image...
 
-			elems[i].children[0].children[0].setImage( _characters[index].img );
+			var img = _characters[index].img, obj = elems[i].children[0].children[0];
+			obj.width( elems[i].width() );
+			obj.height( elems[i].height() );
+			
+			//console.log(obj);
+
+
+			//elems[i].children[0].children[0].setImage( _characters[index].img );
+			obj.setImage( img );
 			//elems[i].children[0].children[0].setImage( _characters[index].imgAlt );
 
 
