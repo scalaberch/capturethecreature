@@ -17,25 +17,27 @@
 		src: url(fonts/Bobbleboddy.ttf);
 	}
 	</style>
-
-	<script type='text/javascript' src='js/jquery23.js'></script>
-<!-- <script type='text/javascript' src='js/phonegap.js'></script> 
-	<script type='text/javascript' src='js/cordova.js'></script> -->
-	<script type='text/javascript' src='js/kinetic.js'></script>
-	<script type='text/javascript' src='js/game.js'></script>
-	<!-- <script type='text/javascript' src='gamejquery.js'></script> -->
-	
-	<!-- cordova facebook plugin -->
-    <script src='js/cdv-plugin-fb-connect.js'></script>
-	<!-- facebook js sdk -->
-	<script src='js/facebook-js-sdk.js'></script>
 </head>
+
+
 <body>
+
+
+
+	    <!-- cordova -->
+		<script src="cordova.js"></script>
+	    <!-- cordova facebook plugin -->
+		<script src="cdv-plugin-fb-connect.js"></script>
+	    <!-- facebook js sdk -->
+		<script src="facebook-js-sdk.js"></script>
+
+
+
 	<div id="fb-root"></div>
     <script>
       window.fbAsyncInit = function() {
         FB.init({
-          appId      : '783064738375108',
+          appId      : '711981072158404',
           status     : true,
           xfbml      : true
         });
@@ -106,5 +108,13 @@
     </script>
 
 	<div id='gameContainer'></div>
+	<script type='text/javascript' src='js/jquery23.js'></script>
+	<script type='text/javascript' src='js/phonegap.js'></script>
+	<script type='text/javascript' src='js/kinetic.js'></script>
+	<script type='text/javascript' src='js/game.js'></script>
+	<!-- <script type='text/javascript' src='gamejquery.js'></script> -->
+	
+	<!-- <script type="text/javascript" src="js/SocialSharing.js"> </script> -->
+
 </body>
 </html>

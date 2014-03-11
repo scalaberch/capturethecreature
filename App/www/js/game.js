@@ -137,6 +137,29 @@ var _localStorage = {
 var _facebook = {
 
 	init: function(){
+
+		if ((typeof cordova == 'undefined') && (typeof Cordova == 'undefined')) 
+			alert('Cordova variable is missing. Check  cordova.js included correctly');
+            	if (typeof CDV == 'undefined') 
+			alert('CDV variable is missing. Check cdv-plugin-fb-connect.js is included correctly');
+            	if (typeof FB == 'undefined') 
+			alert('FB variable is missing. Check the Facebook JS SDK file included.');
+
+
+			FB.Event.subscribe('auth.login', function(response) {
+                               alert('login event fired !!');
+                               });
+            
+            	FB.Event.subscribe('auth.logout', function(response) {
+                               alert('logout event fired !!');
+                               });
+           
+            
+            	FB.Event.subscribe('auth.statusChange', function(response) {
+                               alert('statusChange event fired !!');
+                               });
+            
+/*
 		window.fbAsyncInit = function() {
 	        FB.init({
 	          appId      : '783064738375108',
@@ -151,12 +174,80 @@ var _facebook = {
 	         js = d.createElement(s); js.id = id;
 	         js.src = "//connect.facebook.net/en_US/all.js";
 	         fjs.parentNode.insertBefore(js, fjs);
-	    }(document, 'script', 'facebook-jssdk'));
+	    }(document, 'script', 'facebook-jssdk')); */
 	},
 
 	postOnWall: function(){
 
+	},
+
+	getLoginStatus: function()
+	{
+                FB.getLoginStatus(function(response) {
+                                  if (response.status == 'connected') 
+				  {
+                                  	alert('You are connected to Fb');
+                                  } 
+				  else 
+				  {
+                                 	alert('not connected to FB');
+                                  }
+                                  });
+
+
+	},
+
+	logout: function()
+	{
+                FB.logout(function(response) {
+                          alert('logged out');
+                          });
+
+	},
+
+	login: function()
+	{
+                FB.login(
+                         function(response) {
+                         if (response.session) {
+                         alert('you are logged in');
+                         } else {
+                         alert('you are not logged in');
+                         }
+                         },
+                         { scope: "email" }
+                         );
+	},
+
+	postMsg: function()
+	{
+
+		FB.login(function(response){
+			alert("Logging in...");
+			if (response.session){
+				//_facebook.postMsg();
+				alert("has logged in!");
+			} else { alert("Could not authorize user to facebook."); }
+		}, {scope:"email"} );
+
+/*
+		FB.ui( { 
+			method:"feed", 
+			name: 'I just scored '+_gamePlay.score+' points in Capture that Creature!', 
+			caption: 'Play Capture that Creature now!', 
+			description: ( 'Capture that Creature is a mobile game application ' + 
+				'for Android. Find the cute creatures and get points if ' +
+				'you get them!' ), link:"http://www.facebook.com/capturethatcreaturegame", 
+			display: "dialog" 
+		}, function(response) { 
+			if (response && response.post_id) { console.log('Post was published.'); } 
+			else { console.log('Post was not published.'); } 
+		} );
+*/
+
 	}
+
+
 }
 
 
@@ -165,7 +256,6 @@ var _gamePlay = {
 	isPlaying: false,
 	isShowing: false,
 	isPaused:  false,
-	isFirstView: true,
 
 	score:     0,
 	myGuess:   [],
@@ -282,7 +372,6 @@ var _gamePlay = {
 	showAllBoardLayers: function()
 	{
 		this.isShowing = true;
-
 		_animation.showAllBoardLayers();						
 	},
 	
@@ -369,7 +458,7 @@ var _gamePlay = {
 	// Game Timer Structure
 	gameTimer: {
 
-		time: 120, timer: null,
+		time: 2, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
 			if (!_gamePlay.isPlaying){
@@ -395,19 +484,12 @@ var _gamePlay = {
 		},
 		tiktok: function(txt, lyer){
 			if (_gamePlay.isPaused){
-									
+
+																
 				
 			} else if (_gamePlay.isShowing){
 
-				if (!_gamePlay.isFirstView){
-					this.time--;
-					this.updateToGUI(this.showInFormat(this.time), txt, lyer);
-					if (this.time == 0){
-						this.stop();
-					}
-				}
-
-				if (_gamePlay.playerStats.showTimer <= 0)
+				if (_gamePlay.playerStats.showTimer < 0)
 				{
 					// Covers the layers
 					_animation.hideAllBoardLayers();
@@ -451,7 +533,7 @@ var _gamePlay = {
 	// Reset thy game stats....
 	resetGameStats: function(){
 		this.score = 0; // Resetting the score...
-		this.gameTimer.time = 120; //Reset the time...
+		this.gameTimer.time = 2; //Reset the time...
 
 		_animation.resetTimerBar(); //Resetting the timer bar in the UI...
 		// TODO: Reset the score ui...
@@ -463,6 +545,11 @@ var _gamePlay = {
 	shareToFacebook: function(){
 
 		//fb_publish();
+		_facebook.init();
+		_facebook.postMsg();	
+		
+
+		
 
 		// Consolidate the data from the localStorage...
 		var gameData = [];
@@ -907,7 +994,7 @@ var _app = {
 		//	Rationale: For it to be independent for every layer draw.
 
 		var params = { cols:4, rows:5, x:_width*0.01, y: _height*0.07, width: (_width - _width*0.04)/4, height: (_height - _height*0.28)/5 };
-		var boardItemLayer1, rect, itemLayers = [], i = 0, content;
+		var boardItemLayer, rect, itemLayers = [], i = 0;
 
 		for (var vertical = 0; vertical < params.rows; vertical++) {
 
@@ -920,14 +1007,14 @@ var _app = {
 				//console.log(boardItemLayer.width() +" x "+ boardItemLayer.height());
 
 
-				content = new Kinetic.Group({
+				var content = new Kinetic.Group({
 					x: boardItemLayer.x(), y: boardItemLayer.y(),
 					width: boardItemLayer.width(), height: boardItemLayer.height()
 				});
 
 				var shownImage, catchedImage;
 				shownImage = new Kinetic.Image(); 
-				catchedImage = new Kinetic.Image({ width:params.width, height:params.height });
+				catchedImage = new Kinetic.Image();
 
 				content.add(shownImage);
 				content.add(catchedImage);
@@ -936,7 +1023,7 @@ var _app = {
 				boardItemLayer.add(content);
 
 				// Add up everything...
-				rect = new Kinetic.Rect({
+				var rect = new Kinetic.Rect({
 					x: boardItemLayer.x(), y: boardItemLayer.y(),
 					width: boardItemLayer.width(), height: boardItemLayer.height(),
 
@@ -947,7 +1034,7 @@ var _app = {
 
 
 				// Reset on the sizing + opacity...
-				boardItemLayer.visible(false);
+				boardItemLayer.opacity(0).visible(false);
 				
 
 
@@ -960,7 +1047,7 @@ var _app = {
 						//rect.opacity(0); e.targetNode.getLayer().draw();
 
 						var rect = e.targetNode.getLayer().children[1];
-						_gamePlay.isFirstView = false;
+
 
 						if (_gamePlay.myGuess.indexOf(e.targetNode.getLayer().id()) == -1){ // The clicked btn is not yet in the array...
 							// -- hide the cover...
@@ -976,15 +1063,12 @@ var _app = {
 										// Updates gamePlay Stats
 										_animation.updateNumberPieces("positive");
 										_gamePlay.playerStats.update();
-										_gamePlay.isFirstView = true;
 										
 										// Add to score...
 										_gamePlay.addUpToScore(_gamePlay.target);
 										_gamePlay.executeGameShuffle();
 									} else { 
 										_animation.updateNumberPieces("negative");
-										_gamePlay.isFirstView = false;
-
 										// Shows the current slide again if guess is incorrect  
 										_gamePlay.showAllBoardLayers();	
 										
@@ -1221,7 +1305,7 @@ var _app = {
 				
 				data.fail(function(jqXHR, textStatus){
 
-					_app.screens[3].find('#leaderBoardContentMsg')[0].text("Unable to connect to server. Check your network connection and please try again. "+textStatus);
+					_app.screens[3].find('#leaderBoardContentMsg')[0].text("Unable to connect to server. Check your network connection and please try again.");
 					_app.screens[3].draw();
 
 					console.log(jqXHR);
@@ -1590,30 +1674,12 @@ var _app = {
 		}); leaderBoardLayer.add(title);
 
 
-		var helpText = "Help! The animals have gone lose! Your task is to seek them out. Don't worry, they'll taunt you to look for them.";
+		var helpText = "Tap the characters to play. You are given two minutes to solve the game.";
 
 
 		var loadingMsg = new Kinetic.Text({
-			text:helpText, fill:"#ddd", fontSize: 14, fontFamily: _app.font, align:'center', width:background.width(), 
+			text:helpText, fill:"#ddd", fontSize: 17, fontFamily: _app.font, align:'center', width:background.width(), 
 			x: background.x(), y:background.height() * 0.3,
-		}); leaderBoardLayer.add(loadingMsg);
-		
-		var h = loadingMsg.height();
-		
-		helpText = "Found on the bottom left of the screen is an image of what the missing creature looks like. Find a few that looks just like it. Beware because they tend to move fast and hide! So you have to recall where they were exactly, and tap their positions to proceed to the next set of creatures you need to find.";
-
-		var loadingMsg = new Kinetic.Text({
-			text:helpText, fill:"#ddd", fontSize: 14, fontFamily: _app.font, align:'center', width:background.width(), 
-			x: background.x(), y: h + background.height() * 0.3,
-		}); leaderBoardLayer.add(loadingMsg);
-		
-		var prevY = loadingMsg.y(); h = loadingMsg.height();
-		
-		helpText = "Hurry! You don't have much time. Find as many different kinds of creatures as you can.";
-		
-		var loadingMsg = new Kinetic.Text({
-			text:helpText, fill:"#ddd", fontSize: 14, fontFamily: _app.font, align:'center', width:background.width(), 
-			x: background.x(), y: h + prevY,
 		}); leaderBoardLayer.add(loadingMsg);
 
 
@@ -1996,24 +2062,20 @@ var _app = {
 		//}); layer.add(ready);
 		
 		var ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT", image: _app.resources.readyImage , opacity:0
-		}); //ready.visible(false); 
-		layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT", image: _app.resources.readyImage, opacity:0
+		}); layer.add(ready);
 
 		ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"SET_TXT", image: _app.resources.setImage , opacity:0
-		}); //ready.visible(false); 
-		layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"SET_TXT", image: _app.resources.setImage, opacity:0
+		}); layer.add(ready);
 
 		ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GO_TXT", image: _app.resources.goImage , opacity:0
-		}); //ready.visible(false); 
-		layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GO_TXT", image: _app.resources.goImage, opacity:0
+		}); layer.add(ready);
 
 		ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GAME_OVER_TXT", image: _app.resources.gameOverImage , opacity:0
-		}); //ready.visible(false); 
-		layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GAME_OVER_TXT", image: _app.resources.gameOverImage, opacity:0
+		}); layer.add(ready);
 
 		layer.visible(false);
 		return layer;
@@ -2052,8 +2114,8 @@ var _app = {
 		}); callOut.add(callOutBG);
 
 		var callOutText = new Kinetic.Text({
-			text:"This is a text.", fontSize: 12, fontFamily: _app.font, fill: 'white', id:"TIMES_TEXT", align:'left',
-			x: callOut.width() * 0.1, y:callOut.height() * 0.15, width: callOut.width() * 0.5
+			text:"This is a text.", fontSize: 20, fontFamily: _app.font, fill: 'white', id:"TIMES_TEXT", align:'right',
+			x: callOut.width() * 0.1, y:callOut.height() * 0.15
 		}); callOut.add(callOutText); //callOut.add(calloutText);
 
 
@@ -2304,6 +2366,8 @@ var _app = {
 			// Check if logged in...
 			// TODO: This is the popup publish feature of facebook. Share ni diritso.
 			_gamePlay.shareToFacebook();
+			
+
 
 		});
 		grp.add(playAgainBtn);
@@ -2476,7 +2540,7 @@ var _animation = {
 		// Hide the board layers...
 		var layers = _app.screens[5], i;
 		for(i=0; i<layers.length; i++){
-			layers[i].visible(false).draw();
+			layers[i].visible(false).opacity(0).draw();
 		}
 	},
 
@@ -2485,16 +2549,7 @@ var _animation = {
 	animateClickables: function(){
 		var clickables = _app.screens[5], tweens = [], tween;
 
-		//_animation.a(clickables, 0);
-		console.log(clickables);
-
-		for (var i=0; i<clickables.length; i++){
-			clickables[i].visible(true);
-			clickables[i].draw();
-		}
-
-		_animation.animateCountDown();
-
+		_animation.a(clickables, 0);
 	},
 	a: function(ts, i){ //Helper function for the animation...
 		if (ts.length > i){
@@ -2534,8 +2589,6 @@ var _animation = {
 		if (_gamePlay.isPaused){
 			_gamePlay.resetGameStats();
 		}
-
-
 
 
 		// Get the tweens...
@@ -2579,7 +2632,7 @@ var _animation = {
 					_app.screens[8].visible(true).draw();
 					_app.screens[9].visible(true).draw();
 
-					//.findMeSwivel.start();
+					_animation.findMeSwivel.start();
 
 					_gamePlay.startGame();
 				}, 0);
@@ -2628,15 +2681,7 @@ var _animation = {
 			// elems[i].children[0].children[0] --> Uncovered image...
 			// elems[i].children[0].children[1] --> dakpan image...
 
-			var img = _characters[index].img, obj = elems[i].children[0].children[0];
-			obj.width( elems[i].width() );
-			obj.height( elems[i].height() );
-			
-			//console.log(obj);
-
-
-			//elems[i].children[0].children[0].setImage( _characters[index].img );
-			obj.setImage( img );
+			elems[i].children[0].children[0].setImage( _characters[index].img );
 			//elems[i].children[0].children[0].setImage( _characters[index].imgAlt );
 
 
@@ -2806,11 +2851,11 @@ var _animation = {
 		var string;
 
 		if (n == "standby"){
-			string = "There are "+_gamePlay.level+" of me.";
+			string = "Find "+_gamePlay.level+" of me";
 		} else if (n == "positive"){
-			string = "You found me!";
+			string = "You got it!";
 		} else if (n == "negative"){
-			string = "Try again! There are "+_gamePlay.level+" of me.";
+			string = "No, no. It's not!";
 		}
 		_app.screens[8].find("#TIMES_TEXT")[0].text(string);
 		_app.screens[8].draw();
@@ -2911,16 +2956,16 @@ _app.resources.__init();
 window.onload = function(){
 	console.log("Starting application...!");
 	// Start! :)
-	
-	//_animation.slideMainMenuUp();
-
-	//alert("Finished loading...");
-}
-
-$(window).ready(function(){
 	_app.__init__();
-});
 
+	//document.addEventListener('deviceready', function() {
+        try {
+            FB.init({ appId: "711981072158404", nativeInterface: CDV.FB, useCachedDialogs: false });
+            document.getElementById('data').innerHTML = "";
+        } catch (e) { alert(e); }
+   // }, false);
+	//_animation.slideMainMenuUp();
+}
 
 function onDeviceReady() {
     _app.__init__();
