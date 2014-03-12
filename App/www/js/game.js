@@ -38,7 +38,7 @@ var _localStorage = {
     if (!window.openDatabase) {
            // not all mobile devices support databases  if it does not, thefollowing alert will display
            // indicating the device will not be albe to run this application
-      console.log('Databases are not supported in this browser.');
+      alert('Databases are not supported in this browser.');
       return;
     }
 
@@ -55,7 +55,7 @@ var _localStorage = {
       t.executeSql( 'CREATE TABLE TempScores (ScoresId INTEGER NOT NULL PRIMARY KEY, Name TEXT, Score INTEGER, Date TEXT, Transmit TEXT) ',  function(){ console.log("Query Null Data."); }, function(e){ console.log(e); } );
       t.executeSql( 'CREATE TABLE PhoneUser (Name TEXT)', function(){ console.log("Query Null Data."); },function(e){ console.log(e); } );
 
-    }, function(t, e){ console.log("Initial Transaction failed."); }, this.successCallBack)
+    }, function(t, e){ alert("Initial Transaction failed."); }, this.successCallBack)
 
 
 
@@ -101,9 +101,6 @@ var _localStorage = {
               if (result != null && result.rows != null) {
                   for (var i = 0; i < result.rows.length; i++) {
 
-                    //var row = result.rows.item(i);
-                    //$('#lbUsers').append('<br>' + row.ScoresId + '. ' +row.Name+ ' ' + row.Score + ' ' + row.GameDate);
-
                     results.push( result.rows.item(i) );
 
                   }
@@ -120,10 +117,10 @@ var _localStorage = {
   // Handlers...
   nullHandler:  function(){ },
   errorHandler: function(transaction, e) {
-      console.log('Error: ' + e.message + ' code: ' + e.code);
+      alertg('Error: ' + e.message + ' code: ' + e.code);
   },
   successCallBack: function(){
-      console.log("SQL Action success!");
+      alert("SQL Action success!");
   }
 
 }
@@ -132,7 +129,6 @@ var _localStorage = {
 //	You'll need this for the current game session. Each session is
 //	limited to 2 minutes only. User credentials are either stored in
 //	session/phone storage or at Facebook
-
 
 var _facebook = {
 
@@ -146,35 +142,24 @@ var _facebook = {
 			alert('FB variable is missing. Check the Facebook JS SDK file included.');
 
 
-			FB.Event.subscribe('auth.login', function(response) {
+		FB.Event.subscribe('auth.login', function(response) {
                                alert('login event fired !!');
-                               });
+        });
             
-            	FB.Event.subscribe('auth.logout', function(response) {
+        FB.Event.subscribe('auth.logout', function(response) {
                                alert('logout event fired !!');
-                               });
+        });
            
             
-            	FB.Event.subscribe('auth.statusChange', function(response) {
+        FB.Event.subscribe('auth.statusChange', function(response) {
                                alert('statusChange event fired !!');
-                               });
-            
-/*
-		window.fbAsyncInit = function() {
-	        FB.init({
-	          appId      : '783064738375108',
-	          status     : true,
-	          xfbml      : true
-	        });
-	    };
+        });
 
-	    (function(d, s, id){
-	         var js, fjs = d.getElementsByTagName(s)[0];
-	         if (d.getElementById(id)) {return;}
-	         js = d.createElement(s); js.id = id;
-	         js.src = "//connect.facebook.net/en_US/all.js";
-	         fjs.parentNode.insertBefore(js, fjs);
-	    }(document, 'script', 'facebook-jssdk')); */
+        try {
+	        FB.init({ appId: "783064738375108", nativeInterface: CDV.FB, useCachedDialogs: false });
+	        document.getElementById('data').innerHTML = "";
+	    } catch (e) { alert("Init error:"+e); }
+           
 	},
 
 	postOnWall: function(){
@@ -222,40 +207,30 @@ var _facebook = {
 	postMsg: function()
 	{
 
-		FB.login(function(response){
-			alert("Logging in...");
-			if (response.session){
-				//_facebook.postMsg();
-				alert("has logged in!");
-			} else { alert("Could not authorize user to facebook."); }
-		}, {scope:"email"} );
-
-/*
-		FB.ui( { 
-			method:"feed", 
-			name: 'I just scored '+_gamePlay.score+' points in Capture that Creature!', 
-			caption: 'Play Capture that Creature now!', 
-			description: ( 'Capture that Creature is a mobile game application ' + 
-				'for Android. Find the cute creatures and get points if ' +
-				'you get them!' ), link:"http://www.facebook.com/capturethatcreaturegame", 
-			display: "dialog" 
-		}, function(response) { 
-			if (response && response.post_id) { console.log('Post was published.'); } 
-			else { console.log('Post was not published.'); } 
-		} );
-*/
+			FB.ui( { 
+				method:"feed", 
+				name: 'I just scored '+_gamePlay.score+' points in Capture that Creature!', 
+				caption: 'Play Capture that Creature now!', 
+				description: ( 'Capture that Creature is a mobile game application ' + 
+					'for Android. Find the cute creatures and get points if ' +
+					'you get them!' ), link:"http://www.facebook.com/capturethatcreaturegame", 
+				display: "dialog" 
+			}, function(response) { 
+				if (response && response.post_id) { console.log('Post was published.'); } 
+				else { console.log('Post was not published.'); } 
+			} );
 
 	}
 
 
 }
 
-
 var _gamePlay = {
 
 	isPlaying: false,
 	isShowing: false,
 	isPaused:  false,
+	isFirstView: true,
 
 	score:     0,
 	myGuess:   [],
@@ -357,14 +332,7 @@ var _gamePlay = {
 			this.showAllBoardLayers();
 
 			// Show how many to be caught!
-			_animation.updateNumberPieces("standby");
-
-			// TODO: Please fix here later. Kana bitaw mag pause ka. Dapat
-			//	mu pause pud siya sa setTimeout, and then once i.resume... kebs ra dayun
-			//setTimeout(function(){
-				//_animation.hideAllBoardLayers();
-				//_gamePlay.isShowing = false;
-			//}, _gamePlay.playerStats.showTimerOffset);        
+			_animation.updateNumberPieces("standby");        
 
 		}
 	},
@@ -372,6 +340,7 @@ var _gamePlay = {
 	showAllBoardLayers: function()
 	{
 		this.isShowing = true;
+
 		_animation.showAllBoardLayers();						
 	},
 	
@@ -458,7 +427,7 @@ var _gamePlay = {
 	// Game Timer Structure
 	gameTimer: {
 
-		time: 2, timer: null,
+		time: 121, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
 			if (!_gamePlay.isPlaying){
@@ -484,12 +453,19 @@ var _gamePlay = {
 		},
 		tiktok: function(txt, lyer){
 			if (_gamePlay.isPaused){
-
-																
+									
 				
 			} else if (_gamePlay.isShowing){
 
-				if (_gamePlay.playerStats.showTimer < 0)
+				if (!_gamePlay.isFirstView){
+					this.time--;
+					this.updateToGUI(this.showInFormat(this.time), txt, lyer);
+					if (this.time == 0){
+						this.stop();
+					}
+				}
+
+				if (_gamePlay.playerStats.showTimer <= 0)
 				{
 					// Covers the layers
 					_animation.hideAllBoardLayers();
@@ -533,7 +509,7 @@ var _gamePlay = {
 	// Reset thy game stats....
 	resetGameStats: function(){
 		this.score = 0; // Resetting the score...
-		this.gameTimer.time = 2; //Reset the time...
+		this.gameTimer.time = 121; //Reset the time...
 
 		_animation.resetTimerBar(); //Resetting the timer bar in the UI...
 		// TODO: Reset the score ui...
@@ -545,11 +521,6 @@ var _gamePlay = {
 	shareToFacebook: function(){
 
 		//fb_publish();
-		_facebook.init();
-		_facebook.postMsg();	
-		
-
-		
 
 		// Consolidate the data from the localStorage...
 		var gameData = [];
@@ -566,18 +537,13 @@ var _gamePlay = {
 
 	                  for (var i = 0; i < result.rows.length; i++) {
 
-	                    //var row = result.rows.item(i);
-	                    //$('#lbUsers').append('<br>' + row.ScoresId + '. ' +row.Name+ ' ' + row.Score + ' ' + row.GameDate);
-
-	                    //'{"name":"321","score":23}#$#{"name:"131"'
+	                    
 
 	                    var name =  result.rows.item(i).Name;
+	                    
 	                    var score = result.rows.item(i).Score;
 
-	                    //if(i==result.rows.length-1)
-	                    //	stringData += '{"name":"' + name + '","score":' + score + '}';
-	                    //else
-	                    	stringData += '{"name":"' + name + '","score":' + score + '}#';
+	                       	stringData += '{"name":"' + name + '","score":' + score + '}#';
 
 	                  }
 
@@ -587,85 +553,36 @@ var _gamePlay = {
 	              	stringData += '{}#{}'; // Dummy crap...
 	              	console.log(stringData);
 	              	// Then get the current data and add it to the queued data...
-					//gameData.push( { "name":"Current Test Player", "score":_gamePlay.score, "timestamp":null } );
 
-					// Send data to the server...
-					var shareData = $.ajax({
-						url: _server.submitScoreLocation(),
-						type:"POST", data: { scores: stringData }  //{ scores:{"test":1, "test2":2} }
+
+					FB.login(function(response){
+
+						if (response.authResponse){
+							// Send data to the server...
+							var shareData = $.ajax({
+								url: _server.submitScoreLocation(),
+								type:"POST", data: { scores: stringData }  
+							});
+
+							shareData.fail(function(){
+								alert("Could not connect to the scores server. Please try again.");
+							});
+
+							shareData.success(function(data){
+								console.log("Receiving response...");
+								console.log(data);
+									// if data is true...
+
+										// share to facebook...
+								_facebook.postMsg();
+								_localStorage.wipeData();
+							});
+						} else { alert("Could not login at facebook. Response error."); }
 					});
 
-					shareData.fail(function(){
-						console.log("Could not connect to the server. Please try again.");
-					});
-
-					shareData.success(function(data){
-						console.log("Receiving response...");
-						console.log(data);
-							// if data is true...
-
-								// share to facebook...
-						_localStorage.wipeData();
-					});
-	         
 	        }, _localStorage.errorHandler);
 
      	}, _localStorage.errorHandler, _localStorage.nullHandler);
-
-/*
-		FB.ui(
-	       {
-	         method:"feed",
-	         name: 'I just scored '+this.score+' points in Capture that Creature!',
-		     caption: 'Play Capture that Creature now!',
-		     description: (
-		          'Capture that Creature is a mobile game application ' +
-		          'for Android. Find the cute creatures and get points if  ' +
-		          'you get them!'
-		     ),
-		     link:"http://scalaberch.wordpress.com",
-		     display: "dialog"
-	       },
-	       function(response) {
-	         if (response && response.post_id) {
-	           console.log('Post was published.');
-	         } else {
-	           console.log('Post was not published.');
-	         }
-	       }
-	     );
-
-
-		console.log("Sending data...");
-		//console.log(JSON.stringify(gameData));
-
-		var stringData = "";
-		for(var i=0; i<gameData.length; i++){
-			console.log(gameData[i]);
-			stringData += "#$#";
-		}
-
-		console.log(stringData);
-
-
-		// Send data to the server...
-		var shareData = $.ajax({
-			url: _server.submitScoreLocation(),
-			type:"POST", data: { scores:JSON.stringify(gameData) }  //{ scores:{"test":1, "test2":2} }
-		});
-
-		shareData.fail(function(){
-			console.log("Could not connect to the server. Please try again.");
-		});
-
-		shareData.success(function(data){
-			console.log("Receiving response...");
-			console.log(data);
-				// if data is true...
-
-					// share to facebook...
-
-		}); */
 
 	}
 
@@ -850,8 +767,7 @@ var _characters = [
 	{ name:"chaakee", value:12, img:"path_to_image/here", imgAlt:"", color:"yellow" },
 	{ name:"chuukee", value:12, img:"path_to_image/here", imgAlt:"", color:"blue" },
 	{ name:"doge", value:40, img:"path_to_image/here", imgAlt:"", color:"brown" }
-	//{ name:"cheekee", value:40, img:"path_to_image/here", imgAlt:"", color:"violet" }
-
+	
 ];
 
 // Player data is in here... Just chuchu it..
@@ -956,6 +872,7 @@ var _app = {
 	__init__: function(){
 		// Initialize localStorage issues...
 		_localStorage.init();
+		_facebook.init();
 
 
 		// Get the width and height of the screen...
@@ -994,7 +911,7 @@ var _app = {
 		//	Rationale: For it to be independent for every layer draw.
 
 		var params = { cols:4, rows:5, x:_width*0.01, y: _height*0.07, width: (_width - _width*0.04)/4, height: (_height - _height*0.28)/5 };
-		var boardItemLayer, rect, itemLayers = [], i = 0;
+		var boardItemLayer1, rect, itemLayers = [], i = 0, content;
 
 		for (var vertical = 0; vertical < params.rows; vertical++) {
 
@@ -1004,17 +921,14 @@ var _app = {
 					x:params.x, y:params.y, width:params.width, height:params.height, id:i
 				});
 
-				//console.log(boardItemLayer.width() +" x "+ boardItemLayer.height());
-
-
-				var content = new Kinetic.Group({
+				content = new Kinetic.Group({
 					x: boardItemLayer.x(), y: boardItemLayer.y(),
 					width: boardItemLayer.width(), height: boardItemLayer.height()
 				});
 
 				var shownImage, catchedImage;
 				shownImage = new Kinetic.Image(); 
-				catchedImage = new Kinetic.Image();
+				catchedImage = new Kinetic.Image({ width:params.width, height:params.height });
 
 				content.add(shownImage);
 				content.add(catchedImage);
@@ -1023,7 +937,7 @@ var _app = {
 				boardItemLayer.add(content);
 
 				// Add up everything...
-				var rect = new Kinetic.Rect({
+				rect = new Kinetic.Rect({
 					x: boardItemLayer.x(), y: boardItemLayer.y(),
 					width: boardItemLayer.width(), height: boardItemLayer.height(),
 
@@ -1034,7 +948,7 @@ var _app = {
 
 
 				// Reset on the sizing + opacity...
-				boardItemLayer.opacity(0).visible(false);
+				boardItemLayer.visible(false);
 				
 
 
@@ -1043,11 +957,8 @@ var _app = {
 				boardItemLayer.on('touchend', function(e){
 					if (_gamePlay.isPlaying && !_gamePlay.isShowing && !_gamePlay.isPaused){
 						
-						//console.log(e.targetNode.getLayer());
-						//rect.opacity(0); e.targetNode.getLayer().draw();
-
 						var rect = e.targetNode.getLayer().children[1];
-
+						_gamePlay.isFirstView = false;
 
 						if (_gamePlay.myGuess.indexOf(e.targetNode.getLayer().id()) == -1){ // The clicked btn is not yet in the array...
 							// -- hide the cover...
@@ -1063,12 +974,15 @@ var _app = {
 										// Updates gamePlay Stats
 										_animation.updateNumberPieces("positive");
 										_gamePlay.playerStats.update();
+										_gamePlay.isFirstView = true;
 										
 										// Add to score...
 										_gamePlay.addUpToScore(_gamePlay.target);
 										_gamePlay.executeGameShuffle();
 									} else { 
 										_animation.updateNumberPieces("negative");
+										_gamePlay.isFirstView = false;
+
 										// Shows the current slide again if guess is incorrect  
 										_gamePlay.showAllBoardLayers();	
 										
@@ -1082,12 +996,9 @@ var _app = {
 
 								}, 500); // Stop for .5 secs para makita ang last na item...
 
-							} //else { e.targetNode.getLayer().draw(); }
+							} 
 
 						} else { // The clicked btn is in the array, so don't move.
-
-							//rect.opacity(1); 
-							//_gamePlay.removeFromGuess(e.targetNode.getLayer().id());
 
 							// Comment above: Kay MIND GAME LAGE SIYA...
 						}
@@ -1305,7 +1216,7 @@ var _app = {
 				
 				data.fail(function(jqXHR, textStatus){
 
-					_app.screens[3].find('#leaderBoardContentMsg')[0].text("Unable to connect to server. Check your network connection and please try again.");
+					_app.screens[3].find('#leaderBoardContentMsg')[0].text("Unable to connect to server. Check your network connection and please try again. "+textStatus);
 					_app.screens[3].draw();
 
 					console.log(jqXHR);
@@ -1463,7 +1374,7 @@ var _app = {
 	// Method: (NEW) Game Board Layer
 	initGameBoardLayer: function(w, h){
 		var gameBoardLayer = new Kinetic.Layer({
-			width:w, height:h*0.75, x:0, y:h*0.13, id:"GAME_BOARD_LAYER" //h*0.02
+			width:w, height:h*0.75, x:0, y:h*0.13, id:"GAME_BOARD_LAYER" 
 		});
 
 		// Put the background...
@@ -1474,9 +1385,6 @@ var _app = {
 								//fill:"#ac7441", 
 								stroke:"#29230b", strokeWidth:3
 						});
-
-		//gameBoardLayer.add(background);
-
 
 		return gameBoardLayer;
 	},
@@ -1674,12 +1582,30 @@ var _app = {
 		}); leaderBoardLayer.add(title);
 
 
-		var helpText = "Tap the characters to play. You are given two minutes to solve the game.";
+		var helpText = "Help! The animals have gone lose! Your task is to seek them out. Don't worry, they'll taunt you to look for them.";
 
 
 		var loadingMsg = new Kinetic.Text({
-			text:helpText, fill:"#ddd", fontSize: 17, fontFamily: _app.font, align:'center', width:background.width(), 
+			text:helpText, fill:"#ddd", fontSize: 14, fontFamily: _app.font, align:'center', width:background.width(), 
 			x: background.x(), y:background.height() * 0.3,
+		}); leaderBoardLayer.add(loadingMsg);
+		
+		var h = loadingMsg.height();
+		
+		helpText = "Found on the bottom left of the screen is an image of what the missing creature looks like. Find a few that looks just like it. Beware because they tend to move fast and hide! So you have to recall where they were exactly, and tap their positions to proceed to the next set of creatures you need to find.";
+
+		var loadingMsg = new Kinetic.Text({
+			text:helpText, fill:"#ddd", fontSize: 14, fontFamily: _app.font, align:'center', width:background.width(), 
+			x: background.x(), y: h + background.height() * 0.3,
+		}); leaderBoardLayer.add(loadingMsg);
+		
+		var prevY = loadingMsg.y(); h = loadingMsg.height();
+		
+		helpText = "Hurry! You don't have much time. Find as many different kinds of creatures as you can.";
+		
+		var loadingMsg = new Kinetic.Text({
+			text:helpText, fill:"#ddd", fontSize: 14, fontFamily: _app.font, align:'center', width:background.width(), 
+			x: background.x(), y: h + prevY,
 		}); leaderBoardLayer.add(loadingMsg);
 
 
@@ -2053,29 +1979,26 @@ var _app = {
 			width:w, height:h*0.25, x:0, y:h*0.17 //h*0.02
 		});
 
-		// Ready!
-		//var ready = new Kinetic.Text({
-		//	width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT",
-
-		//	text:"ready?", fill:"white", fontSize: 80, fontFamily: 'bubbleboddy', align:'center',
-		//	stroke:"black", strokeWidth:5, opacity:0
-		//}); layer.add(ready);
 		
 		var ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT", image: _app.resources.readyImage, opacity:0
-		}); layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"READY_TXT", image: _app.resources.readyImage , opacity:0
+		}); //ready.visible(false); 
+		layer.add(ready);
 
 		ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"SET_TXT", image: _app.resources.setImage, opacity:0
-		}); layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"SET_TXT", image: _app.resources.setImage , opacity:0
+		}); //ready.visible(false); 
+		layer.add(ready);
 
 		ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GO_TXT", image: _app.resources.goImage, opacity:0
-		}); layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GO_TXT", image: _app.resources.goImage , opacity:0
+		}); //ready.visible(false); 
+		layer.add(ready);
 
 		ready = new Kinetic.Image({
-			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GAME_OVER_TXT", image: _app.resources.gameOverImage, opacity:0
-		}); layer.add(ready);
+			width:layer.width(), height:layer.height(), x:layer.x(), y:layer.y(), id:"GAME_OVER_TXT", image: _app.resources.gameOverImage , opacity:0
+		}); //ready.visible(false); 
+		layer.add(ready);
 
 		layer.visible(false);
 		return layer;
@@ -2114,20 +2037,13 @@ var _app = {
 		}); callOut.add(callOutBG);
 
 		var callOutText = new Kinetic.Text({
-			text:"This is a text.", fontSize: 20, fontFamily: _app.font, fill: 'white', id:"TIMES_TEXT", align:'right',
-			x: callOut.width() * 0.1, y:callOut.height() * 0.15
+			text:"This is a text.", fontSize: 12, fontFamily: _app.font, fill: 'white', id:"TIMES_TEXT", align:'left',
+			x: callOut.width() * 0.1, y:callOut.height() * 0.15, width: callOut.width() * 0.5
 		}); callOut.add(callOutText); //callOut.add(calloutText);
 
 
 		layer.add(callOut);
 
-		// Put the x3 or x4 or xN thingy...
-		//var timesSomethingTxt = new Kinetic.Text({
-		//	text:"x3", fontSize: 20, fontFamily: _app.font, fill: 'white', id:"TIMES_TEXT", align:'right',
-		//	x: layer.width() * 0.270, y:layer.height()*0.55
-		//}); layer.add(timesSomethingTxt);
-
-		//layer.add(pauseButton);
 		layer.visible(false);
 		return layer
 	},
@@ -2152,7 +2068,7 @@ var _app = {
 	          context.beginPath();
 	          context.moveTo(layer.width() * 0.39, layer.height()*0.26);
 	          context.lineTo(layer.width() * 0.37, layer.height()*0.55);
-	          //context.quadraticCurveTo(300, 100, 260, 170);
+
 	          context.lineTo(layer.width() * 0.30, layer.height()*0.44);
 	          context.closePath();
 	          // KineticJS specific context method
@@ -2172,10 +2088,6 @@ var _app = {
 			cornerRadius:8
 		}); 
 
-		//layer.add(triangle);
-		//layer.add(container);
-		//layer.add(timesSomethingTxt);
-
 		layer.visible(false);
 		return layer;
 	},
@@ -2186,12 +2098,9 @@ var _app = {
 
 		// Get the grouping...
 		var grp = new Kinetic.Group({ width:w*0.8, height:h*0.4, x:(w - w*0.8)/2, y:(h - h*0.4)/2, id:"POST_GAME_CONT" });
-		//grp.y( 0 - grp.height()); // Set it to the hidden position;
 
 
 		// Get the background...
-		//var bg = new Kinetic.Rect({ width:grp.width(), height:grp.height(), x:0, y:0, fill:"#ac7441", stroke:"#29230b", strokeWidth:3, cornerRadius: grp.width()*0.03, });
-		//grp.add(bg);
 		var backdrop = new Kinetic.Rect({
 			width:postGameLayer.width(), height:postGameLayer.height(), x:0, y:0,
 			fill:"black", opacity:0.6
@@ -2234,7 +2143,6 @@ var _app = {
 
 		});
 
-		//text:"game paused", fill:"white", fontSize: 24, fontFamily: _app.subFont, align:'center',
 		grp.add(titleText);
 		// Score counter...
 
@@ -2363,11 +2271,10 @@ var _app = {
 			_app.screens[10].draw();
 
 
-			// Check if logged in...
-			// TODO: This is the popup publish feature of facebook. Share ni diritso.
-			_gamePlay.shareToFacebook();
-			
+			// TODO_scalaberch
 
+			_facebook.init();
+			_facebook.postMsg();
 
 		});
 		grp.add(playAgainBtn);
@@ -2444,7 +2351,7 @@ var _animation = {
 
 	timerTextObject:null,
 	timerBarOffset:null,
-	//isAnimating: false,
+
 
 	counter: 0,
 
@@ -2540,7 +2447,7 @@ var _animation = {
 		// Hide the board layers...
 		var layers = _app.screens[5], i;
 		for(i=0; i<layers.length; i++){
-			layers[i].visible(false).opacity(0).draw();
+			layers[i].visible(false).draw();
 		}
 	},
 
@@ -2549,7 +2456,16 @@ var _animation = {
 	animateClickables: function(){
 		var clickables = _app.screens[5], tweens = [], tween;
 
-		_animation.a(clickables, 0);
+		//_animation.a(clickables, 0);
+		console.log(clickables);
+
+		for (var i=0; i<clickables.length; i++){
+			clickables[i].visible(true);
+			clickables[i].draw();
+		}
+
+		_animation.animateCountDown();
+
 	},
 	a: function(ts, i){ //Helper function for the animation...
 		if (ts.length > i){
@@ -2571,8 +2487,7 @@ var _animation = {
 				}
 			}); t.play();
 		} else { 
-			//console.log("Stahpp..."); 
-			//this.animateCountDown();
+
 		}
 
 	},
@@ -2589,6 +2504,8 @@ var _animation = {
 		if (_gamePlay.isPaused){
 			_gamePlay.resetGameStats();
 		}
+
+
 
 
 		// Get the tweens...
@@ -2632,17 +2549,13 @@ var _animation = {
 					_app.screens[8].visible(true).draw();
 					_app.screens[9].visible(true).draw();
 
-					_animation.findMeSwivel.start();
-
 					_gamePlay.startGame();
 				}, 0);
 			}
 		});
 
 		
-		//setTimeout(function(){
 			ready_showTween.play();
-		//}, 500);
 	},
 	// Updating timerBar
 	updateTimerBar: function(layer){
@@ -2675,16 +2588,13 @@ var _animation = {
 
 			index = board[i];
 
-			//elems[i].children[0].fill( _characters[index].color );
 
+			var img = _characters[index].img, obj = elems[i].children[0].children[0];
+			obj.width( elems[i].width() );
+			obj.height( elems[i].height() );
+			
 
-			// elems[i].children[0].children[0] --> Uncovered image...
-			// elems[i].children[0].children[1] --> dakpan image...
-
-			elems[i].children[0].children[0].setImage( _characters[index].img );
-			//elems[i].children[0].children[0].setImage( _characters[index].imgAlt );
-
-
+			obj.setImage( img );
 
 
 			elems[i].draw();
@@ -2726,7 +2636,6 @@ var _animation = {
 	// The swivel motion of the "find me"
 	findMeSwivel: new Kinetic.Animation(function(frame){
 		var context = _app.screens[9];
-		//context.y( 150 * Math.sin(frame.time * 2 * Math.PI / 1000) + (context.y()/2) );
 
 
 		//context
@@ -2736,7 +2645,6 @@ var _animation = {
 	showWhatToFind: function(target){
 		var obj = _app.screens[8].find("#TARGET_IMG")[0];
 
-		//obj.fill( _characters[target].color );
 		obj.setImage( _characters[target].img );
 
 		_app.screens[8].draw();
@@ -2799,7 +2707,6 @@ var _animation = {
 	        easing: Kinetic.Easings.BounceEaseIn,
 	        onFinish: function(){
 	        	// After that, please animate the slide stats pane in nao...
-	        	//_animation.slideStatsPaneIn();
 
 	        	_animation.animateCountDown();
 
@@ -2817,7 +2724,6 @@ var _animation = {
 	        easing: Kinetic.Easings.BounceEaseOut,
 	        onFinish: function(){
 	        	// After that, please animate the slide stats pane in nao...
-	        	//_animation.slideStatsPaneIn();
 
 
 
@@ -2851,11 +2757,11 @@ var _animation = {
 		var string;
 
 		if (n == "standby"){
-			string = "Find "+_gamePlay.level+" of me";
+			string = "There are "+_gamePlay.level+" of me.";
 		} else if (n == "positive"){
-			string = "You got it!";
+			string = "You found me!";
 		} else if (n == "negative"){
-			string = "No, no. It's not!";
+			string = "Try again! There are "+_gamePlay.level+" of me.";
 		}
 		_app.screens[8].find("#TIMES_TEXT")[0].text(string);
 		_app.screens[8].draw();
@@ -2954,18 +2860,17 @@ _app.resources.__init();
 
 // Map the init function in the onload event...
 window.onload = function(){
-	console.log("Starting application...!");
 	// Start! :)
 	_app.__init__();
 
-	//document.addEventListener('deviceready', function() {
         try {
-            FB.init({ appId: "711981072158404", nativeInterface: CDV.FB, useCachedDialogs: false });
+            FB.init({ appId: "783064738375108", nativeInterface: CDV.FB, useCachedDialogs: false });
             document.getElementById('data').innerHTML = "";
-        } catch (e) { alert(e); }
-   // }, false);
-	//_animation.slideMainMenuUp();
+        } catch (e) { }
+
 }
+
+
 
 function onDeviceReady() {
     _app.__init__();
@@ -2973,7 +2878,6 @@ function onDeviceReady() {
     	_app.screens
     }, 5000);
 }
-//document.addEventListener("deviceready", onDeviceReady, false);
 
 
 
