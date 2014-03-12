@@ -51,9 +51,9 @@ var _localStorage = {
     db.transaction(function(t){
       //console.log(t);
 
-      t.executeSql( 'DROP TABLE TempScores ', function(){ console.log("Query Null Data."); }, function(){ console.log("Query Error."); } );
-      t.executeSql( 'CREATE TABLE TempScores (ScoresId INTEGER NOT NULL PRIMARY KEY, Name TEXT, Score INTEGER, Date TEXT, Transmit TEXT) ',  function(){ console.log("Query Null Data."); }, function(e){ console.log(e); } );
-      t.executeSql( 'CREATE TABLE PhoneUser (Name TEXT)', function(){ console.log("Query Null Data."); },function(e){ console.log(e); } );
+      //t.executeSql( 'DROP TABLE TempScores ', function(){ console.log("Query Null Data."); }, function(){ console.log("Query Error."); } );
+      t.executeSql( 'CREATE TABLE IF NOT EXIST TempScores (ScoresId INTEGER NOT NULL PRIMARY KEY, Name TEXT, Score INTEGER, Date TEXT, Transmit TEXT) ',  function(){ console.log("Query Null Data."); }, function(e){ console.log(e); } );
+      t.executeSql( 'CREATE TABLE IF NOT EXIST PhoneUser (Name TEXT)', function(){ console.log("Query Null Data."); },function(e){ console.log(e); } );
 
     }, function(t, e){ alert("Initial Transaction failed."); }, this.successCallBack)
 
@@ -414,11 +414,12 @@ var _gamePlay = {
 		var prevScore = this.score,
 			nextScore = prevScore + (_characters[character].value * this.level); 
 			
-			
+		if (this.isPlaying){
+			this.score = nextScore;
+			console.log(this.score);
+			_animation.updateScore(prevScore, nextScore); //didto ni i.butang sa addUpToScore
+		}
 
-		this.score = nextScore;
-		console.log(this.score);
-		_animation.updateScore(prevScore, nextScore); //didto ni i.butang sa addUpToScore
 		
 
 	},
@@ -427,7 +428,7 @@ var _gamePlay = {
 	// Game Timer Structure
 	gameTimer: {
 
-		time: 121, timer: null,
+		time: 15, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
 			if (!_gamePlay.isPlaying){
@@ -509,7 +510,7 @@ var _gamePlay = {
 	// Reset thy game stats....
 	resetGameStats: function(){
 		this.score = 0; // Resetting the score...
-		this.gameTimer.time = 121; //Reset the time...
+		this.gameTimer.time = 15; //Reset the time...
 
 		_animation.resetTimerBar(); //Resetting the timer bar in the UI...
 		// TODO: Reset the score ui...
@@ -524,6 +525,24 @@ var _gamePlay = {
 
 		// Consolidate the data from the localStorage...
 		var gameData = [];
+
+		// Get my facebook name... :)
+		//FB.api('/me', function(response){
+		////	console.log("Facebook");
+		//	console.log(response);
+		//});
+
+		FB.login(function(response){
+			if (response.authResponse){
+				FB.api('/me', function(response){
+					console.log(response.name);
+				});
+			} else {
+
+			}
+		});
+
+
 
 		_localStorage.db.transaction(function(transaction) {
        		transaction.executeSql('SELECT * FROM TempScores;', [],
@@ -554,31 +573,33 @@ var _gamePlay = {
 	              	console.log(stringData);
 	              	// Then get the current data and add it to the queued data...
 
+	              	// Initialize the facebook... :)
+	              	//_facebook.init();
+	              	//_facebook.postMsg();
 
-					FB.login(function(response){
 
-						if (response.authResponse){
-							// Send data to the server...
-							var shareData = $.ajax({
-								url: _server.submitScoreLocation(),
-								type:"POST", data: { scores: stringData }  
-							});
+					// Send data to the server...
+					var shareData = $.ajax({
+						url: _server.submitScoreLocation(),
+						type:"POST", data: { scores: stringData }  
+					});
 
-							shareData.fail(function(){
-								alert("Could not connect to the scores server. Please try again.");
-							});
+					shareData.fail(function(){
+						alert("Could not connect to the scores server. Please try again.");
+					});
 
-							shareData.success(function(data){
-								console.log("Receiving response...");
-								console.log(data);
+					shareData.success(function(data){
+						console.log("Receiving response...");
+						console.log(data);
 									// if data is true...
 
 										// share to facebook...
-								_facebook.postMsg();
-								_localStorage.wipeData();
-							});
-						} else { alert("Could not login at facebook. Response error."); }
+
+			
+						_facebook.postMsg();
+						_localStorage.wipeData();
 					});
+						
 
 	        }, _localStorage.errorHandler);
 
@@ -2037,7 +2058,7 @@ var _app = {
 		}); callOut.add(callOutBG);
 
 		var callOutText = new Kinetic.Text({
-			text:"This is a text.", fontSize: 12, fontFamily: _app.font, fill: 'white', id:"TIMES_TEXT", align:'left',
+			text:"This is a text.", fontSize: 16, fontFamily: _app.font, fill: 'white', id:"TIMES_TEXT", align:'left',
 			x: callOut.width() * 0.1, y:callOut.height() * 0.15, width: callOut.width() * 0.5
 		}); callOut.add(callOutText); //callOut.add(calloutText);
 
@@ -2272,9 +2293,7 @@ var _app = {
 
 
 			// TODO_scalaberch
-
-			_facebook.init();
-			_facebook.postMsg();
+			_gamePlay.shareToFacebook();
 
 		});
 		grp.add(playAgainBtn);
