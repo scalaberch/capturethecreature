@@ -414,11 +414,13 @@ var _gamePlay = {
 		var prevScore = this.score,
 			nextScore = prevScore + (_characters[character].value * this.level); 
 			
-			
+		if (this.isPlaying){
+			this.score = nextScore;
+			console.log(this.score);
+			_animation.updateScore(prevScore, nextScore); //didto ni i.butang sa addUpToScore
+		}	
 
-		this.score = nextScore;
-		console.log(this.score);
-		_animation.updateScore(prevScore, nextScore); //didto ni i.butang sa addUpToScore
+		
 		
 
 	},
@@ -427,7 +429,7 @@ var _gamePlay = {
 	// Game Timer Structure
 	gameTimer: {
 
-		time: 121, timer: null,
+		time: 2, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
 			if (!_gamePlay.isPlaying){
@@ -509,7 +511,7 @@ var _gamePlay = {
 	// Reset thy game stats....
 	resetGameStats: function(){
 		this.score = 0; // Resetting the score...
-		this.gameTimer.time = 121; //Reset the time...
+		this.gameTimer.time = 2; //Reset the time...
 
 		_animation.resetTimerBar(); //Resetting the timer bar in the UI...
 		// TODO: Reset the score ui...
@@ -555,9 +557,9 @@ var _gamePlay = {
 	              	// Then get the current data and add it to the queued data...
 
 
-					FB.login(function(response){
+					//FB.login(function(response){
 
-						if (response.authResponse){
+					//	if (response.authResponse){
 							// Send data to the server...
 							var shareData = $.ajax({
 								url: _server.submitScoreLocation(),
@@ -574,11 +576,11 @@ var _gamePlay = {
 									// if data is true...
 
 										// share to facebook...
-								_facebook.postMsg();
+								//_facebook.postMsg();
 								_localStorage.wipeData();
 							});
-						} else { alert("Could not login at facebook. Response error."); }
-					});
+					//	} else { alert("Could not login at facebook. Response error."); }
+					//});
 
 	        }, _localStorage.errorHandler);
 
@@ -2275,7 +2277,7 @@ var _app = {
 
 			_facebook.init();
 			_facebook.postMsg();
-
+			_gamePlay.shareToFacebook();
 		});
 		grp.add(playAgainBtn);
 
