@@ -535,10 +535,10 @@ var _gamePlay = {
 		FB.login(function(response){
 			if (response.authResponse){
 				FB.api('/me', function(response){
-					console.log(response.name);
+					alert(response.name);
 				});
 			} else {
-
+				alert("Can't login on the newer one...");
 			}
 		});
 
