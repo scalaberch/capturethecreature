@@ -9,4 +9,7 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
+    <feature name="Storage">
+    	<param name="android-package" value="org.apache.cordova.Storage" />
+    </feature>
 </widget>
