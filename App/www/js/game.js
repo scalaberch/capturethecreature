@@ -38,7 +38,7 @@ var _localStorage = {
     if (!window.openDatabase) {
            // not all mobile devices support databases  if it does not, thefollowing alert will display
            // indicating the device will not be albe to run this application
-      alert('Databases are not supported in this browser.');
+      /* /* alert()  */ console.log('Databases are not supported in this browser.');
       return;
     }
 
@@ -55,7 +55,7 @@ var _localStorage = {
       t.executeSql( 'CREATE TABLE TempScores (ScoresId INTEGER NOT NULL PRIMARY KEY, Name TEXT, Score INTEGER, Date TEXT, Transmit TEXT) ',  function(){ console.log("Query Null Data."); }, function(e){ console.log(e); } );
       t.executeSql( 'CREATE TABLE PhoneUser (Name TEXT)', function(){ console.log("Query Null Data."); },function(e){ console.log(e); } );
 
-    }, function(t, e){ alert("Initial Transaction failed."); }, this.successCallBack)
+    }, function(t, e){ /* alert() */ console.log("Initial Transaction failed."); }, this.successCallBack)
 
 
 
@@ -117,10 +117,10 @@ var _localStorage = {
   // Handlers...
   nullHandler:  function(){ },
   errorHandler: function(transaction, e) {
-      alertg('Error: ' + e.message + ' code: ' + e.code);
+      console.log('Error: ' + e.message + ' code: ' + e.code);
   },
   successCallBack: function(){
-      alert("SQL Action success!");
+      /* alert() */ console.log("SQL Action success!");
   }
 
 }
@@ -135,30 +135,30 @@ var _facebook = {
 	init: function(){
 
 		if ((typeof cordova == 'undefined') && (typeof Cordova == 'undefined')) 
-			alert('Cordova variable is missing. Check  cordova.js included correctly');
+			/* alert() */ console.log('Cordova variable is missing. Check  cordova.js included correctly');
             	if (typeof CDV == 'undefined') 
-			alert('CDV variable is missing. Check cdv-plugin-fb-connect.js is included correctly');
+			/* alert() */ console.log('CDV variable is missing. Check cdv-plugin-fb-connect.js is included correctly');
             	if (typeof FB == 'undefined') 
-			alert('FB variable is missing. Check the Facebook JS SDK file included.');
+			/* alert() */ console.log('FB variable is missing. Check the Facebook JS SDK file included.');
 
 
 		FB.Event.subscribe('auth.login', function(response) {
-                               alert('login event fired !!');
+                               /* alert() */ console.log('login event fired !!');
         });
             
         FB.Event.subscribe('auth.logout', function(response) {
-                               alert('logout event fired !!');
+                               /* alert() */ console.log('logout event fired !!');
         });
            
             
         FB.Event.subscribe('auth.statusChange', function(response) {
-                               alert('statusChange event fired !!');
+                               /* alert() */ console.log('statusChange event fired !!');
         });
 
         try {
 	        FB.init({ appId: "783064738375108", nativeInterface: CDV.FB, useCachedDialogs: false });
 	        document.getElementById('data').innerHTML = "";
-	    } catch (e) { alert("Init error:"+e); }
+	    } catch (e) { /* alert() */ console.log("Init error:"+e); }
            
 	},
 
@@ -171,11 +171,11 @@ var _facebook = {
                 FB.getLoginStatus(function(response) {
                                   if (response.status == 'connected') 
 				  {
-                                  	alert('You are connected to Fb');
+                                  	/* alert() */ console.log('You are connected to Fb');
                                   } 
 				  else 
 				  {
-                                 	alert('not connected to FB');
+                                 	/* alert() */ console.log('not connected to FB');
                                   }
                                   });
 
@@ -185,7 +185,7 @@ var _facebook = {
 	logout: function()
 	{
                 FB.logout(function(response) {
-                          alert('logged out');
+                          /* alert() */ console.log('logged out');
                           });
 
 	},
@@ -195,9 +195,9 @@ var _facebook = {
                 FB.login(
                          function(response) {
                          if (response.session) {
-                         alert('you are logged in');
+                         /* alert() */ console.log('you are logged in');
                          } else {
-                         alert('you are not logged in');
+                         /* alert() */ console.log('you are not logged in');
                          }
                          },
                          { scope: "email" }
@@ -429,7 +429,7 @@ var _gamePlay = {
 	// Game Timer Structure
 	gameTimer: {
 
-		time: 2, timer: null,
+		time: 121, timer: null,
 		start: function(t, l){
 			// Manually starting the timer...
 			if (!_gamePlay.isPlaying){
@@ -511,7 +511,7 @@ var _gamePlay = {
 	// Reset thy game stats....
 	resetGameStats: function(){
 		this.score = 0; // Resetting the score...
-		this.gameTimer.time = 2; //Reset the time...
+		this.gameTimer.time = 121; //Reset the time...
 
 		_animation.resetTimerBar(); //Resetting the timer bar in the UI...
 		// TODO: Reset the score ui...
@@ -567,7 +567,7 @@ var _gamePlay = {
 							});
 
 							shareData.fail(function(){
-								alert("Could not connect to the scores server. Please try again.");
+								/* alert() */ alert("Could not connect to the scores server. Please try again.");
 							});
 
 							shareData.success(function(data){
@@ -579,7 +579,7 @@ var _gamePlay = {
 								//_facebook.postMsg();
 								_localStorage.wipeData();
 							});
-					//	} else { alert("Could not login at facebook. Response error."); }
+					//	} else { /* /* alert() */ console.log() */ console.log("Could not login at facebook. Response error."); }
 					//});
 
 	        }, _localStorage.errorHandler);
