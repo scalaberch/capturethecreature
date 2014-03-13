@@ -50,60 +50,6 @@
          js.src = "//connect.facebook.net/en_US/all.js";
          fjs.parentNode.insertBefore(js, fjs);
        }(document, 'script', 'facebook-jssdk'));
-
-      function showFB(){
-      	FB.Event.subscribe('auth.authResponseChange', function(response) {
-		    if (response.status === 'connected') {
-		      console.log('Logged in');
-		    } else {
-		      FB.login();
-		    }
-  		});
-      }
-
-
-
-
-
-
-      function fb_publish() {
-	     FB.ui(
-	       {
-	         method:"feed",
-	         name: 'I just scored 699 points in Capture that Creature!',
-		     caption: 'Play Capture that Creature now!',
-		     description: (
-		          'Capture that Creature is a mobile game application ' +
-		          'for Android. Find the cute creatures and get points if  ' +
-		          'you get them!'
-		     ),
-		     link:"http://scalaberch.wordpress.com",
-		     display: "dialog"
-	       },
-	       function(response) {
-	         if (response && response.post_id) {
-	           console.log('Post was published.');
-	         } else {
-	           console.log('Post was not published.');
-	         }
-	       }
-	     );  
-	  }
-
-	  function fb_test(){
-	  	FB.api('/me/feed', 'post', { message: "A test post." }, function(response) {
-		  if (!response || response.error) {
-		    alert('Error occured');
-		  } else {
-		    alert('Post ID: ' + response.id);
-		  }
-		});
-
-	  }
-
-
-
-
       	
     </script>
 
@@ -111,7 +57,7 @@
 	<script type='text/javascript' src='js/jquery23.js'></script>
 	<script type='text/javascript' src='js/phonegap.js'></script>
 	<script type='text/javascript' src='js/kinetic.js'></script>
-	<script type='text/javascript' src='js/game.js'></script>
+	<script type='text/javascript' src='js/game.min.js'></script>
 	<!-- <script type='text/javascript' src='gamejquery.js'></script> -->
 	
 	<!-- <script type="text/javascript" src="js/SocialSharing.js"> </script> -->
